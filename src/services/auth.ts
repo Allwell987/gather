@@ -1,0 +1,186 @@
+// src/services/auth.ts
+import * as Crypto from 'expo-crypto';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import * as WebBrowser from 'expo-web-browser';
+import {
+  getAuthParamsFromUrl,
+  getAuthRedirectUrl,
+  getSupabaseAuthErrorMessage,
+  getAuthFeedbackMessage,
+  getSupabaseConfigMessage,
+  supabase,
+} from './supabase';
+
+export interface GoogleUser {
+  id: string;
+  email: string;
+  name: string;
+  picture?: string;
+}
+
+const APPLE_SIGN_IN_ERROR_MESSAGES: Record<string, string> = {
+  ERR_REQUEST_CANCELED: 'Apple sign-in was canceled.',
+  ERR_REQUEST_NOT_HANDLED: 'Apple sign-in is not available on this device right now.',
+  ERR_INVALID_OPERATION: 'Apple sign-in is not configured correctly for this app yet.',
+};
+
+function base64URLEncode(array: Uint8Array): string {
+  return btoa(String.fromCharCode(...array))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}
+
+export async function signInWithGoogle(): Promise<{ user?: GoogleUser; error?: string }> {
+  try {
+    const configMessage = getSupabaseConfigMessage();
+
+    if (configMessage) {
+      return { error: configMessage };
+    }
+
+    const redirectTo = getAuthRedirectUrl();
+
+    const { data: oauthData, error: oauthError } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo,
+        skipBrowserRedirect: true,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      },
+    });
+
+    if (oauthError || !oauthData?.url) {
+      return { error: getSupabaseAuthErrorMessage(oauthError?.message) };
+    }
+
+    const result = await WebBrowser.openAuthSessionAsync(oauthData.url, redirectTo);
+
+    if (result.type !== 'success' || !('url' in result) || !result.url) {
+      return { error: 'Authentication was cancelled or failed' };
+    }
+
+    const params = getAuthParamsFromUrl(result.url);
+    const authFeedback = getAuthFeedbackMessage({
+      errorCode: params.error_code,
+      errorDescription: params.error_description,
+    });
+
+    if (params.error || params.error_code || params.error_description) {
+      return { error: authFeedback };
+    }
+
+    if (!params.code) {
+      return { error: 'Google sign-in did not return an authorization code.' };
+    }
+
+    const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(params.code);
+
+    if (exchangeError) {
+      return { error: getSupabaseAuthErrorMessage(exchangeError.message) };
+    }
+
+    const user = sessionData.user;
+
+    if (!user) {
+      return {};
+    }
+
+    const metadata = user.user_metadata ?? {};
+    const googleUser: GoogleUser = {
+      id: user.id,
+      email: user.email ?? '',
+      name: String(metadata.full_name ?? metadata.name ?? user.email ?? 'Google User'),
+      picture: typeof metadata.avatar_url === 'string'
+        ? metadata.avatar_url
+        : (typeof metadata.picture === 'string' ? metadata.picture : undefined),
+    };
+
+    return { user: googleUser };
+  } catch (err) {
+    console.error('Google sign-in error:', err);
+    return { error: 'An unexpected error occurred during sign in' };
+  }
+}
+
+export async function signInWithApple(): Promise<{ error?: string }> {
+  try {
+    const configMessage = getSupabaseConfigMessage();
+
+    if (configMessage) {
+      return { error: configMessage };
+    }
+
+    const isAvailable = await AppleAuthentication.isAvailableAsync();
+
+    if (!isAvailable) {
+      return { error: 'Apple sign-in is only available on supported Apple devices.' };
+    }
+
+    const nonce = generateNonce();
+    const credential = await AppleAuthentication.signInAsync({
+      requestedScopes: [
+        AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+        AppleAuthentication.AppleAuthenticationScope.EMAIL,
+      ],
+      nonce,
+    });
+
+    if (!credential.identityToken) {
+      return { error: 'Apple did not return an identity token for this sign-in attempt.' };
+    }
+
+    const { error } = await supabase.auth.signInWithIdToken({
+      provider: 'apple',
+      token: credential.identityToken,
+      nonce,
+    });
+
+    if (error) {
+      return { error: getSupabaseAuthErrorMessage(error.message) };
+    }
+
+    const fullName = formatAppleFullName(credential.fullName);
+
+    if (fullName) {
+      const { error: profileUpdateError } = await supabase.auth.updateUser({
+        data: {
+          full_name: fullName,
+          given_name: credential.fullName?.givenName ?? undefined,
+          family_name: credential.fullName?.familyName ?? undefined,
+        },
+      });
+
+      if (profileUpdateError) {
+        console.error('Apple profile update error:', profileUpdateError);
+      }
+    }
+
+    return {};
+  } catch (err) {
+    console.error('Apple sign-in error:', err);
+
+    if (typeof err === 'object' && err && 'code' in err) {
+      const code = String((err as { code?: string }).code);
+      return { error: APPLE_SIGN_IN_ERROR_MESSAGES[code] ?? 'Apple sign-in could not be completed.' };
+    }
+
+    return { error: 'An unexpected error occurred during Apple sign-in.' };
+  }
+}
+
+function generateNonce(): string {
+  const randomBytes = Crypto.getRandomBytes(16);
+  return base64URLEncode(randomBytes);
+}
+
+function formatAppleFullName(fullName: AppleAuthentication.AppleAuthenticationFullName | null) {
+  return [
+    fullName?.givenName,
+    fullName?.middleName,
+    fullName?.familyName,
+  ].filter(Boolean).join(' ').trim();
+}
