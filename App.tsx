@@ -338,7 +338,11 @@ export default function App() {
                 style={{ flex: 1, backgroundColor: colors.background }}
                 onLayout={onLayoutRootView}
               >
-                <StatusBar barStyle={themeMode === 'dark' ? 'light-content' : 'dark-content'} />
+                <StatusBar
+                  barStyle={themeMode === 'dark' ? 'light-content' : 'dark-content'}
+                  backgroundColor="transparent"
+                  translucent
+                />
                 <RootNavigator />
                 <ToastHost />
               </View>

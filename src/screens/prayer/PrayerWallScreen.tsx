@@ -82,7 +82,6 @@ export default function PrayerWallScreen() {
   const [showingCachedData, setShowingCachedData] = useState(false);
   const [offlineTimestamp, setOfflineTimestamp] = useState<string | null>(null);
 
-  const scrollY = useRef(new Animated.Value(0)).current;
   const headerOpacity = useRef(new Animated.Value(0)).current;
   const listOpacity = useRef(new Animated.Value(0)).current;
 
@@ -100,7 +99,7 @@ export default function PrayerWallScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [headerOpacity, listOpacity]);
 
   const getQueuedPrayerRequests = useCallback(async () => {
     const queuedActions = await getQueuedOfflineActions();

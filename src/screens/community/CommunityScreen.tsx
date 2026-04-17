@@ -9,6 +9,8 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Linking,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -21,8 +23,11 @@ import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
 import EmptyState from '../../components/common/EmptyState';
 import PrayerWallScreen from '../prayer/PrayerWallScreen';
 import EventsScreen from '../events/EventsScreen';
+import { supabase } from '../../services/supabase';
+import { fetchYoutubeLive, getYoutubeWatchUrl } from '../../services/youtube';
 import {
   createJoinRequest,
+
   getUserJoinedGroupIds,
   getUserPendingRequestGroupIds,
   joinPublicGroup,
@@ -42,6 +47,61 @@ export default function CommunityScreen() {
   const [searchQuery, setSearchQuery] = useState('');
 
   const userId = user?.id ?? null;
+
+  // Live status queries (mirrored from TodayScreen for consistency)
+  const { data: liveEvent } = useQuery({
+    queryKey: ['live-status'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .eq('is_live', true)
+        .order('start_time', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+    refetchInterval: 1000 * 60 * 5,
+  });
+
+  const { data: youtubeLive } = useQuery({
+    queryKey: ['youtube-live'],
+    queryFn: fetchYoutubeLive,
+    refetchInterval: 1000 * 60 * 15,
+    retry: false,
+  });
+
+  const activeLive = liveEvent ?? (youtubeLive
+    ? {
+        title: youtubeLive.title,
+        live_url: getYoutubeWatchUrl(youtubeLive.id),
+      }
+    : null);
+
+  const isLive = Boolean(activeLive);
+
+  const handleJoinLive = () => {
+    // Helper to extract YouTube ID
+    const getYoutubeId = (url?: string) => {
+      if (!url) return null;
+      const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const match = url.match(regExp);
+      return (match && match[2].length === 11) ? match[2] : null;
+    };
+
+    const youtubeId = getYoutubeId(activeLive?.live_url);
+    if (youtubeId) {
+      navigation.navigate('LiveStream', { videoId: youtubeId });
+      return;
+    }
+
+    if (activeLive?.live_url) {
+      Linking.openURL(activeLive.live_url).catch(() => {
+        Alert.alert('Error', 'Could not open live stream.');
+      });
+    }
+  };
 
   const {
     data: groups = [],
@@ -352,6 +412,22 @@ export default function CommunityScreen() {
       </SafeAreaView>
 
       <View style={{ flex: 1 }}>
+        {isLive && (
+          <TouchableOpacity
+            style={[styles.liveBanner, { backgroundColor: theme.accent }]}
+            onPress={handleJoinLive}
+            activeOpacity={0.9}
+          >
+            <View style={styles.liveBannerContent}>
+              <View style={styles.liveDot} />
+              <Text style={styles.liveBannerText}>
+                <Text style={{ fontFamily: Typography.sansSemiBold }}>LIVE NOW: </Text>
+                {activeLive?.title || 'Broadcast in progress'}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={BaseColors.white} />
+          </TouchableOpacity>
+        )}
         {activeTab === 'Wall' ? (
           <PrayerWallScreen />
         ) : activeTab === 'Events' ? (
@@ -526,4 +602,29 @@ const styles = StyleSheet.create({
   },
   exploreBtn: { marginTop: Spacing.md, alignItems: 'center' },
   exploreBtnText: { fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.xs, letterSpacing: 0.4, textTransform: 'uppercase' },
+  liveBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: 12,
+  },
+  liveBannerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: Spacing.md,
+  },
+  liveDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: BaseColors.white,
+    marginRight: 10,
+  },
+  liveBannerText: {
+    color: BaseColors.white,
+    fontFamily: Typography.sans,
+    fontSize: Typography.sizes.sm,
+  },
 });

@@ -34,6 +34,7 @@ export type CommunityStackParamList = {
   CommunityHome: undefined;
   CreateGroup: undefined;
   EventDetail: { eventId: string };
+  LiveStream: { videoId?: string } | undefined;
 };
 
 export type ProfileStackParamList = {

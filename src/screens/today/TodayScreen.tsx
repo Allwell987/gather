@@ -1,14 +1,12 @@
 // src/screens/today/TodayScreen.tsx
-import React, { useRef, useEffect, useState } from 'react';
-import { scheduleNotification } from '../../services/notifications';
+import React, { useRef, useEffect, useState, useCallback } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Image, Alert, Linking, RefreshControl, Share, Modal, Animated,
+  Image, Alert, Linking, RefreshControl, Share, Animated,
   ActivityIndicator, LayoutAnimation, Platform, UIManager
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { WebView } from 'react-native-webview';
 import { useThemeStore } from '../../store/themeStore';
 import { useAuthStore } from '../../store/authStore';
 // import { supabase } from '../../services/supabase';
@@ -17,12 +15,14 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { supabase } from '../../services/supabase';
+import { useNavigation } from '@react-navigation/native';
 import {
   fetchYoutubeVideos,
   fetchYoutubeLive,
   getYoutubeWatchUrl,
   getYoutubeChannelUrl,
 } from '../../services/youtube';
+import type { MainTabNavigationProp } from '../../types/navigation';
 
 // Helper to get YouTube ID from various URL formats
 const getYoutubeIdFromUrl = (url?: string) => {
@@ -31,8 +31,6 @@ const getYoutubeIdFromUrl = (url?: string) => {
   const match = url.match(regExp);
   return (match && match[2].length === 11) ? match[2] : null;
 };
-
-const toYoutubeEmbedUrl = (videoId: string) => `https://www.youtube.com/embed/${videoId}?autoplay=1&modestbranding=1&rel=0`;
 
 const getDayTheme = (day: number) => {
   const themes = [
@@ -78,12 +76,12 @@ const DAILY_DEVOTIONAL = {
 };
 
 export default function TodayScreen() {
+  const navigation = useNavigation<MainTabNavigationProp>();
   const { user } = useAuthStore();
   const { theme, colors } = useThemeStore();
   const headerEnter = useRef(new Animated.Value(0)).current;
   const contentEnter = useRef(new Animated.Value(0)).current;
 
-  const [playerVideoId, setPlayerVideoId] = useState<string | null>(null);
   const [markingRead, setMarkingRead] = useState(false);
   const readScale = useRef(new Animated.Value(1)).current;
 
@@ -98,51 +96,6 @@ export default function TodayScreen() {
 
   const now = new Date();
   const todayDate = format(now, 'yyyy-MM-dd');
-
-  // Check if today's devotional has been read
-  const { data: hasReadToday, refetch: refetchReadStatus } = useQuery({
-    queryKey: ['devotional-read-status', user?.id, todayDate],
-    queryFn: async () => {
-      if (!user?.id || !devotional?.id) return false;
-      const { count, error } = await supabase
-        .from('devotional_reads')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id)
-        .eq('devotional_id', devotional.id);
-      if (error) return false;
-      return (count ?? 0) > 0;
-    },
-    enabled: !!user?.id && !!devotional?.id,
-  });
-
-  const handleMarkAsRead = async () => {
-    if (markingRead || hasReadToday || !user?.id || !devotional?.id) return;
-
-    // Scale pop animation
-    Animated.sequence([
-      Animated.timing(readScale, { toValue: 1.2, duration: 150, useNativeDriver: true }),
-      Animated.spring(readScale, { toValue: 1, friction: 4, useNativeDriver: true }),
-    ]).start();
-
-    try {
-      setMarkingRead(true);
-      const { error } = await supabase
-        .from('devotional_reads')
-        .insert({
-          user_id: user.id,
-          devotional_id: devotional.id,
-        });
-      if (error) throw error;
-
-      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-      void refetchReadStatus();
-    } catch (err) {
-      console.error('Error marking as read:', err);
-      Alert.alert('Error', 'Could not mark as read.');
-    } finally {
-      setMarkingRead(false);
-    }
-  };
 
   // Fetch the latest devotional from Supabase (up to today)
   const { data: devotional, isLoading: isLoadingDevotional, refetch: refetchDevotional } = useQuery<import('../../types/database').Devotional | null>({
@@ -160,6 +113,54 @@ export default function TodayScreen() {
     },
     staleTime: 1000 * 60 * 60, // 1 hour
   });
+
+  // Check if today's devotional has been read
+  const { data: hasReadToday, refetch: refetchReadStatus } = useQuery({
+    queryKey: ['devotional-read-status', user?.id, todayDate],
+    queryFn: async () => {
+      if (!user?.id || !devotional?.id) return false;
+      const { count, error } = await supabase
+        .from('devotional_reads')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .eq('devotional_id', devotional.id);
+      if (error) return false;
+      return (count ?? 0) > 0;
+    },
+    enabled: !!user?.id && !!devotional?.id,
+  });
+
+  const handleMarkAsRead = useCallback(async () => {
+    if (markingRead || hasReadToday || !user?.id || !devotional?.id) return;
+
+    // Scale pop animation
+    Animated.sequence([
+      Animated.timing(readScale, { toValue: 1.2, duration: 150, useNativeDriver: true }),
+      Animated.spring(readScale, { toValue: 1, friction: 4, useNativeDriver: true }),
+    ]).start();
+
+    try {
+      setMarkingRead(true);
+      const { error } = await supabase
+        .from('devotional_reads')
+        .upsert(
+          {
+            user_id: user.id,
+            devotional_id: devotional.id,
+          } as never,
+          { onConflict: 'user_id,devotional_id' }
+        );
+      if (error) throw error;
+
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      void refetchReadStatus();
+    } catch (err) {
+      console.error('Error marking as read:', err);
+      Alert.alert('Error', 'Could not mark as read.');
+    } finally {
+      setMarkingRead(false);
+    }
+  }, [markingRead, hasReadToday, user?.id, devotional?.id, readScale, refetchReadStatus]);
 
   const displayTheme = devotional?.theme ?? getDayTheme(now.getDay());
   const displayFocus = devotional?.month_focus ?? getMonthFocus(now.getMonth());
@@ -239,11 +240,14 @@ export default function TodayScreen() {
         summary: '',
       };
 
-  const openInAppPlayer = (videoId: string) => {
-    setPlayerVideoId(videoId);
-  };
+  const openInAppPlayer = useCallback((videoId: string) => {
+    navigation.navigate('CommunityTab', {
+      screen: 'LiveStream',
+      params: { videoId }
+    } as any);
+  }, [navigation]);
 
-  const handleJoinLive = () => {
+  const handleJoinLive = useCallback(() => {
     const youtubeId = getYoutubeIdFromUrl(activeLive?.live_url);
     if (youtubeId) {
       openInAppPlayer(youtubeId);
@@ -253,9 +257,9 @@ export default function TodayScreen() {
     Linking.openURL(liveUrl).catch(() => {
       Alert.alert('Error', 'Could not open live stream.');
     });
-  };
+  }, [activeLive, openInAppPlayer]);
 
-  const handleShareDevotional = async () => {
+  const handleShareDevotional = useCallback(async () => {
     try {
       let shareMessage = `📖 *${displayDevotional.title}*\n\n`;
       shareMessage += `📜 *Scripture:* ${displayDevotional.anchor_scripture}\n\n`;
@@ -284,7 +288,7 @@ export default function TodayScreen() {
     } catch {
       Alert.alert('Error', 'Something went wrong while sharing.');
     }
-  };
+  }, [displayDevotional]);
 
   useEffect(() => {
     Animated.stagger(80, [
@@ -346,6 +350,7 @@ export default function TodayScreen() {
             refreshing={isLoadingLive || isLoadingDevotional}
             onRefresh={() => { void refetchLive(); void refetchDevotional(); }}
             tintColor={theme.accent}
+            colors={[theme.accent]}
           />
         }
       >
@@ -457,7 +462,7 @@ export default function TodayScreen() {
                 <Ionicons name="megaphone-outline" size={16} color={theme.accent} />
                 <Text style={[styles.devoSectionTitle, { color: theme.accent }]}>Prophetic Declaration</Text>
               </View>
-              <Text style={[styles.devoSectionContent, { color: theme.accentDeep, fontFamily: Typography.sansSemiBold, fontSize: 15 }]}>"{displayDevotional.declaration}"</Text>
+              <Text style={[styles.devoSectionContent, { color: theme.accentDeep, fontFamily: Typography.sansSemiBold, fontSize: 15 }]}>&quot;{displayDevotional.declaration}&quot;</Text>
             </View>
           ) : null}
 
@@ -554,47 +559,6 @@ export default function TodayScreen() {
           ))}
         </ScrollView>
       </Animated.ScrollView>
-
-      <Modal visible={Boolean(playerVideoId)} animationType="slide" onRequestClose={() => setPlayerVideoId(null)}>
-        <View style={[styles.playerModal, { backgroundColor: colors.background }]}> 
-          <SafeAreaView edges={['top']}>
-            <View style={[styles.playerHeader, { borderBottomColor: colors.border }]}> 
-              <Text style={[styles.playerTitle, { color: colors.text }]}>Now Playing</Text>
-              <TouchableOpacity onPress={() => setPlayerVideoId(null)}>
-                <Ionicons name="close" size={24} color={colors.text} />
-              </TouchableOpacity>
-            </View>
-          </SafeAreaView>
-
-          {playerVideoId && (
-            <WebView
-              style={styles.playerWebView}
-              source={{ uri: toYoutubeEmbedUrl(playerVideoId) }}
-              allowsFullscreenVideo
-              allowsInlineMediaPlayback
-              mediaPlaybackRequiresUserAction={false}
-              javaScriptEnabled
-              domStorageEnabled
-              startInLoadingState
-            />
-          )}
-
-          <SafeAreaView edges={['bottom']}>
-            <View style={styles.playerFooter}>
-              <TouchableOpacity
-                style={[styles.openYoutubeBtn, { borderColor: theme.accent }]}
-                onPress={() => {
-                  if (!playerVideoId) return;
-                  void Linking.openURL(getYoutubeWatchUrl(playerVideoId));
-                }}
-              >
-                <Ionicons name="logo-youtube" size={16} color={theme.accent} />
-                <Text style={[styles.openYoutubeText, { color: theme.accent }]}>Open in YouTube</Text>
-              </TouchableOpacity>
-            </View>
-          </SafeAreaView>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -696,17 +660,4 @@ const styles = StyleSheet.create({
   videoInfo: { padding: Spacing.md },
   videoTitle: { fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.sm },
   videoSpeaker: { fontFamily: Typography.sans, fontSize: Typography.sizes.xs, marginTop: 2 },
-  playerModal: { flex: 1 },
-  playerHeader: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md, borderBottomWidth: 1,
-  },
-  playerTitle: { fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.base },
-  playerWebView: { flex: 1, backgroundColor: BaseColors.black },
-  playerFooter: { padding: Spacing.lg },
-  openYoutubeBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
-    paddingVertical: 10, borderRadius: Radius.md, borderWidth: 1,
-  },
-  openYoutubeText: { fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.sm },
 });

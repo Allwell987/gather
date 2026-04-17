@@ -497,8 +497,8 @@ export default function GroupChatScreen() {
           deleted_at: null,
           profiles: {
             full_name: action.payload.senderName,
-            is_verified: user?.is_verified,
-            role: user?.role,
+            is_verified: user?.is_verified ?? false,
+            role: user?.role ?? 'member',
           },
         }, user?.id, theme.accent),
         replySenderName: action.payload.replySenderName,

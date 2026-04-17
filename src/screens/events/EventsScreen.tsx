@@ -2,7 +2,6 @@
 import React, { useEffect, useMemo, useState, useRef } from 'react';
 import {
   ActivityIndicator,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -188,7 +187,7 @@ export default function EventsScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [headerFade, contentFade]);
 
   const eventsQueryKey = ['events', user?.id] as const;
   const eventsCacheKey = `events:${user?.id ?? 'guest'}`;

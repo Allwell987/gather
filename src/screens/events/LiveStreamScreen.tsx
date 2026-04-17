@@ -18,10 +18,15 @@ import { useThemeStore } from '../../store/themeStore';
 import { supabase } from '../../services/supabase';
 import { BaseColors, Typography, Spacing, Radius, CHURCH } from '../../constants/theme';
 import { useQuery } from '@tanstack/react-query';
+import { useRoute } from '@react-navigation/native';
 import {
   fetchYoutubeLive,
   getYoutubeWatchUrl,
 } from '../../services/youtube';
+import type { RouteProp } from '@react-navigation/native';
+import type { CommunityStackParamList } from '../../types/navigation';
+
+type LiveStreamRouteProp = RouteProp<CommunityStackParamList, 'LiveStream'>;
 
 const { width } = Dimensions.get('window');
 const VIDEO_ASPECT_RATIO = 16 / 9;
@@ -60,7 +65,10 @@ const getEmbedUrl = (url?: string) => {
 
 export default function LiveStreamScreen() {
   const { theme } = useThemeStore();
+  const route = useRoute<LiveStreamRouteProp>();
   const videoRef = useRef<Video>(null);
+
+  const passedVideoId = route.params?.videoId;
 
   // Ensure audio plays even if the phone is on silent mode (iOS)
   React.useEffect(() => {
@@ -99,14 +107,22 @@ export default function LiveStreamScreen() {
   });
 
   // Supabase event takes priority; fall back to YouTube live detection
-  const activeLiveEvent = liveEvent ?? (youtubeLive
+  // If we have a passedVideoId from TodayScreen, use that instead of searching for live
+  const activeLiveEvent = passedVideoId
     ? {
-        title: youtubeLive.title,
-        live_url: getYoutubeWatchUrl(youtubeLive.id),
-        description: 'Live on YouTube',
-        cover_url: youtubeLive.thumbnail,
+        title: 'Playing Video',
+        live_url: getYoutubeWatchUrl(passedVideoId),
+        description: 'Previously recorded broadcast',
+        cover_url: '',
       }
-    : null);
+    : (liveEvent ?? (youtubeLive
+      ? {
+          title: youtubeLive.title,
+          live_url: getYoutubeWatchUrl(youtubeLive.id),
+          description: 'Live on YouTube',
+          cover_url: youtubeLive.thumbnail,
+        }
+      : null));
 
   const handleOpenExternal = () => {
     if (activeLiveEvent?.live_url) {

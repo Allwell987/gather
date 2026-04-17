@@ -66,9 +66,13 @@ export const queueNotificationNavigation = (payload: NotificationPayload) => {
 };
 
 export const tryHandleNotificationNavigation = (
-  payload: NotificationPayload,
+  payload: NotificationPayload | undefined | null,
   canNavigate: boolean
 ) => {
+  if (!payload) {
+    return false;
+  }
+
   if (!canNavigate || !navigationRef.isReady()) {
     queueNotificationNavigation(payload);
     return false;

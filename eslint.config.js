@@ -11,6 +11,7 @@ module.exports = defineConfig([
       'android/**/build/**',
       'ios/**/build/**',
       'ios/Pods/**',
+      'supabase/functions/**',
     ],
   },
 ]);

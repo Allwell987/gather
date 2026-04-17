@@ -19,6 +19,14 @@ allprojects {
     mavenCentral()
     maven { url 'https://www.jitpack.io' }
   }
+  // Force all modules to use the same NDK version to avoid mismatches
+  afterEvaluate { project ->
+    if (project.hasProperty('android')) {
+        project.android {
+            ndkVersion = "27.1.12297006"
+        }
+    }
+  }
 }
 
 apply plugin: "expo-root-project"

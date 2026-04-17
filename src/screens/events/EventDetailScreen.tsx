@@ -113,7 +113,7 @@ export default function EventDetailScreen() {
       const start = parseISO((data as any).start_time);
       const end = parseISO((data as any).end_time);
       const categoryInfo =
-        CATEGORY_MAP[(data as any).category] ?? {
+        CATEGORY_MAP[(data as any).category as EventCategory] ?? {
           emoji: '📅',
           stripeColor: '#6b7280',
           tagBg: '#f3f4f6',

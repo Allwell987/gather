@@ -224,7 +224,7 @@ function AnimatedToggle({ value, onValueChange, trackColor }: { value: boolean; 
   const bg = value ? trackColor.true : trackColor.false;
   React.useEffect(() => {
     offset.value = withTiming(value ? 18 : 2, { duration: 220 });
-  }, [value]);
+  }, [value, offset]);
   const thumbStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: offset.value }],
   }));
