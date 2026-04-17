@@ -1,5 +1,5 @@
 // src/screens/today/TodayScreen.tsx
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
   Image, Alert, Linking, RefreshControl, Share, Animated,
@@ -199,14 +199,16 @@ export default function TodayScreen() {
   });
 
   // Merge live sources: Supabase (manual admin toggle) takes priority, then YouTube
-  const activeLive = liveEvent ?? (youtubeLive
-    ? {
-        title: youtubeLive.title,
-        live_url: getYoutubeWatchUrl(youtubeLive.id),
-        cover_url: youtubeLive.thumbnail,
-        category: 'Live Service',
-      }
-    : null);
+  const activeLive = useMemo(() => (
+    liveEvent ?? (youtubeLive
+      ? {
+          title: youtubeLive.title,
+          live_url: getYoutubeWatchUrl(youtubeLive.id),
+          cover_url: youtubeLive.thumbnail,
+          category: 'Live Service',
+        }
+      : null)
+  ), [liveEvent, youtubeLive]);
 
   // Map YouTube videos to unified VideoItem type
   const displayVideos: VideoItem[] = youtubeVideos.length > 0
@@ -221,24 +223,26 @@ export default function TodayScreen() {
 
   const isLive = Boolean(activeLive);
 
-  const displayDevotional = devotional
-    ? {
-        ...devotional,
-        author: DAILY_DEVOTIONAL.author,
-      }
-    : {
-        title: DAILY_DEVOTIONAL.title,
-        anchor_scripture: DAILY_DEVOTIONAL.reference,
-        core_teaching: DAILY_DEVOTIONAL.content,
-        author: DAILY_DEVOTIONAL.author,
-        opening_charge: '',
-        supporting_scriptures: [] as string[],
-        spiritual_insight: '',
-        biblical_example: '',
-        warning_correction: '',
-        declaration: '',
-        summary: '',
-      };
+  const displayDevotional = useMemo(() => (
+    devotional
+      ? {
+          ...devotional,
+          author: DAILY_DEVOTIONAL.author,
+        }
+      : {
+          title: DAILY_DEVOTIONAL.title,
+          anchor_scripture: DAILY_DEVOTIONAL.reference,
+          core_teaching: DAILY_DEVOTIONAL.content,
+          author: DAILY_DEVOTIONAL.author,
+          opening_charge: '',
+          supporting_scriptures: [] as string[],
+          spiritual_insight: '',
+          biblical_example: '',
+          warning_correction: '',
+          declaration: '',
+          summary: '',
+        }
+  ), [devotional]);
 
   const openInAppPlayer = useCallback((videoId: string) => {
     navigation.navigate('CommunityTab', {

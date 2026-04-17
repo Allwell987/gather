@@ -68,11 +68,29 @@ export const registerForPushNotificationsAsync = async (): Promise<string | null
       });
     }
 
-    const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+    let token;
+    let retries = 0;
+    const maxRetries = 2;
 
-    return token;
+    while (retries <= maxRetries) {
+      try {
+        token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+        break;
+      } catch (err) {
+        if (retries === maxRetries) throw err;
+        retries++;
+        await new Promise((resolve) => setTimeout(resolve, 1000 * retries));
+      }
+    }
+
+    return token ?? null;
   } catch (error) {
-    console.error('Error registering for push notifications:', error);
+    // Check if it's a network error to provide a more helpful message
+    if (error instanceof Error && error.message.includes('Network request failed')) {
+      console.warn('Push registration failed: Network unreachable. Will retry on next app start.');
+    } else {
+      console.error('Error registering for push notifications:', error);
+    }
     return null;
   }
 };

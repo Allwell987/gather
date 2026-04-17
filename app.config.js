@@ -30,14 +30,16 @@ const baseConfig = {
     },
     package: 'com.wealthrealitychurch.gather',
     googleServicesFile: './android/app/google-services.json',
-    permissions: ['RECEIVE_BOOT_COMPLETED', 'VIBRATE'],
+    permissions: [
+      'CAMERA',
+      'READ_MEDIA_IMAGES',
+      'RECEIVE_BOOT_COMPLETED',
+      'VIBRATE',
+    ],
     blockedPermissions: [
-      'android.permission.CAMERA',
       'android.permission.MODIFY_AUDIO_SETTINGS',
-      'android.permission.READ_EXTERNAL_STORAGE',
       'android.permission.RECORD_AUDIO',
       'android.permission.SYSTEM_ALERT_WINDOW',
-      'android.permission.WRITE_EXTERNAL_STORAGE',
     ],
   },
   plugins: [
@@ -48,8 +50,8 @@ const baseConfig = {
     [
       'expo-image-picker',
       {
-        photosPermission: 'Gather uses your photos so you can choose a profile picture.',
-        cameraPermission: false,
+        photosPermission: 'Gather uses your photos so you can choose and upload images.',
+        cameraPermission: 'Gather uses your camera so you can take and upload photos.',
         microphonePermission: false,
       },
     ],

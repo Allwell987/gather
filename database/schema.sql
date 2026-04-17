@@ -57,6 +57,24 @@ CREATE POLICY "users_can_update_own_profile" ON profiles
   FOR UPDATE USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
 
+DROP POLICY IF EXISTS "admins_can_update_profiles" ON profiles;
+CREATE POLICY "admins_can_update_profiles" ON profiles
+  FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles reviewer
+      WHERE reviewer.id = auth.uid()
+      AND reviewer.role IN ('admin', 'pastor')
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM profiles reviewer
+      WHERE reviewer.id = auth.uid()
+      AND reviewer.role IN ('admin', 'pastor')
+    )
+  );
+
 DROP POLICY IF EXISTS "users_can_insert_own_profile" ON profiles;
 CREATE POLICY "users_can_insert_own_profile" ON profiles
   FOR INSERT WITH CHECK (auth.uid() = id);
@@ -121,7 +139,12 @@ CREATE TRIGGER set_profiles_updated_at
 CREATE TABLE IF NOT EXISTS verification_requests (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+  verification_level TEXT DEFAULT 'level_2',
   status TEXT DEFAULT 'pending', -- 'pending', 'approved', 'rejected'
+  certificate_bucket TEXT,
+  certificate_path TEXT,
+  certificate_file_name TEXT,
+  submitted_at TIMESTAMP DEFAULT NOW(),
   reason TEXT,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
@@ -135,6 +158,36 @@ BEGIN
     ) THEN
         ALTER TABLE verification_requests ADD COLUMN updated_at TIMESTAMP DEFAULT NOW();
     END IF;
+
+    IF NOT EXISTS (
+      SELECT 1 FROM information_schema.columns WHERE table_name='verification_requests' AND column_name='verification_level'
+    ) THEN
+        ALTER TABLE verification_requests ADD COLUMN verification_level TEXT DEFAULT 'level_2';
+    END IF;
+
+    IF NOT EXISTS (
+      SELECT 1 FROM information_schema.columns WHERE table_name='verification_requests' AND column_name='certificate_bucket'
+    ) THEN
+        ALTER TABLE verification_requests ADD COLUMN certificate_bucket TEXT;
+    END IF;
+
+    IF NOT EXISTS (
+      SELECT 1 FROM information_schema.columns WHERE table_name='verification_requests' AND column_name='certificate_path'
+    ) THEN
+        ALTER TABLE verification_requests ADD COLUMN certificate_path TEXT;
+    END IF;
+
+    IF NOT EXISTS (
+      SELECT 1 FROM information_schema.columns WHERE table_name='verification_requests' AND column_name='certificate_file_name'
+    ) THEN
+        ALTER TABLE verification_requests ADD COLUMN certificate_file_name TEXT;
+    END IF;
+
+    IF NOT EXISTS (
+      SELECT 1 FROM information_schema.columns WHERE table_name='verification_requests' AND column_name='submitted_at'
+    ) THEN
+        ALTER TABLE verification_requests ADD COLUMN submitted_at TIMESTAMP DEFAULT NOW();
+    END IF;
 END $$;
 
 ALTER TABLE verification_requests ENABLE ROW LEVEL SECURITY;
@@ -146,6 +199,35 @@ CREATE POLICY "users_can_view_own_requests" ON verification_requests
 DROP POLICY IF EXISTS "users_can_insert_own_requests" ON verification_requests;
 CREATE POLICY "users_can_insert_own_requests" ON verification_requests
   FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "admins_can_view_all_verification_requests" ON verification_requests;
+CREATE POLICY "admins_can_view_all_verification_requests" ON verification_requests
+  FOR SELECT
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles reviewer
+      WHERE reviewer.id = auth.uid()
+      AND reviewer.role IN ('admin', 'pastor')
+    )
+  );
+
+DROP POLICY IF EXISTS "admins_can_update_verification_requests" ON verification_requests;
+CREATE POLICY "admins_can_update_verification_requests" ON verification_requests
+  FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM profiles reviewer
+      WHERE reviewer.id = auth.uid()
+      AND reviewer.role IN ('admin', 'pastor')
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM profiles reviewer
+      WHERE reviewer.id = auth.uid()
+      AND reviewer.role IN ('admin', 'pastor')
+    )
+  );
 
 DROP TRIGGER IF EXISTS set_verification_requests_updated_at ON verification_requests;
 CREATE TRIGGER set_verification_requests_updated_at
@@ -887,4 +969,3 @@ CREATE POLICY "Users can insert own devotional reads"
 
 CREATE INDEX IF NOT EXISTS idx_devotional_reads_user_id ON devotional_reads(user_id);
 CREATE INDEX IF NOT EXISTS idx_devotional_reads_devotional_id ON devotional_reads(devotional_id);
-

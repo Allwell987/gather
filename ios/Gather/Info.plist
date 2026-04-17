@@ -55,8 +55,10 @@
     </dict>
     <key>NSFaceIDUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to access your Face ID biometric data.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Gather uses your camera so you can take and upload photos.</string>
     <key>NSPhotoLibraryUsageDescription</key>
-    <string>Gather uses your photos so you can choose a profile picture.</string>
+    <string>Gather uses your photos so you can choose and upload images.</string>
     <key>RCTNewArchEnabled</key>
     <true/>
     <key>UILaunchStoryboardName</key>

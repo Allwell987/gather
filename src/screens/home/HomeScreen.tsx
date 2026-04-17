@@ -38,6 +38,46 @@ const SERVICE_TIMES = [
 
 const HOME_CACHE_KEY = 'home-summary';
 
+const readProfileTimeZone = (profile: unknown): string | null => {
+  if (!profile || typeof profile !== 'object') return null;
+  const candidateFields = ['time_zone', 'timezone', 'timeZone'] as const;
+
+  for (const field of candidateFields) {
+    const value = (profile as Record<string, unknown>)[field];
+    if (typeof value === 'string' && value.trim()) {
+      return value.trim();
+    }
+  }
+
+  return null;
+};
+
+const getHourForTimeZone = (date: Date, timeZone?: string | null): number => {
+  if (!timeZone) return date.getHours();
+
+  try {
+    const hourPart = new Intl.DateTimeFormat('en-US', {
+      hour: '2-digit',
+      hour12: false,
+      timeZone,
+    })
+      .formatToParts(date)
+      .find((part) => part.type === 'hour')?.value;
+
+    const parsedHour = hourPart ? Number.parseInt(hourPart, 10) : Number.NaN;
+    return Number.isNaN(parsedHour) ? date.getHours() : parsedHour;
+  } catch {
+    return date.getHours();
+  }
+};
+
+const getGreetingByHour = (hour: number): string => {
+  if (hour >= 5 && hour < 12) return 'Good morning,';
+  if (hour >= 12 && hour < 17) return 'Good afternoon,';
+  if (hour >= 17 && hour < 22) return 'Good evening,';
+  return 'Good night,';
+};
+
 export default function HomeScreen() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { user } = useAuthStore();
@@ -53,6 +93,7 @@ export default function HomeScreen() {
   const [showVerseNoteModal, setShowVerseNoteModal] = useState(false);
   const [verseNoteText, setVerseNoteText] = useState('');
   const [savingVerseNote, setSavingVerseNote] = useState(false);
+  const [now, setNow] = useState(() => new Date());
 
   const getNextService = () => {
     const now = new Date();
@@ -173,7 +214,17 @@ export default function HomeScreen() {
     ]).start();
   }, [heroEnter, bodyEnter]);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(new Date());
+    }, 60 * 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   const firstName = user?.full_name?.split(' ')[0] ?? 'Friend';
+  const userTimeZone = readProfileTimeZone(user) ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const greeting = getGreetingByHour(getHourForTimeZone(now, userTimeZone));
 
   // Dynamic Streak Calculation
   const getStreakData = () => {
@@ -201,7 +252,7 @@ export default function HomeScreen() {
       <SafeAreaView edges={['top']} style={{ backgroundColor: BaseColors.brown900 }}>
         <View style={styles.nav}>
           <View>
-            <Text style={styles.navHello}>Good morning,</Text>
+            <Text style={styles.navHello}>{greeting}</Text>
             <Text style={styles.navName}>{firstName} 👋</Text>
           </View>
           <View style={styles.navRight}>

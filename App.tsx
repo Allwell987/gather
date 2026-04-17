@@ -1,6 +1,11 @@
 // App.tsx
 import React, { useEffect, useCallback } from 'react';
-import { Alert, AppState, View, StatusBar } from 'react-native';
+import { Alert, AppState, View, StatusBar, LogBox } from 'react-native';
+
+// Ignore specific warnings
+LogBox.ignoreLogs([
+  'InteractionManager has been deprecated',
+]);
 import * as SplashScreen from 'expo-splash-screen';
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';

@@ -4,6 +4,7 @@ import {
   Alert,
   Image,
   KeyboardAvoidingView,
+  Linking,
   Modal,
   Platform,
   Pressable,
@@ -32,10 +33,12 @@ import {
 import {
   getAvatarUploadErrorMessage,
   getEmailUpdateErrorMessage,
+  getVerificationCertificateUploadErrorMessage,
   updateAccountEmail,
   updateAccountPassword,
   updateProfile,
   uploadProfileAvatar,
+  uploadVerificationCertificate,
 } from '../../services/profile';
 import { supabase } from '../../services/supabase';
 import {
@@ -48,10 +51,24 @@ import {
   DAILY_VERSE,
   ThemeMode,
 } from '../../constants/theme';
-import type { BibleVersion } from '../../types/database';
+import type { BibleVersion, VerificationRequest } from '../../types/database';
 import type { ProfileScreenNavigationProp } from '../../types/navigation';
 
 type EditorMode = 'profile' | 'preferences' | 'password' | 'email' | 'verification' | 'appearance' | null;
+
+type PickedCertificate = {
+  uri: string;
+  name: string;
+  mimeType: string;
+  base64?: string | null;
+};
+
+type AdminVerificationRequest = VerificationRequest & {
+  profile: {
+    full_name: string | null;
+    email: string | null;
+  } | null;
+};
 
 type SettingRowProps = {
   icon: keyof typeof Ionicons.glyphMap;
@@ -168,6 +185,18 @@ const formatSyncTimestamp = (value?: string | null) => {
   }
 
   return `Last synced ${date.toLocaleDateString()} at ${date.toLocaleTimeString([], {
+    hour: 'numeric',
+    minute: '2-digit',
+  })}`;
+};
+
+const formatVerificationSubmittedAt = (value?: string | null) => {
+  if (!value) return 'Unknown submission date';
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return 'Unknown submission date';
+
+  return `Submitted ${date.toLocaleDateString()} at ${date.toLocaleTimeString([], {
     hour: 'numeric',
     minute: '2-digit',
   })}`;
@@ -384,9 +413,14 @@ export default function ProfileScreen() {
   const [emailDraft, setEmailDraft] = useState('');
   const [avatarPreviewUri, setAvatarPreviewUri] = useState<string | null>(null);
   const [pickedAvatarBase64, setPickedAvatarBase64] = useState<string | null>(null);
+  const [pickedAvatarUri, setPickedAvatarUri] = useState<string | null>(null);
   const [pickedAvatarMimeType, setPickedAvatarMimeType] = useState<string | null>(null);
   const [hasPendingVerification, setHasPendingVerification] = useState(false);
-  const [foundationCertificate, setFoundationCertificate] = useState<{ uri: string, name: string } | null>(null);
+  const [foundationCertificate, setFoundationCertificate] = useState<PickedCertificate | null>(null);
+  const [adminVerificationRequests, setAdminVerificationRequests] = useState<AdminVerificationRequest[]>([]);
+  const [loadingAdminVerificationRequests, setLoadingAdminVerificationRequests] = useState(false);
+  const [reviewingVerificationRequestId, setReviewingVerificationRequestId] = useState<string | null>(null);
+  const [openingCertificateRequestId, setOpeningCertificateRequestId] = useState<string | null>(null);
 
   const scrollRef = useRef<ScrollView>(null);
   const preferencesY = useRef(0);
@@ -399,6 +433,8 @@ export default function ProfileScreen() {
     refreshSyncStatus,
     retrySync,
   } = useOfflineSyncStatus(user?.id);
+
+  const canReviewVerificationRequests = user?.role === 'admin' || user?.role === 'pastor';
 
   const checkVerificationStatus = useCallback(async () => {
     if (!user?.id) {
@@ -415,6 +451,50 @@ export default function ProfileScreen() {
     setHasPendingVerification((data as any)?.status === 'pending');
   }, [user?.id]);
 
+  const fetchAdminVerificationRequests = useCallback(async () => {
+    if (!canReviewVerificationRequests) {
+      setAdminVerificationRequests([]);
+      return;
+    }
+
+    setLoadingAdminVerificationRequests(true);
+    try {
+      const { data, error } = await supabase
+        .from('verification_requests')
+        .select(`
+          id,
+          user_id,
+          verification_level,
+          status,
+          certificate_bucket,
+          certificate_path,
+          certificate_file_name,
+          submitted_at,
+          reason,
+          created_at,
+          updated_at,
+          profile:user_id(full_name, email)
+        `)
+        .eq('status', 'pending')
+        .order('submitted_at', { ascending: false });
+
+      if (error) {
+        throw error;
+      }
+
+      setAdminVerificationRequests(((data as any[]) ?? []) as AdminVerificationRequest[]);
+    } catch (error) {
+      console.error('Fetch admin verification requests error:', error);
+      showToast({
+        title: 'Could not load requests',
+        message: 'Verification review queue is unavailable right now. Please try again.',
+        variant: 'error',
+      });
+    } finally {
+      setLoadingAdminVerificationRequests(false);
+    }
+  }, [canReviewVerificationRequests, showToast]);
+
   useEffect(() => {
     setFullName(user?.full_name ?? '');
     setBibleVersion(user?.bible_version ?? 'niv');
@@ -422,13 +502,17 @@ export default function ProfileScreen() {
     setEmailDraft(user?.email ?? '');
     setAvatarPreviewUri(user?.avatar_url ?? null);
     setPickedAvatarBase64(null);
+    setPickedAvatarUri(null);
     setPickedAvatarMimeType(null);
     setFoundationCertificate(null);
 
     if (user?.id) {
-      checkVerificationStatus();
+      void checkVerificationStatus();
+      if (canReviewVerificationRequests) {
+        void fetchAdminVerificationRequests();
+      }
     }
-  }, [checkVerificationStatus, user]);
+  }, [canReviewVerificationRequests, checkVerificationStatus, fetchAdminVerificationRequests, user]);
 
   const displayName = user?.full_name?.trim() || 'Grace Okafor';
   const initials = useMemo(() => getInitials(user?.full_name, user?.email), [user?.email, user?.full_name]);
@@ -455,7 +539,10 @@ export default function ProfileScreen() {
   useFocusEffect(
     useCallback(() => {
       void refreshSyncStatus();
-    }, [refreshSyncStatus])
+      if (canReviewVerificationRequests) {
+        void fetchAdminVerificationRequests();
+      }
+    }, [canReviewVerificationRequests, fetchAdminVerificationRequests, refreshSyncStatus])
   );
 
   const handleRetrySync = async () => {
@@ -521,6 +608,7 @@ export default function ProfileScreen() {
     setEmailDraft(user?.email ?? '');
     setAvatarPreviewUri(user?.avatar_url ?? null);
     setPickedAvatarBase64(null);
+    setPickedAvatarUri(null);
     setPickedAvatarMimeType(null);
     setFoundationCertificate(null);
     setEditorMode(mode);
@@ -536,20 +624,37 @@ export default function ProfileScreen() {
     setPassword('');
     setConfirmPassword('');
     setPickedAvatarBase64(null);
+    setPickedAvatarUri(null);
     setPickedAvatarMimeType(null);
     setFoundationCertificate(null);
+  };
+
+  const openPermissionSettings = () => {
+    void Linking.openSettings();
+  };
+
+  const showPermissionHelp = (message: string) => {
+    Alert.alert('Permission needed', message, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Open settings',
+        onPress: openPermissionSettings,
+      },
+    ]);
   };
 
   const handlePickAvatar = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permissionResult.granted) {
-      setEditorError('Photo library access is required to choose a profile image.');
+      const message = 'Photo library access is required to choose a profile image.';
+      setEditorError(message);
+      showPermissionHelp(message);
       return;
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.6,
@@ -562,49 +667,100 @@ export default function ProfileScreen() {
 
     const asset = result.assets[0];
 
-    if (!asset?.base64) {
+    const nextMimeType = asset?.mimeType ?? 'image/jpeg';
+    const previewUri = asset?.uri ?? (asset?.base64 ? `data:${nextMimeType};base64,${asset.base64}` : null);
+
+    if (!previewUri && !asset?.base64) {
       setEditorError('We could not read that photo. Please try another image.');
       return;
     }
 
     setEditorError(null);
-    setAvatarPreviewUri(asset.uri);
-    setPickedAvatarBase64(asset.base64);
-    setPickedAvatarMimeType(asset.mimeType ?? 'image/jpeg');
+    setAvatarPreviewUri(previewUri);
+    setPickedAvatarBase64(asset.base64 ?? null);
+    setPickedAvatarUri(asset?.uri ?? null);
+    setPickedAvatarMimeType(nextMimeType);
   };
 
   const handleRemoveAvatar = () => {
     setAvatarPreviewUri(null);
     setPickedAvatarBase64(null);
+    setPickedAvatarUri(null);
     setPickedAvatarMimeType(null);
   };
 
-  const handlePickCertificate = async () => {
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+  const handlePickCertificate = async (source: 'camera' | 'library') => {
+    const permissionResult = source === 'camera'
+      ? await ImagePicker.requestCameraPermissionsAsync()
+      : await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permissionResult.granted) {
-      setEditorError('Photo library access is required to choose a certificate image.');
+      const message =
+        source === 'camera'
+          ? 'Camera access is required to take a certificate photo.'
+          : 'Photo library access is required to choose a certificate image.';
+      setEditorError(message);
+      showPermissionHelp(message);
       return;
     }
 
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        allowsEditing: true,
-        quality: 0.8,
-      });
+      const pickerResult = source === 'camera'
+        ? await ImagePicker.launchCameraAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 0.75,
+            base64: true,
+          })
+        : await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 0.75,
+            base64: true,
+          });
 
-      if (!result.canceled) {
-        const asset = result.assets[0];
-        setFoundationCertificate({
-          uri: asset.uri,
-          name: asset.fileName ?? 'certificate.jpg',
-        });
-        setEditorError(null);
+      if (pickerResult.canceled) {
+        return;
       }
+
+      const asset = pickerResult.assets[0];
+
+      const nextMimeType = asset?.mimeType ?? 'image/jpeg';
+      const previewUri = asset?.uri ?? (asset?.base64 ? `data:${nextMimeType};base64,${asset.base64}` : '');
+
+      if (!previewUri && !asset?.base64) {
+        setEditorError('We could not read that certificate photo. Please try again.');
+        return;
+      }
+
+      setFoundationCertificate({
+        uri: previewUri,
+        name: asset.fileName ?? `certificate-${Date.now()}.jpg`,
+        mimeType: nextMimeType,
+        base64: asset.base64 ?? null,
+      });
+      setEditorError(null);
     } catch {
-      setEditorError('Error picking certificate image.');
+      setEditorError('Error selecting certificate image.');
     }
+  };
+
+  const handleSelectCertificate = () => {
+    Alert.alert('Submit certificate', 'Choose how you want to add your certificate photo.', [
+      {
+        text: 'Take photo',
+        onPress: () => {
+          void handlePickCertificate('camera');
+        },
+      },
+      {
+        text: 'Choose from library',
+        onPress: () => {
+          void handlePickCertificate('library');
+        },
+      },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
   };
 
   const handleVerseToggle = async (value: boolean) => {
@@ -659,10 +815,11 @@ export default function ProfileScreen() {
       setEditorError(null);
       let nextAvatarUrl = avatarPreviewUri;
 
-      if (pickedAvatarBase64) {
+      if (pickedAvatarBase64 || pickedAvatarUri) {
         nextAvatarUrl = await uploadProfileAvatar({
           userId: user.id,
           base64: pickedAvatarBase64,
+          uri: pickedAvatarUri,
           contentType: pickedAvatarMimeType,
         });
       }
@@ -675,6 +832,7 @@ export default function ProfileScreen() {
       setUser(updatedUser);
       setEditorMode(null);
       setPickedAvatarBase64(null);
+      setPickedAvatarUri(null);
       setPickedAvatarMimeType(null);
       showToast({
         title: 'Profile updated',
@@ -803,29 +961,154 @@ export default function ProfileScreen() {
     }
 
     setIsSaving(true);
+    setEditorError(null);
     try {
+      const uploadedCertificate = await uploadVerificationCertificate({
+        userId: user.id,
+        base64: foundationCertificate.base64,
+        uri: foundationCertificate.uri,
+        contentType: foundationCertificate.mimeType,
+        fileName: foundationCertificate.name,
+      });
+
+      const submittedAt = new Date().toISOString();
+      const reason = `Level 2 verification certificate submitted: ${foundationCertificate.name}`;
+
       const { error } = await supabase
         .from('verification_requests')
-        .insert({
+        .upsert({
           user_id: user.id,
+          verification_level: 'level_2',
           status: 'pending',
-          reason: `Level 2 Verification Request with Certificate: ${foundationCertificate.name}`
-        } as never);
+          certificate_bucket: uploadedCertificate.bucketId,
+          certificate_path: uploadedCertificate.objectPath,
+          certificate_file_name: foundationCertificate.name,
+          submitted_at: submittedAt,
+          reason,
+        } as never, {
+          onConflict: 'user_id',
+        });
 
       if (error) throw error;
 
       setHasPendingVerification(true);
+      setFoundationCertificate(null);
       setEditorMode(null);
       showToast({
         title: 'Request sent',
         message: 'Church admins will review your Foundation School Certificate for verification.',
-        variant: 'success'
+        variant: 'success',
       });
-    } catch (err) {
-      console.error('Verification error:', err);
-      setEditorError('You have already requested verification or a server error occurred.');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '';
+      const normalizedError = errorMessage.toLowerCase();
+
+      if (normalizedError.includes('duplicate key') || normalizedError.includes('unique')) {
+        setEditorError('You already have a verification request. Please wait for admin review.');
+      } else if (
+        normalizedError.includes('bucket')
+        || normalizedError.includes('storage')
+        || normalizedError.includes('row-level security')
+        || normalizedError.includes('permission')
+      ) {
+        setEditorError(getVerificationCertificateUploadErrorMessage(errorMessage));
+      } else {
+        setEditorError('Could not submit your certificate right now. Please try again.');
+      }
+
+      console.error('Verification error:', error);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleOpenVerificationCertificate = async (request: AdminVerificationRequest) => {
+    if (!request.certificate_bucket || !request.certificate_path) {
+      showToast({
+        title: 'Certificate missing',
+        message: 'This request has no certificate file attached.',
+        variant: 'warning',
+      });
+      return;
+    }
+
+    setOpeningCertificateRequestId(request.id);
+    try {
+      const { data, error } = await supabase
+        .storage
+        .from(request.certificate_bucket)
+        .createSignedUrl(request.certificate_path, 60 * 5);
+
+      if (error || !data?.signedUrl) {
+        throw error ?? new Error('Could not create signed URL.');
+      }
+
+      const canOpen = await Linking.canOpenURL(data.signedUrl);
+
+      if (!canOpen) {
+        throw new Error('Unable to open certificate URL on this device.');
+      }
+
+      await Linking.openURL(data.signedUrl);
+    } catch (error) {
+      console.error('Open certificate error:', error);
+      showToast({
+        title: 'Could not open certificate',
+        message: 'Please try again in a moment.',
+        variant: 'error',
+      });
+    } finally {
+      setOpeningCertificateRequestId(null);
+    }
+  };
+
+  const handleReviewVerificationRequest = async (
+    request: AdminVerificationRequest,
+    decision: 'approved' | 'rejected'
+  ) => {
+    if (!canReviewVerificationRequests) {
+      return;
+    }
+
+    setReviewingVerificationRequestId(request.id);
+    try {
+      if (decision === 'approved') {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({ is_verified: true } as never)
+          .eq('id', request.user_id);
+
+        if (profileError) {
+          throw profileError;
+        }
+      }
+
+      const { error: requestError } = await supabase
+        .from('verification_requests')
+        .update({ status: decision } as never)
+        .eq('id', request.id);
+
+      if (requestError) {
+        throw requestError;
+      }
+
+      setAdminVerificationRequests((current) => current.filter((item) => item.id !== request.id));
+      showToast({
+        title: decision === 'approved' ? 'Verification approved' : 'Verification rejected',
+        message: decision === 'approved'
+          ? 'Member is now verified and the request has been resolved.'
+          : 'The verification request has been marked as rejected.',
+        variant: decision === 'approved' ? 'success' : 'info',
+      });
+    } catch (error) {
+      console.error('Review verification request error:', error);
+      showToast({
+        title: 'Review failed',
+        message: 'Could not update this verification request. Please try again.',
+        variant: 'error',
+      });
+    } finally {
+      setReviewingVerificationRequestId(null);
     }
   };
 
@@ -1114,18 +1397,25 @@ export default function ProfileScreen() {
           <View style={[styles.uploadSection, { backgroundColor: colors.card, borderColor: colors.border }]}>
             {foundationCertificate ? (
               <View style={styles.certificatePreview}>
-                <Ionicons name="image" size={32} color={theme.accent} />
-                <Text style={[styles.certificateName, { color: colors.text }]} numberOfLines={1}>
-                  {foundationCertificate.name}
-                </Text>
-                <TouchableOpacity onPress={() => setFoundationCertificate(null)}>
-                  <Ionicons name="close-circle" size={24} color={BaseColors.red500} />
-                </TouchableOpacity>
+                <Image source={{ uri: foundationCertificate.uri }} style={styles.certificateThumb} />
+                <View style={styles.certificateMeta}>
+                  <Text style={[styles.certificateName, { color: colors.text }]} numberOfLines={1}>
+                    {foundationCertificate.name}
+                  </Text>
+                  <View style={styles.certificateActions}>
+                    <TouchableOpacity onPress={handleSelectCertificate} activeOpacity={0.8}>
+                      <Text style={[styles.uploadActionText, { color: theme.accent }]}>Replace</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setFoundationCertificate(null)} activeOpacity={0.8}>
+                      <Text style={[styles.uploadActionText, { color: BaseColors.red500 }]}>Remove</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
               </View>
             ) : (
-              <TouchableOpacity style={styles.uploadPlaceholder} onPress={handlePickCertificate}>
+              <TouchableOpacity style={styles.uploadPlaceholder} onPress={handleSelectCertificate}>
                 <Ionicons name="camera-outline" size={32} color={colors.textMuted} />
-                <Text style={[styles.uploadText, { color: colors.textSecondary }]}>Tap to take a photo of your certificate</Text>
+                <Text style={[styles.uploadText, { color: colors.textSecondary }]}>Tap to take or choose a certificate photo</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -1311,6 +1601,105 @@ export default function ProfileScreen() {
             </View>
             {!hasPendingVerification && <Ionicons name="chevron-forward" size={16} color={theme.accent} />}
           </TouchableOpacity>
+        )}
+
+        {canReviewVerificationRequests && (
+          <>
+            <Text style={[styles.groupHeader, { color: colors.text }]}>Verification Review</Text>
+            <View style={[styles.card, styles.verificationReviewCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <View style={styles.verificationReviewHeader}>
+                <Text style={[styles.verificationReviewTitle, { color: colors.text }]}>Level 2 requests</Text>
+                <TouchableOpacity
+                  style={[styles.verificationRefreshBtn, { borderColor: theme.accentBorder, backgroundColor: theme.accentLight }]}
+                  onPress={() => {
+                    void fetchAdminVerificationRequests();
+                  }}
+                  activeOpacity={0.8}
+                  disabled={loadingAdminVerificationRequests}
+                >
+                  <Ionicons name="refresh" size={14} color={theme.accent} />
+                  <Text style={[styles.verificationRefreshText, { color: theme.accentDeep }]}>
+                    {loadingAdminVerificationRequests ? 'Refreshing...' : 'Refresh'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {loadingAdminVerificationRequests ? (
+                <Text style={[styles.verificationEmptyText, { color: colors.textSecondary }]}>
+                  Loading pending verification requests...
+                </Text>
+              ) : adminVerificationRequests.length === 0 ? (
+                <Text style={[styles.verificationEmptyText, { color: colors.textSecondary }]}>
+                  No pending Level 2 verification requests right now.
+                </Text>
+              ) : (
+                <View style={styles.verificationRequestList}>
+                  {adminVerificationRequests.map((request) => {
+                    const requesterName = request.profile?.full_name?.trim() || request.profile?.email || 'Member';
+                    const isReviewing = reviewingVerificationRequestId === request.id;
+                    const isOpening = openingCertificateRequestId === request.id;
+
+                    return (
+                      <View
+                        key={request.id}
+                        style={[styles.verificationRequestCard, { borderColor: colors.border, backgroundColor: colors.background }]}
+                      >
+                        <Text style={[styles.verificationRequestName, { color: colors.text }]}>{requesterName}</Text>
+                        {request.profile?.email ? (
+                          <Text style={[styles.verificationRequestMeta, { color: colors.textSecondary }]}>
+                            {request.profile.email}
+                          </Text>
+                        ) : null}
+                        <Text style={[styles.verificationRequestMeta, { color: colors.textSecondary }]}>
+                          {request.certificate_file_name || 'Unnamed certificate file'}
+                        </Text>
+                        <Text style={[styles.verificationRequestMeta, { color: colors.textSecondary }]}>
+                          {formatVerificationSubmittedAt(request.submitted_at || request.created_at)}
+                        </Text>
+
+                        <View style={styles.verificationActionRow}>
+                          <TouchableOpacity
+                            style={[styles.viewCertificateBtn, { borderColor: theme.accentBorder, backgroundColor: theme.accentLight }]}
+                            onPress={() => {
+                              void handleOpenVerificationCertificate(request);
+                            }}
+                            disabled={isReviewing || isOpening}
+                            activeOpacity={0.8}
+                          >
+                            <Text style={[styles.viewCertificateText, { color: theme.accentDeep }]}>
+                              {isOpening ? 'Opening...' : 'View certificate'}
+                            </Text>
+                          </TouchableOpacity>
+
+                          <TouchableOpacity
+                            style={[styles.approveVerificationBtn, { backgroundColor: theme.accent }]}
+                            onPress={() => {
+                              void handleReviewVerificationRequest(request, 'approved');
+                            }}
+                            disabled={isReviewing || isOpening}
+                            activeOpacity={0.8}
+                          >
+                            <Text style={styles.approveVerificationText}>{isReviewing ? 'Saving...' : 'Approve'}</Text>
+                          </TouchableOpacity>
+
+                          <TouchableOpacity
+                            style={[styles.rejectVerificationBtn, { borderColor: BaseColors.red500 }]}
+                            onPress={() => {
+                              void handleReviewVerificationRequest(request, 'rejected');
+                            }}
+                            disabled={isReviewing || isOpening}
+                            activeOpacity={0.8}
+                          >
+                            <Text style={styles.rejectVerificationText}>Reject</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    );
+                  })}
+                </View>
+              )}
+            </View>
+          </>
         )}
 
         <View style={[styles.card, styles.streakCard, { borderTopColor: theme.accent, backgroundColor: colors.card, borderColor: colors.border, marginTop: Spacing.xl }]}>
@@ -1739,6 +2128,93 @@ const styles = StyleSheet.create({
     padding: Spacing.xl,
     gap: Spacing.md,
   },
+  verificationReviewCard: {
+    padding: Spacing.lg,
+    gap: Spacing.md,
+  },
+  verificationReviewHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: Spacing.md,
+  },
+  verificationReviewTitle: {
+    fontFamily: Typography.sansSemiBold,
+    fontSize: Typography.sizes.base,
+  },
+  verificationRefreshBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderRadius: Radius.full,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 6,
+  },
+  verificationRefreshText: {
+    fontFamily: Typography.sansSemiBold,
+    fontSize: Typography.sizes.xs,
+  },
+  verificationEmptyText: {
+    fontFamily: Typography.sans,
+    fontSize: Typography.sizes.sm,
+  },
+  verificationRequestList: {
+    gap: Spacing.sm,
+  },
+  verificationRequestCard: {
+    borderWidth: 1,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    gap: 4,
+  },
+  verificationRequestName: {
+    fontFamily: Typography.sansSemiBold,
+    fontSize: Typography.sizes.sm,
+  },
+  verificationRequestMeta: {
+    fontFamily: Typography.sans,
+    fontSize: Typography.sizes.xs,
+  },
+  verificationActionRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginTop: Spacing.sm,
+  },
+  viewCertificateBtn: {
+    flex: 1.2,
+    borderWidth: 1,
+    borderRadius: Radius.md,
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  viewCertificateText: {
+    fontFamily: Typography.sansSemiBold,
+    fontSize: Typography.sizes.xs,
+  },
+  approveVerificationBtn: {
+    flex: 1,
+    borderRadius: Radius.md,
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  approveVerificationText: {
+    fontFamily: Typography.sansSemiBold,
+    fontSize: Typography.sizes.xs,
+    color: BaseColors.white,
+  },
+  rejectVerificationBtn: {
+    flex: 1,
+    borderWidth: 1,
+    borderRadius: Radius.md,
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  rejectVerificationText: {
+    fontFamily: Typography.sansSemiBold,
+    fontSize: Typography.sizes.xs,
+    color: BaseColors.red500,
+  },
   syncHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2035,7 +2511,11 @@ const styles = StyleSheet.create({
   uploadPlaceholder: { alignItems: 'center', gap: Spacing.sm },
   uploadText: { fontFamily: Typography.sans, fontSize: Typography.sizes.sm, textAlign: 'center' },
   certificatePreview: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, width: '100%' },
+  certificateThumb: { width: 52, height: 52, borderRadius: Radius.md, backgroundColor: BaseColors.brown100 },
+  certificateMeta: { flex: 1, gap: 8 },
   certificateName: { flex: 1, fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.sm },
+  certificateActions: { flexDirection: 'row', alignItems: 'center', gap: Spacing.lg },
+  uploadActionText: { fontFamily: Typography.sansMedium, fontSize: Typography.sizes.sm },
   optionList: { gap: Spacing.sm, marginBottom: Spacing.xl },
   appearanceOption: {
     flexDirection: 'row',

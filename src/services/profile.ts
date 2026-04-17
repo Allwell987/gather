@@ -22,6 +22,7 @@ const PROFILE_SELECT = `
   updated_at
 `;
 const AVATAR_BUCKET = 'avatars';
+const VERIFICATION_CERTIFICATE_BUCKET = 'verification-certificates';
 
 const DEFAULT_BIBLE_VERSION: BibleVersion = 'niv';
 const DEFAULT_REMINDER_TIME = '06:00';
@@ -44,6 +45,21 @@ const getAvatarFileExtension = (contentType?: string | null) => {
   }
 };
 
+const getFileExtensionFromName = (value?: string | null) => {
+  if (!value) return null;
+  const normalized = value.trim().toLowerCase();
+  const dotIndex = normalized.lastIndexOf('.');
+
+  if (dotIndex <= 0 || dotIndex === normalized.length - 1) {
+    return null;
+  }
+
+  const extension = normalized.slice(dotIndex + 1);
+  const allowed = new Set(['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif']);
+
+  return allowed.has(extension) ? extension : null;
+};
+
 const decodeBase64ToArrayBuffer = (value: string) => {
   const binary = atob(value);
   const bytes = new Uint8Array(binary.length);
@@ -53,6 +69,34 @@ const decodeBase64ToArrayBuffer = (value: string) => {
   }
 
   return bytes.buffer;
+};
+
+const readImageDataAsArrayBuffer = async ({
+  base64,
+  uri,
+}: {
+  base64?: string | null;
+  uri?: string | null;
+}) => {
+  const normalizedBase64 = base64?.trim();
+
+  if (normalizedBase64) {
+    return decodeBase64ToArrayBuffer(normalizedBase64);
+  }
+
+  const normalizedUri = uri?.trim();
+
+  if (normalizedUri) {
+    const response = await fetch(normalizedUri);
+
+    if (!response.ok) {
+      throw new Error(`Could not read selected image (${response.status}).`);
+    }
+
+    return response.arrayBuffer();
+  }
+
+  throw new Error('No image data was provided for upload.');
 };
 
 const getProfileEmail = (session: Session) => {
@@ -305,16 +349,18 @@ export const getEmailUpdateErrorMessage = (value?: string) => {
 export const uploadProfileAvatar = async ({
   userId,
   base64,
+  uri,
   contentType,
 }: {
   userId: string;
-  base64: string;
+  base64?: string | null;
+  uri?: string | null;
   contentType?: string | null;
 }) => {
   const normalizedContentType = contentType || 'image/jpeg';
   const fileExtension = getAvatarFileExtension(normalizedContentType);
   const objectPath = `${userId}/avatar.${fileExtension}`;
-  const fileData = decodeBase64ToArrayBuffer(base64);
+  const fileData = await readImageDataAsArrayBuffer({ base64, uri });
 
   const { error: uploadError } = await supabase
     .storage
@@ -339,6 +385,43 @@ export const uploadProfileAvatar = async ({
   return cacheBustedUrl;
 };
 
+export const uploadVerificationCertificate = async ({
+  userId,
+  base64,
+  uri,
+  contentType,
+  fileName,
+}: {
+  userId: string;
+  base64?: string | null;
+  uri?: string | null;
+  contentType?: string | null;
+  fileName?: string | null;
+}) => {
+  const normalizedContentType = contentType || 'image/jpeg';
+  const fileExtension = getFileExtensionFromName(fileName) || getAvatarFileExtension(normalizedContentType);
+  const objectPath = `${userId}/${Date.now()}-certificate.${fileExtension}`;
+  const fileData = await readImageDataAsArrayBuffer({ base64, uri });
+
+  const { error: uploadError } = await supabase
+    .storage
+    .from(VERIFICATION_CERTIFICATE_BUCKET)
+    .upload(objectPath, fileData, {
+      cacheControl: '3600',
+      contentType: normalizedContentType,
+      upsert: true,
+    });
+
+  if (uploadError) {
+    throw uploadError;
+  }
+
+  return {
+    bucketId: VERIFICATION_CERTIFICATE_BUCKET,
+    objectPath,
+  };
+};
+
 export const getAvatarUploadErrorMessage = (value?: string) => {
   const normalizedMessage = value?.trim().toLowerCase() ?? '';
 
@@ -352,4 +435,19 @@ export const getAvatarUploadErrorMessage = (value?: string) => {
   }
 
   return 'We could not upload that photo right now. Please try a smaller image or try again in a moment.';
+};
+
+export const getVerificationCertificateUploadErrorMessage = (value?: string) => {
+  const normalizedMessage = value?.trim().toLowerCase() ?? '';
+
+  if (
+    normalizedMessage.includes('bucket not found')
+    || normalizedMessage.includes('not found')
+    || normalizedMessage.includes('row-level security')
+    || normalizedMessage.includes('permission')
+  ) {
+    return 'Certificate uploads need the Supabase storage bucket and policies from database/storage_verification_certificates.sql. Run that SQL, then try again.';
+  }
+
+  return 'We could not upload your certificate right now. Please try again with a clearer photo.';
 };

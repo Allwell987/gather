@@ -101,6 +101,7 @@ function ProfileStackNavigator() {
 
 // Custom tab bar
 type TabIconName = 'home-outline' | 'home' | 'calendar-number-outline' | 'calendar-number' | 'book-outline' | 'book' | 'people-outline' | 'people' | 'person-outline' | 'person';
+type TabRoute = { key: string; name: string };
 
 const TABS: { label: string; icon: TabIconName; iconActive: TabIconName }[] = [
   { label: 'Home', icon: 'home-outline', iconActive: 'home' },
@@ -110,8 +111,80 @@ const TABS: { label: string; icon: TabIconName; iconActive: TabIconName }[] = [
   { label: 'Profile', icon: 'person-outline', iconActive: 'person' },
 ];
 
+function TabBarItem({
+  route,
+  index,
+  isFocused,
+  accentColor,
+  textMutedColor,
+  cardColor,
+  syncTotal,
+  navigate,
+}: {
+  route: TabRoute;
+  index: number;
+  isFocused: boolean;
+  accentColor: string;
+  textMutedColor: string;
+  cardColor: string;
+  syncTotal: number;
+  navigate: (name: string) => void;
+}) {
+  const tab = TABS[index];
+  const showSyncBadge = route.name === 'ProfileTab' && syncTotal > 0;
+  const badgeLabel = syncTotal > 9 ? '9+' : String(syncTotal);
+  const scale = useSharedValue(1);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
+    <Animated.View style={[styles.tabItem, animatedStyle]}>
+      <TouchableOpacity
+        onPress={() => {
+          scale.value = withSpring(0.85, { stiffness: 200 }, () => {
+            scale.value = withSpring(1, { stiffness: 180 });
+          });
+          navigate(route.name);
+        }}
+        activeOpacity={0.7}
+        accessibilityLabel={tab.label}
+        accessibilityRole="tab"
+        accessibilityState={{ selected: isFocused }}
+      >
+        <View style={styles.iconWrap}>
+          <Ionicons
+            name={isFocused ? tab.iconActive : tab.icon}
+            size={22}
+            color={isFocused ? accentColor : textMutedColor}
+          />
+        </View>
+        {showSyncBadge ? (
+          <View
+            style={[
+              styles.syncBadge,
+              { backgroundColor: isFocused ? accentColor : BaseColors.gold, borderColor: cardColor },
+            ]}
+          >
+            <Text style={styles.syncBadgeText}>{badgeLabel}</Text>
+          </View>
+        ) : null}
+        <Text style={[
+          styles.tabLabel,
+          { color: isFocused ? accentColor : textMutedColor }
+        ]}>
+          {tab.label}
+        </Text>
+        {isFocused && (
+          <View style={[styles.tabDot, { backgroundColor: accentColor }]} />
+        )}
+      </TouchableOpacity>
+    </Animated.View>
+  );
+}
+
 function CustomTabBar({ state, navigation }: {
-  state: { routes: { key: string; name: string }[]; index: number };
+  state: { routes: TabRoute[]; index: number };
   navigation: { navigate: (name: string) => void };
 }) {
   const insets = useSafeAreaInsets();
@@ -142,63 +215,19 @@ function CustomTabBar({ state, navigation }: {
             },
           ]}
         />
-        {state.routes.map((route, index) => {
-        const isFocused = state.index === index;
-
-        const tab = TABS[index];
-        const showSyncBadge = route.name === 'ProfileTab' && syncSummary.total > 0;
-        const badgeLabel = syncSummary.total > 9 ? '9+' : String(syncSummary.total);
-
-        // Animated scale for tab press
-        const scale = useSharedValue(1);
-        const animatedStyle = useAnimatedStyle(() => ({
-          transform: [{ scale: scale.value }],
-        }));
-
-          return (
-            <Animated.View key={route.key} style={[styles.tabItem, animatedStyle]}>
-              <TouchableOpacity
-                onPress={() => {
-                  scale.value = withSpring(0.85, { stiffness: 200 }, () => {
-                    scale.value = withSpring(1, { stiffness: 180 });
-                  });
-                  navigation.navigate(route.name);
-                }}
-                activeOpacity={0.7}
-                accessibilityLabel={tab.label}
-                accessibilityRole="tab"
-                accessibilityState={{ selected: isFocused }}
-              >
-                <View style={styles.iconWrap}>
-                  <Ionicons
-                    name={isFocused ? tab.iconActive : tab.icon}
-                    size={22}
-                    color={isFocused ? theme.accent : colors.textMuted}
-                  />
-                </View>
-                {showSyncBadge ? (
-                  <View
-                    style={[
-                      styles.syncBadge,
-                      { backgroundColor: isFocused ? theme.accent : BaseColors.gold, borderColor: colors.card },
-                    ]}
-                  >
-                    <Text style={styles.syncBadgeText}>{badgeLabel}</Text>
-                  </View>
-                ) : null}
-                <Text style={[
-                  styles.tabLabel,
-                  { color: isFocused ? theme.accent : colors.textMuted }
-                ]}>
-                  {tab.label}
-                </Text>
-                {isFocused && (
-                  <View style={[styles.tabDot, { backgroundColor: theme.accent }]} />
-                )}
-              </TouchableOpacity>
-            </Animated.View>
-          );
-        })}
+        {state.routes.map((route, index) => (
+          <TabBarItem
+            key={route.key}
+            route={route}
+            index={index}
+            isFocused={state.index === index}
+            accentColor={theme.accent}
+            textMutedColor={colors.textMuted}
+            cardColor={colors.card}
+            syncTotal={syncSummary.total}
+            navigate={navigation.navigate}
+          />
+        ))}
       </View>
     </View>
   );

@@ -27,7 +27,12 @@ export interface Profile {
 export interface VerificationRequest {
   id: string;
   user_id: string;
+  verification_level: string | null;
   status: JoinRequestStatus;
+  certificate_bucket: string | null;
+  certificate_path: string | null;
+  certificate_file_name: string | null;
+  submitted_at: string | null;
   reason: string | null;
   created_at: string;
   updated_at: string;

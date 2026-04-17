@@ -31,3 +31,9 @@ allprojects {
 
 apply plugin: "expo-root-project"
 apply plugin: "com.facebook.react.rootproject"
+
+react {
+    /* Folders */
+    // The root of your project, i.e. where "package.json" lives.
+    root = file("../")
+}

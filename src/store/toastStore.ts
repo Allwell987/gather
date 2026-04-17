@@ -10,7 +10,11 @@ export interface ToastPayload {
 }
 
 export interface ToastState {
-  currentToast: (ToastPayload & { id: number }) | null;
+  currentToast: (Omit<ToastPayload, 'variant' | 'duration'> & {
+    id: number;
+    variant: ToastVariant;
+    duration: number;
+  }) | null;
   showToast: (payload: ToastPayload) => void;
   hideToast: () => void;
 }
