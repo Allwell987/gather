@@ -15,11 +15,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import HeaderBar from '../../components/common/HeaderBar';
 import { useThemeStore } from '../../store/themeStore';
 import { useNavigation } from '@react-navigation/native';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
-import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
+import { BaseColors, Typography, Spacing, Radius, CHURCH } from '../../constants/theme';
 import EmptyState from '../../components/common/EmptyState';
 import PrayerWallScreen from '../prayer/PrayerWallScreen';
 import EventsScreen from '../events/EventsScreen';
@@ -240,7 +241,11 @@ export default function CommunityScreen() {
   };
 
   const renderGroups = () => (
-    <ScrollView contentContainerStyle={styles.groupsList} showsVerticalScrollIndicator={false}>
+    <ScrollView
+      contentContainerStyle={styles.groupsList}
+      showsVerticalScrollIndicator={false}
+      keyboardDismissMode="on-drag"
+    >
       <View style={styles.groupsHeaderRow}>
         <View style={styles.groupsHeaderCopy}>
           <Text style={[styles.sectionTitle, { color: colors.text }]}>Fellowships</Text>
@@ -264,6 +269,7 @@ export default function CommunityScreen() {
           placeholder="Search groups..."
           placeholderTextColor={colors.textMuted}
           style={[styles.searchInput, { color: colors.text }]}
+          selectionColor={theme.accent}
           returnKeyType="search"
           autoCorrect={false}
           autoCapitalize="none"
@@ -385,31 +391,51 @@ export default function CommunityScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <SafeAreaView edges={['top']} style={{ backgroundColor: BaseColors.brown900 }}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Community</Text>
-          <View style={[styles.tabContainer, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
+      <HeaderBar
+        title="Community"
+        subtitle={CHURCH.name}
+        enableBlur={true}
+        backgroundColor={BaseColors.brown900}
+        textColor={BaseColors.white}
+        subtitleColor={BaseColors.brown300}
+        showBack={false}
+        rightElement={
+          activeTab === 'Wall' ? (
             <TouchableOpacity
-              style={[styles.tab, activeTab === 'Wall' && { backgroundColor: theme.accent }]}
-              onPress={() => setActiveTab('Wall')}
+              onPress={() => {
+                // Logic to open compose in PrayerWallScreen
+                // For simplicity, we can use a global event or just let PrayerWall handle it if it's visible.
+                // However, since we're refactoring, let's just use the rightIcon for now or similar.
+              }}
             >
-              <Text style={[styles.tabText, activeTab !== 'Wall' && { color: 'rgba(255,255,255,0.6)' }]}>Wall</Text>
+              <Ionicons name="add" size={24} color={BaseColors.white} />
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === 'Events' && { backgroundColor: theme.accent }]}
-              onPress={() => setActiveTab('Events')}
-            >
-              <Text style={[styles.tabText, activeTab !== 'Events' && { color: 'rgba(255,255,255,0.6)' }]}>Events</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.tab, activeTab === 'Groups' && { backgroundColor: theme.accent }]}
-              onPress={() => setActiveTab('Groups')}
-            >
-              <Text style={[styles.tabText, activeTab !== 'Groups' && { color: 'rgba(255,255,255,0.6)' }]}>Groups</Text>
-            </TouchableOpacity>
-          </View>
+          ) : undefined
+        }
+      />
+
+      <View style={[styles.tabOuterContainer, { backgroundColor: BaseColors.brown900 }]}>
+        <View style={[styles.tabContainer, { backgroundColor: 'rgba(255,255,255,0.1)' }]}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'Wall' && { backgroundColor: theme.accent }]}
+            onPress={() => setActiveTab('Wall')}
+          >
+            <Text style={[styles.tabText, activeTab !== 'Wall' && { color: 'rgba(255,255,255,0.6)' }]}>Wall</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'Events' && { backgroundColor: theme.accent }]}
+            onPress={() => setActiveTab('Events')}
+          >
+            <Text style={[styles.tabText, activeTab !== 'Events' && { color: 'rgba(255,255,255,0.6)' }]}>Events</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'Groups' && { backgroundColor: theme.accent }]}
+            onPress={() => setActiveTab('Groups')}
+          >
+            <Text style={[styles.tabText, activeTab !== 'Groups' && { color: 'rgba(255,255,255,0.6)' }]}>Groups</Text>
+          </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </View>
 
       <View style={{ flex: 1 }}>
         {isLive && (
@@ -429,9 +455,9 @@ export default function CommunityScreen() {
           </TouchableOpacity>
         )}
         {activeTab === 'Wall' ? (
-          <PrayerWallScreen />
+          <PrayerWallScreen hideHeader />
         ) : activeTab === 'Events' ? (
-          <EventsScreen />
+          <EventsScreen hideHeader />
         ) : (
           renderGroups()
         )}
@@ -442,6 +468,10 @@ export default function CommunityScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  tabOuterContainer: {
+    paddingHorizontal: Spacing.xl,
+    paddingBottom: Spacing.md,
+  },
   header: {
     paddingHorizontal: Spacing.xl,
     paddingVertical: Spacing.md,

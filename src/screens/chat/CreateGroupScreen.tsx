@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
+import HeaderBar from '../../components/common/HeaderBar';
 import { BaseColors, Radius, Spacing, Typography } from '../../constants/theme';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
@@ -222,20 +223,22 @@ export default function CreateGroupScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}> 
-      <SafeAreaView edges={['top']} style={[styles.headerShell, { backgroundColor: BaseColors.brown900 }]}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity style={styles.iconButton} onPress={() => navigation.goBack()} activeOpacity={0.75}>
-            <Ionicons name="arrow-back" size={20} color={BaseColors.white} />
-          </TouchableOpacity>
-          <View style={styles.headerCopy}>
-            <Text style={styles.headerTitle}>Create Group</Text>
-            <Text style={styles.headerSubtitle}>Set the picture and about before anyone joins.</Text>
-          </View>
-        </View>
-      </SafeAreaView>
+      <HeaderBar
+        title="Create Group"
+        subtitle="Set the picture and about before anyone joins."
+        onBackPress={() => navigation.goBack()}
+        backgroundColor={BaseColors.brown900}
+        textColor={BaseColors.white}
+        subtitleColor={BaseColors.brown300}
+        enableBlur={true}
+      />
 
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
-        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode="on-drag"
+        >
           <View style={[styles.heroCard, { backgroundColor: colors.card, borderColor: colors.border }]}> 
             <View style={styles.heroPreviewRow}>
               {groupPictureUrl ? (
@@ -280,6 +283,7 @@ export default function CreateGroupScreen() {
                 onChangeText={setGroupName}
                 placeholder="Young Professionals Prayer Circle"
                 placeholderTextColor={colors.textMuted}
+                selectionColor={theme.accent}
                 style={[
                   styles.textInput,
                   { backgroundColor: colors.background, borderColor: colors.border, color: colors.text },
@@ -295,6 +299,7 @@ export default function CreateGroupScreen() {
                 onChangeText={setGroupAbout}
                 placeholder="What kind of fellowship is this for?"
                 placeholderTextColor={colors.textMuted}
+                selectionColor={theme.accent}
                 style={[
                   styles.textArea,
                   { backgroundColor: colors.background, borderColor: colors.border, color: colors.text },

@@ -18,6 +18,7 @@ import { SchedulableTriggerInputTypes } from 'expo-notifications';
 import { useThemeStore } from '../../store/themeStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
+import HeaderBar from '../../components/common/HeaderBar';
 import { scheduleNotification } from '../../services/notifications';
 import {
   enqueueOfflineAction,
@@ -84,7 +85,7 @@ const applyPendingRsvpToEvent = async <T extends {
 export default function EventDetailScreen() {
   const navigation = useNavigation<EventsStackNavigationProp>();
   const route = useRoute<EventDetailRouteProp>();
-  const { theme } = useThemeStore();
+  const { theme, colors } = useThemeStore();
   const { user } = useAuthStore();
   const { showToast } = useToastStore();
   const queryClient = useQueryClient();
@@ -304,20 +305,20 @@ export default function EventDetailScreen() {
   const attendanceWidth = `${Math.min((event.attendeesCount / Math.max(event.capacity, 1)) * 100, 100)}%`;
 
   return (
-    <View style={styles.container}>
-      <SafeAreaView edges={['top']} style={{ backgroundColor: BaseColors.brown900 }}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-            <Ionicons name="arrow-back" size={20} color={BaseColors.white} />
-          </TouchableOpacity>
-          <Text style={styles.headerTitle}>Event Details</Text>
-          <TouchableOpacity style={styles.shareBtn}>
-            <Ionicons name="share-social-outline" size={20} color={BaseColors.white} />
-          </TouchableOpacity>
-        </View>
-      </SafeAreaView>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <HeaderBar
+        title="Event Details"
+        onBackPress={() => navigation.goBack()}
+        rightIcon="share-social-outline"
+        rightAction={() => {}} // TODO: Implement share
+        backgroundColor={BaseColors.brown900}
+        textColor={BaseColors.white}
+        accentColor={BaseColors.white}
+        enableBlur={true}
+        style={{ borderBottomWidth: 0 }}
+      />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 160 }}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 160 }} keyboardDismissMode="on-drag">
         <View style={[styles.banner, { backgroundColor: event.stripeColor + '22' }]}>
           <Text style={styles.bannerEmoji}>{event.emoji}</Text>
           <View style={[styles.categoryPill, { backgroundColor: event.tagBg }]}>

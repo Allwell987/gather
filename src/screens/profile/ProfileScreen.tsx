@@ -22,6 +22,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import Button from '../../components/common/Button';
 import TextInput from '../../components/common/TextInput';
+import HeaderBar from '../../components/common/HeaderBar';
 import { useOfflineSyncStatus } from '../../hooks/useOfflineSyncStatus';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
@@ -282,13 +283,22 @@ function GuestProfilePrompt({
 }) {
   return (
     <View style={[guestStyles.container, { backgroundColor: colors.background }]}>
-      <SafeAreaView edges={['top']} style={{ backgroundColor: BaseColors.brown900 }}>
-        <View style={guestStyles.hero}>
-          <View style={[guestStyles.heroBg, { backgroundColor: theme.accentSubtle }]} />
-          <Text style={guestStyles.heroTitle}>My Profile</Text>
-        </View>
-      </SafeAreaView>
-      <ScrollView contentContainerStyle={guestStyles.body} showsVerticalScrollIndicator={false}>
+      <HeaderBar
+        title="My Profile"
+        showBack={false}
+        backgroundColor={BaseColors.brown900}
+        textColor={BaseColors.white}
+        enableBlur={true}
+        style={{ borderBottomWidth: 0 }}
+      />
+      <View style={[guestStyles.hero, { paddingTop: 0 }]}>
+        <View style={[guestStyles.heroBg, { backgroundColor: theme.accentSubtle }]} />
+      </View>
+      <ScrollView
+        contentContainerStyle={guestStyles.body}
+        showsVerticalScrollIndicator={false}
+        keyboardDismissMode="on-drag"
+      >
         <View style={[guestStyles.iconCircle, { backgroundColor: colors.border }]}>
           <Ionicons name="person-outline" size={40} color={colors.textSecondary} />
         </View>
@@ -1159,6 +1169,7 @@ export default function ProfileScreen() {
             placeholder="Enter your full name"
             autoCapitalize="words"
             accentColor={theme.accent}
+            selectionColor={theme.accent}
             containerStyle={styles.sheetField}
           />
           <Text style={[styles.helperText, { color: colors.textSecondary }]}>
@@ -1264,6 +1275,7 @@ export default function ProfileScreen() {
             autoCapitalize="none"
             keyboardType="numbers-and-punctuation"
             accentColor={theme.accent}
+            selectionColor={theme.accent}
             containerStyle={styles.sheetField}
           />
           <Text style={[styles.helperText, { color: colors.textSecondary }]}>
@@ -1305,6 +1317,7 @@ export default function ProfileScreen() {
             secureTextEntry
             autoCapitalize="none"
             accentColor={theme.accent}
+            selectionColor={theme.accent}
             containerStyle={styles.sheetField}
           />
           <TextInput
@@ -1315,6 +1328,7 @@ export default function ProfileScreen() {
             secureTextEntry
             autoCapitalize="none"
             accentColor={theme.accent}
+            selectionColor={theme.accent}
             containerStyle={styles.sheetField}
           />
           {editorError ? <Text style={styles.sheetError}>{editorError}</Text> : null}
@@ -1358,6 +1372,7 @@ export default function ProfileScreen() {
             keyboardType="email-address"
             autoCorrect={false}
             accentColor={theme.accent}
+            selectionColor={theme.accent}
             containerStyle={styles.sheetField}
           />
           <Text style={[styles.helperText, { color: colors.textSecondary }]}>
@@ -1516,15 +1531,19 @@ export default function ProfileScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <SafeAreaView edges={['top']} style={{ backgroundColor: BaseColors.brown900 }}>
-        <View style={styles.hero}>
+      <HeaderBar
+        title="My Profile"
+        showBack={false}
+        rightIcon="pencil"
+        rightAction={() => openEditor('profile')}
+        backgroundColor={BaseColors.brown900}
+        textColor={BaseColors.white}
+        accentColor={BaseColors.white}
+        enableBlur={true}
+        style={{ borderBottomWidth: 0 }}
+      />
+      <View style={[styles.hero, { paddingTop: 0 }]}>
           <View style={[styles.heroBg, { backgroundColor: theme.accentSubtle }]} />
-          <View style={styles.heroHeader}>
-            <Text style={styles.heroTitle}>My Profile</Text>
-            <TouchableOpacity style={styles.editBtn} onPress={() => openEditor('profile')} activeOpacity={0.8}>
-              <Ionicons name="pencil" size={16} color={BaseColors.white} />
-            </TouchableOpacity>
-          </View>
           <View style={styles.heroContent}>
             <View style={styles.avatarWrap}>
               {user?.avatar_url ? (
@@ -1574,14 +1593,14 @@ export default function ProfileScreen() {
                 </Text>
               </View>
             </View>
-          </View>
         </View>
-      </SafeAreaView>
+      </View>
 
       <ScrollView
         ref={scrollRef}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 40 }}
+        keyboardDismissMode="on-drag"
       >
         {!user?.is_verified && (
           <TouchableOpacity
@@ -1972,6 +1991,7 @@ export default function ProfileScreen() {
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.sheetContent}
               keyboardShouldPersistTaps="handled"
+              keyboardDismissMode="on-drag"
             >
               {renderEditorBody()}
             </ScrollView>

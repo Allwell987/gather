@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
+import HeaderBar from '../../components/common/HeaderBar';
 import { Video, ResizeMode, Audio } from 'expo-av';
 import { useThemeStore } from '../../store/themeStore';
 import { supabase } from '../../services/supabase';
@@ -139,19 +140,20 @@ export default function LiveStreamScreen() {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView edges={['top']} style={{ backgroundColor: BaseColors.brown900 }}>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Live Stream</Text>
-          <View style={styles.liveIndicator}>
-            <View style={[styles.liveDot, { backgroundColor: activeLiveEvent ? BaseColors.red500 : BaseColors.gray400 }]} />
-            <Text style={[styles.liveText, { color: activeLiveEvent ? BaseColors.red500 : BaseColors.gray400 }]}>
-              {activeLiveEvent ? 'LIVE NOW' : 'OFFLINE'}
-            </Text>
-          </View>
-        </View>
-      </SafeAreaView>
+      <HeaderBar
+        title="Live Stream"
+        subtitle={activeLiveEvent ? 'LIVE NOW' : 'OFFLINE'}
+        backgroundColor={BaseColors.brown900}
+        textColor={BaseColors.white}
+        subtitleColor={activeLiveEvent ? BaseColors.red500 : BaseColors.gray400}
+        enableBlur={true}
+      />
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+        keyboardDismissMode="on-drag"
+      >
         {isLoading ? (
           <View style={styles.center}>
             <ActivityIndicator size="large" color={theme.accent} />

@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import HeaderBar from '../../components/common/HeaderBar';
 import {
   getSupabaseAuthErrorMessage,
   getSupabaseConfigMessage,
@@ -182,7 +183,14 @@ export default function LoginScreen() {
         colors={[BaseColors.brown900, BaseColors.brown800]}
         style={StyleSheet.absoluteFillObject}
       />
-      <SafeAreaView style={styles.safe}>
+      <HeaderBar
+        title="Sign In"
+        onBackPress={() => navigation.goBack()}
+        backgroundColor={BaseColors.brown900}
+        textColor={BaseColors.white}
+        enableBlur={true}
+      />
+      <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={{ flex: 1 }}
@@ -191,16 +199,8 @@ export default function LoginScreen() {
             contentContainerStyle={styles.scroll}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
+            keyboardDismissMode="on-drag"
           >
-            <TouchableOpacity
-              onPress={() => navigation.goBack()}
-              style={styles.backBtn}
-              accessibilityRole="button"
-              accessibilityLabel="Go back"
-            >
-              <Ionicons name="arrow-back" size={22} color={BaseColors.white} />
-            </TouchableOpacity>
-
             <View style={styles.header}>
               <Text style={styles.title}>Welcome back 👋</Text>
               <Text style={styles.subtitle}>{CHURCH.name}</Text>
@@ -257,6 +257,7 @@ export default function LoginScreen() {
                 placeholderTextColor={BaseColors.brown400}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                selectionColor={BaseColors.gold}
               />
               {renderInputError(errors.email)}
             </View>
@@ -274,6 +275,7 @@ export default function LoginScreen() {
                   placeholder="Your password"
                   placeholderTextColor={BaseColors.brown400}
                   secureTextEntry={!showPass}
+                  selectionColor={BaseColors.gold}
                 />
                 <TouchableOpacity
                   onPress={() => setShowPass(!showPass)}
@@ -341,6 +343,7 @@ export default function LoginScreen() {
                         keyboardType="email-address"
                         autoCapitalize="none"
                         autoFocus
+                        selectionColor={BaseColors.gold}
                       />
                       <TouchableOpacity
                         style={[styles.modalSubmitBtn, resetLoading && { opacity: 0.7 }]}

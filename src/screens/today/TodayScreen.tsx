@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import { useThemeStore } from '../../store/themeStore';
 import { useAuthStore } from '../../store/authStore';
 // import { supabase } from '../../services/supabase';
@@ -14,6 +15,7 @@ import { BaseColors, Typography, Spacing, Radius, CHURCH } from '../../constants
 import { LinearGradient } from 'expo-linear-gradient';
 import { useQuery } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import HeaderBar from '../../components/common/HeaderBar';
 import { supabase } from '../../services/supabase';
 import { useNavigation } from '@react-navigation/native';
 import {
@@ -134,6 +136,7 @@ export default function TodayScreen() {
     if (markingRead || hasReadToday || !user?.id || !devotional?.id) return;
 
     // Scale pop animation
+    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     Animated.sequence([
       Animated.timing(readScale, { toValue: 1.2, duration: 150, useNativeDriver: true }),
       Animated.spring(readScale, { toValue: 1, friction: 4, useNativeDriver: true }),
@@ -252,6 +255,7 @@ export default function TodayScreen() {
   }, [navigation]);
 
   const handleJoinLive = useCallback(() => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     const youtubeId = getYoutubeIdFromUrl(activeLive?.live_url);
     if (youtubeId) {
       openInAppPlayer(youtubeId);
@@ -294,6 +298,21 @@ export default function TodayScreen() {
     }
   }, [displayDevotional]);
 
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    if (isLive) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(pulseAnim, { toValue: 1.2, duration: 1000, useNativeDriver: true }),
+          Animated.timing(pulseAnim, { toValue: 1, duration: 1000, useNativeDriver: true }),
+        ])
+      ).start();
+    } else {
+      pulseAnim.setValue(1);
+    }
+  }, [isLive, pulseAnim]);
+
   useEffect(() => {
     Animated.stagger(80, [
       Animated.timing(headerEnter, {
@@ -311,32 +330,19 @@ export default function TodayScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <SafeAreaView edges={['top']} style={{ backgroundColor: BaseColors.brown900 }}>
-        <Animated.View
-          style={[
-            styles.header,
-            {
-              opacity: headerEnter,
-              transform: [
-                {
-                  translateY: headerEnter.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }),
-                },
-              ],
-            },
-          ]}
-        >
-          <View>
-            <Text style={styles.headerTitle}>Today</Text>
-            <Text style={styles.headerSub}>{now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</Text>
-          </View>
-          {isLive && (
-            <TouchableOpacity style={[styles.liveIndicator, { backgroundColor: BaseColors.red500 }]} onPress={handleJoinLive}>
-              <View style={styles.liveDot} />
-              <Text style={styles.liveIndicatorText}>LIVE NOW</Text>
-            </TouchableOpacity>
-          )}
-        </Animated.View>
-      </SafeAreaView>
+      <HeaderBar
+        title="Today"
+        subtitle={now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+        showBack={false}
+        backgroundColor={BaseColors.brown900}
+        textColor={BaseColors.white}
+        subtitleColor={BaseColors.brown200}
+        rightIcon={isLive ? "radio" : undefined}
+        accentColor={BaseColors.red500}
+        rightAction={isLive ? handleJoinLive : undefined}
+        style={{ borderBottomWidth: 0 }}
+        enableBlur={true}
+      />
 
       <Animated.ScrollView
         style={{
@@ -349,6 +355,7 @@ export default function TodayScreen() {
         }}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        keyboardDismissMode="on-drag"
         refreshControl={
           <RefreshControl
             refreshing={isLoadingLive || isLoadingDevotional}

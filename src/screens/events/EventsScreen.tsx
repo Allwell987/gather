@@ -11,6 +11,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import HeaderBar from '../../components/common/HeaderBar';
 import { useThemeStore } from '../../store/themeStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
@@ -157,7 +158,7 @@ const applyPendingRsvpActions = async (
   });
 };
 
-export default function EventsScreen() {
+export default function EventsScreen({ hideHeader = false }: { hideHeader?: boolean }) {
   const navigation = useNavigation<EventsScreenNavigationProp>();
   const { theme, colors } = useThemeStore();
   const { user } = useAuthStore();
@@ -349,19 +350,23 @@ export default function EventsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <SafeAreaView edges={['top']} style={{ backgroundColor: BaseColors.brown900 }}>
-        <Animated.View style={[styles.header, { opacity: headerFade }]}>
-          <View>
-            <Text style={styles.headerTitle}>Events</Text>
-            <Text style={styles.headerSub}>{CHURCH.name}</Text>
-          </View>
-        </Animated.View>
-      </SafeAreaView>
+      {!hideHeader && (
+        <HeaderBar
+          title="Events"
+          subtitle={CHURCH.name}
+          onBackPress={() => navigation.goBack()}
+          backgroundColor={BaseColors.brown900}
+          textColor={BaseColors.white}
+          subtitleColor={BaseColors.brown300}
+          enableBlur={true}
+        />
+      )}
 
       <Animated.ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 40 }}
         style={{ opacity: contentFade }}
+        keyboardDismissMode="on-drag"
       >
         <View style={[styles.calendarSection, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <View style={styles.calHeader}>

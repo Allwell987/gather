@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as AppleAuthentication from 'expo-apple-authentication';
+import HeaderBar from '../../components/common/HeaderBar';
 import {
   getAuthRedirectUrl,
   getSupabaseAuthErrorMessage,
@@ -169,7 +170,14 @@ export default function RegisterScreen() {
         colors={[BaseColors.brown900, BaseColors.brown800]}
         style={StyleSheet.absoluteFillObject}
       />
-      <SafeAreaView style={styles.safe}>
+      <HeaderBar
+        title="Create Account"
+        onBackPress={() => navigation.goBack()}
+        backgroundColor={BaseColors.brown900}
+        textColor={BaseColors.white}
+        enableBlur={true}
+      />
+      <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={{ flex: 1 }}
@@ -178,11 +186,8 @@ export default function RegisterScreen() {
             contentContainerStyle={styles.scroll}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
+            keyboardDismissMode="on-drag"
           >
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-              <Ionicons name="arrow-back" size={22} color={BaseColors.white} />
-            </TouchableOpacity>
-
             <View style={styles.header}>
               <Text style={styles.stepLabel}>Step 1 of 2</Text>
               <Text style={styles.title}>Create your account</Text>
@@ -232,6 +237,7 @@ export default function RegisterScreen() {
                   }}
                   placeholder="Grace"
                   placeholderTextColor={BaseColors.brown400}
+                  selectionColor={BaseColors.gold}
                 />
                 {renderInputError(errors.firstName)}
               </View>
@@ -243,6 +249,7 @@ export default function RegisterScreen() {
                   onChangeText={setLastName}
                   placeholder="Okafor"
                   placeholderTextColor={BaseColors.brown400}
+                  selectionColor={BaseColors.gold}
                 />
               </View>
             </View>
@@ -260,6 +267,7 @@ export default function RegisterScreen() {
                 placeholderTextColor={BaseColors.brown400}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                selectionColor={BaseColors.gold}
               />
               {renderInputError(errors.email)}
             </View>
@@ -277,6 +285,7 @@ export default function RegisterScreen() {
                   placeholder="Min. 8 characters"
                   placeholderTextColor={BaseColors.brown400}
                   secureTextEntry={!showPass}
+                  selectionColor={BaseColors.gold}
                 />
                 <TouchableOpacity onPress={() => setShowPass(!showPass)} style={styles.eyeBtn}>
                   <Ionicons name={showPass ? 'eye-off' : 'eye'} size={18} color={BaseColors.brown300} />
@@ -298,6 +307,7 @@ export default function RegisterScreen() {
                   placeholder="Repeat your password"
                   placeholderTextColor={BaseColors.brown400}
                   secureTextEntry={!showPass}
+                  selectionColor={BaseColors.gold}
                 />
               </View>
               {renderInputError(errors.confirmPassword)}

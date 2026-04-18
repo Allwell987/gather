@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import HeaderBar from '../../components/common/HeaderBar';
 import { useThemeStore } from '../../store/themeStore';
 import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -288,60 +289,39 @@ export default function BibleScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <SafeAreaView edges={['top']} style={{ backgroundColor: BaseColors.brown900 }}>
-        {/* Top nav */}
-        <View style={[styles.topNav, { borderBottomColor: theme.accent }]}>
-          <TouchableOpacity
-            style={styles.bookPickerBtn}
-            onPress={() => setShowBookPicker(true)}
-          >
-            <Text style={styles.bookName}>{currentBook} ▾</Text>
-            <Text style={styles.chapterLabel}>Chapter {currentChapter}</Text>
-          </TouchableOpacity>
+      <HeaderBar
+        title={currentBook}
+        subtitle={`Chapter ${currentChapter}`}
+        onBackPress={() => setShowBookPicker(true)}
+        backgroundColor={BaseColors.brown900}
+        textColor={BaseColors.white}
+        subtitleColor={BaseColors.brown300}
+        rightAction={() => setShowVersionPicker(true)}
+        rightIcon="options-outline"
+        accentColor={BaseColors.white}
+        enableBlur={true}
+      />
 
-          <TouchableOpacity
-            style={styles.versionPickerBtn}
-            onPress={() => setShowVersionPicker(true)}
-          >
-            <Text style={styles.versionText}>{currentTranslation.toUpperCase()} ▾</Text>
-          </TouchableOpacity>
-
-          <View style={styles.navActions}>
-            <TouchableOpacity
-              style={styles.navIconBtn}
-              onPress={() => setFontSize((s) => Math.max(12, s - 1))}
-            >
-              <Text style={[styles.fontSizeBtn, { fontSize: 12 }]}>A</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.navIconBtn}
-              onPress={() => setFontSize((s) => Math.min(22, s + 1))}
-            >
-              <Text style={[styles.fontSizeBtn, { fontSize: 18 }]}>A</Text>
-            </TouchableOpacity>
-          </View>
+      {/* Offline indicator & Download Bar */}
+      {isDownloading ? (
+        <View style={[styles.offlineBar, { backgroundColor: theme.accent }]}>
+          <ActivityIndicator size="small" color={BaseColors.white} />
+          <Text style={styles.offlineText}>Downloading {currentBook}... {downloadProgress}%</Text>
         </View>
-
-        {/* Offline indicator & Download Bar */}
-        {isDownloading ? (
-          <View style={[styles.offlineBar, { backgroundColor: theme.accent }]}>
-            <ActivityIndicator size="small" color={BaseColors.white} />
-            <Text style={styles.offlineText}>Downloading {currentBook}... {downloadProgress}%</Text>
-          </View>
-        ) : (isOffline || usingCached) ? (
-          <View style={styles.offlineBar}>
-            <Ionicons name={isOffline ? 'cloud-offline' : 'cloud-download'} size={14} color={BaseColors.white} />
-            <Text style={styles.offlineText}>
-              {isOffline ? 'Offline mode' : `${currentTranslation.toUpperCase()} (Downloaded)`}
-            </Text>
-          </View>
-        ) : null}
-      </SafeAreaView>
+      ) : (isOffline || usingCached) ? (
+        <View style={styles.offlineBar}>
+          <Ionicons name={isOffline ? 'cloud-offline' : 'cloud-download'} size={14} color={BaseColors.white} />
+          <Text style={styles.offlineText}>
+            {isOffline ? 'Offline mode' : `${currentTranslation.toUpperCase()} (Downloaded)`}
+          </Text>
+        </View>
+      ) : null}
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
         onScrollBeginDrag={() => setSelectedVerse(null)}
+        keyboardDismissMode="on-drag"
       >
         {/* Chapter heading */}
         <View style={styles.chapterHeading}>
@@ -579,6 +559,7 @@ export default function BibleScreen() {
               onChangeText={setNoteText}
               placeholder="Write your thoughts on this verse…"
               placeholderTextColor={colors.textMuted}
+              selectionColor={theme.accent}
               multiline
               autoFocus
             />

@@ -5,6 +5,7 @@ import {
   Animated,
   FlatList,
   Image,
+  Keyboard,
   KeyboardAvoidingView,
   Linking,
   Modal,
@@ -14,16 +15,30 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as Clipboard from 'expo-clipboard';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Haptics from 'expo-haptics';
+import {
+  PanGestureHandler,
+  PanGestureHandlerGestureEvent,
+} from 'react-native-gesture-handler';
+import Reanimated, {
+  useAnimatedGestureHandler,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  runOnJS,
+} from 'react-native-reanimated';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeStore } from '../../store/themeStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
+import { HeaderBar } from '../../components/common';
 import { BaseColors, Typography } from '../../constants/theme';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
@@ -371,6 +386,71 @@ const mergeMessages = (items: Message[]) => {
     .sort((left, right) => left.created_at.localeCompare(right.created_at));
 };
 
+interface SwipeableMessageProps {
+  children: React.ReactNode;
+  onReply: () => void;
+}
+
+const SWIPE_THRESHOLD = 60;
+
+const SwipeableMessage = ({ children, onReply }: SwipeableMessageProps) => {
+  const translateX = useSharedValue(0);
+  const hasTriggered = useSharedValue(false);
+
+  const onGestureEvent = useAnimatedGestureHandler<PanGestureHandlerGestureEvent>({
+    onActive: (event) => {
+      // Only swipe to the right
+      if (event.translationX > 0) {
+        translateX.value = event.translationX;
+
+        if (event.translationX > SWIPE_THRESHOLD && !hasTriggered.value) {
+          hasTriggered.value = true;
+          runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
+        } else if (event.translationX < SWIPE_THRESHOLD && hasTriggered.value) {
+          hasTriggered.value = false;
+        }
+      }
+    },
+    onEnd: () => {
+      if (translateX.value > SWIPE_THRESHOLD) {
+        runOnJS(onReply)();
+      }
+      translateX.value = withSpring(0, { damping: 15, stiffness: 150 });
+      hasTriggered.value = false;
+    },
+  });
+
+  const rStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: translateX.value }],
+  }));
+
+  const iconStyle = useAnimatedStyle(() => {
+    const opacity = translateX.value / SWIPE_THRESHOLD;
+    const scale = Math.min(translateX.value / SWIPE_THRESHOLD, 1.2);
+    return {
+      opacity,
+      transform: [{ scale }],
+    };
+  });
+
+  return (
+    <View style={styles.swipeableContainer}>
+      <Reanimated.View style={[styles.replyIconContainer, iconStyle]}>
+        <Ionicons name="return-up-back" size={20} color="#667781" />
+      </Reanimated.View>
+      <PanGestureHandler
+        onGestureEvent={onGestureEvent}
+        activeOffsetX={[0, 10]}
+        failOffsetY={[-5, 5]}
+      >
+        <Reanimated.View style={rStyle}>
+          {children}
+        </Reanimated.View>
+      </PanGestureHandler>
+    </View>
+  );
+};
+
 export default function GroupChatScreen() {
   const navigation = useNavigation<HomeStackNavigationProp>();
   const route = useRoute<GroupChatRouteProp>();
@@ -410,6 +490,43 @@ export default function GroupChatScreen() {
   const typingAnim = useRef(new Animated.Value(0)).current;
   const messagesQueryKey = ['messages', groupId, user?.id] as const;
   const messagesCacheKey = `group-messages:${groupId}:${user?.id ?? 'guest'}`;
+
+  const insets = useSafeAreaInsets();
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const [lastMessageId, setLastMessageId] = useState<string | null>(null);
+  const [hasNewMessages, setHasNewMessages] = useState(false);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => setKeyboardVisible(true)
+    );
+    const hideSub = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => setKeyboardVisible(false)
+    );
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
+
+  useEffect(() => {
+    const latest = messages[messages.length - 1]?.id;
+    if (latest && latest !== lastMessageId) {
+      if (showScrollToBottom) {
+        setHasNewMessages(true);
+      }
+      setLastMessageId(latest);
+    }
+  }, [messages, showScrollToBottom, lastMessageId]);
+
+  useEffect(() => {
+    if (!showScrollToBottom) {
+      setHasNewMessages(false);
+    }
+  }, [showScrollToBottom]);
 
   const { data: groupDetails } = useQuery<GroupDetails | null>({
     queryKey: ['chat-group-details', groupId],
@@ -1535,12 +1652,45 @@ export default function GroupChatScreen() {
     }
   }, [groupAboutDraft, groupId, groupPictureDraft, isGroupAdmin, logAdminAction, queryClient, showToast]);
 
+  const headerHeight = 56 + insets.top;
+
+  const handleScroll = (event: any) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    const contentHeight = event.nativeEvent.contentSize.height;
+    const layoutHeight = event.nativeEvent.layoutMeasurement.height;
+
+    // Show button if we are more than 300px from the bottom
+    const isCloseToBottom = contentHeight - layoutHeight - offsetY < 300;
+    setShowScrollToBottom(!isCloseToBottom);
+  };
+
+  const scrollToBottom = () => {
+    flatListRef.current?.scrollToEnd({ animated: true });
+  };
+
   const renderMessage = useCallback(({ item, index }: { item: Message, index: number }) => {
     const isMine = item.isMine;
     const prevMsg = messages[index - 1];
     const isSameSender = prevMsg && prevMsg.user_id === item.user_id;
     const isDifferentDay = !prevMsg || !isSameDay(new Date(prevMsg.created_at), new Date(item.created_at));
     const showSenderMeta = !isMine && !isSameSender;
+
+    const onReply = () => {
+      const preview = item.messageType === 'image'
+        ? (item.imageCaption || 'Photo')
+        : item.content;
+      const copyValue = item.messageType === 'image'
+        ? (item.imageCaption?.trim() || item.imageUrl || 'Photo')
+        : item.content;
+
+      setReplyTarget({
+        id: item.id,
+        senderName: item.senderName,
+        preview: preview.slice(0, 100),
+        copyValue,
+        currentReaction: (item.reactions ?? []).find((entry) => entry.reactedByMe)?.emoji ?? null,
+      });
+    };
 
     return (
       <View>
@@ -1553,322 +1703,304 @@ export default function GroupChatScreen() {
             </View>
           </View>
         )}
-        <View style={[styles.msgRow, isMine && styles.msgRowOut, isSameSender && { marginTop: 2 }]}>
-          {showSenderMeta ? (
-            <View style={[styles.msgAvatar, { backgroundColor: item.senderColor }]}> 
-              <Text style={styles.msgAvatarText}>{item.senderInitials}</Text>
-            </View>
-          ) : !isMine ? (
-            <View style={styles.msgAvatarSpacer} />
-          ) : null}
-          <TouchableOpacity
-            activeOpacity={0.92}
-            delayLongPress={220}
-            onLongPress={() => handleMessageAction(item)}
-            style={styles.bubbleShell}
-          >
-            <View
-              style={[
-                styles.bubble,
-                isMine ? styles.bubbleOut : styles.bubbleIn,
-                isSameSender && (isMine ? styles.bubbleOutTailHidden : styles.bubbleInTailHidden)
-              ]}
-            >
-              {showSenderMeta && (
-                <View style={styles.senderHeader}>
-                  <Text style={[styles.msgSenderName, { color: item.senderColor }]}>{item.senderName}</Text>
-                  {item.verificationLevel === 'gold' && (
-                    <Ionicons name="checkmark-circle" size={12} color="#D4AF37" style={styles.verifyBadge} />
-                  )}
-                  {item.verificationLevel === 'black' && (
-                    <Ionicons name="checkmark-circle" size={12} color="#000000" style={styles.verifyBadge} />
-                  )}
-                </View>
-              )}
-              <View style={styles.messageContentRow}>
-                {item.messageType === 'image' && item.imageUrl ? (
-                  <View style={styles.imageMessageWrap}>
-                    {item.replyPreview ? (
-                      <View style={[styles.replySnippet, isMine ? styles.replySnippetOut : styles.replySnippetIn]}>
-                        <Text style={[styles.replySnippetName, { color: isMine ? '#1f5f3f' : item.senderColor }]}> 
-                          {item.replySenderName}
-                        </Text>
-                        <Text style={styles.replySnippetText} numberOfLines={2}>{item.replyPreview}</Text>
-                      </View>
-                    ) : null}
-                    <TouchableOpacity
-                      activeOpacity={0.9}
-                      onPress={() => setSelectedImageViewer({ uri: item.imageUrl!, caption: item.imageCaption })}
-                      accessibilityRole="button"
-                      accessibilityLabel="Open image in fullscreen"
-                    >
-                      <Image source={{ uri: item.imageUrl }} style={styles.chatImage} resizeMode="cover" />
-                    </TouchableOpacity>
-                    {item.imageCaption ? (
-                      <Text style={[styles.bubbleText, isMine && styles.bubbleTextOut]}>
-                        {item.imageCaption}
-                      </Text>
-                    ) : null}
-                  </View>
-                ) : (
-                  <>
-                    {item.replyPreview ? (
-                      <View style={[styles.replySnippet, isMine ? styles.replySnippetOut : styles.replySnippetIn]}>
-                        <Text style={[styles.replySnippetName, { color: isMine ? '#1f5f3f' : item.senderColor }]}> 
-                          {item.replySenderName}
-                        </Text>
-                        <Text style={styles.replySnippetText} numberOfLines={2}>{item.replyPreview}</Text>
-                      </View>
-                    ) : null}
-                    <Text style={[styles.bubbleText, isMine && styles.bubbleTextOut]}>
-                      {item.content}
-                    </Text>
-                  </>
-                )}
-                <View style={styles.messageMeta}>
-                  <Text style={styles.msgTimePill}>
-                    {format(new Date(item.created_at), 'h:mm a')}
-                  </Text>
-                  {isMine && (
-                    <Ionicons
-                      name={
-                        item.syncStatus === 'pending'
-                          ? 'time-outline'
-                          : (item.readBy ?? []).some((rid) => rid !== user?.id)
-                          ? 'checkmark-done'
-                          : 'checkmark'
-                      }
-                      size={14}
-                      color={
-                        item.syncStatus === 'pending'
-                          ? '#999'
-                          : (item.readBy ?? []).some((rid) => rid !== user?.id)
-                          ? '#34B7F1'
-                          : '#aab7bf'
-                      }
-                      style={styles.statusCheck}
-                    />
-                  )}
-                </View>
+        <SwipeableMessage onReply={onReply}>
+          <View style={[styles.msgRow, isMine && styles.msgRowOut, isSameSender && { marginTop: 2 }]}>
+            {showSenderMeta ? (
+              <View style={[styles.msgAvatar, { backgroundColor: item.senderColor }]}>
+                <Text style={styles.msgAvatarText}>{item.senderInitials}</Text>
               </View>
-            </View>
-
-            {(item.reactions ?? []).length > 0 ? (
-              <View style={[styles.reactionRow, isMine && styles.reactionRowOut]}>
-                {(item.reactions ?? []).map((reactionEntry) => (
-                  <TouchableOpacity
-                    key={`${item.id}-${reactionEntry.emoji}`}
-                    activeOpacity={0.88}
-                    style={[
-                      styles.reactionChip,
-                      reactionEntry.reactedByMe && styles.reactionChipActive,
-                    ]}
-                    onPress={() => handleToggleReaction(item.id, reactionEntry.emoji)}
-                  >
-                    <Text style={styles.reactionEmoji}>{reactionEntry.emoji}</Text>
-                    <Text style={styles.reactionCount}>{reactionEntry.count}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+            ) : !isMine ? (
+              <View style={styles.msgAvatarSpacer} />
             ) : null}
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              activeOpacity={0.92}
+              delayLongPress={220}
+              onLongPress={() => handleMessageAction(item)}
+              style={styles.bubbleShell}
+            >
+              <View
+                style={[
+                  styles.bubble,
+                  isMine ? styles.bubbleOut : styles.bubbleIn,
+                  isSameSender && (isMine ? styles.bubbleOutTailHidden : styles.bubbleInTailHidden)
+                ]}
+              >
+                {showSenderMeta && (
+                  <View style={styles.senderHeader}>
+                    <Text style={[styles.msgSenderName, { color: item.senderColor }]}>{item.senderName}</Text>
+                    {item.verificationLevel === 'gold' && (
+                      <Ionicons name="checkmark-circle" size={12} color="#D4AF37" style={styles.verifyBadge} />
+                    )}
+                    {item.verificationLevel === 'black' && (
+                      <Ionicons name="checkmark-circle" size={12} color="#000000" style={styles.verifyBadge} />
+                    )}
+                  </View>
+                )}
+                <View style={styles.messageContentRow}>
+                  {item.messageType === 'image' && item.imageUrl ? (
+                    <View style={styles.imageMessageWrap}>
+                      {item.replyPreview ? (
+                        <View style={[styles.replySnippet, isMine ? styles.replySnippetOut : styles.replySnippetIn]}>
+                          <Text style={[styles.replySnippetName, { color: isMine ? '#1f5f3f' : item.senderColor }]}>
+                            {item.replySenderName}
+                          </Text>
+                          <Text style={styles.replySnippetText} numberOfLines={2}>{item.replyPreview}</Text>
+                        </View>
+                      ) : null}
+                      <TouchableOpacity
+                        activeOpacity={0.9}
+                        onPress={() => setSelectedImageViewer({ uri: item.imageUrl!, caption: item.imageCaption })}
+                        accessibilityRole="button"
+                        accessibilityLabel="Open image in fullscreen"
+                      >
+                        <Image source={{ uri: item.imageUrl }} style={styles.chatImage} resizeMode="cover" />
+                      </TouchableOpacity>
+                      {item.imageCaption ? (
+                        <Text style={[styles.bubbleText, isMine && styles.bubbleTextOut]}>
+                          {item.imageCaption}
+                        </Text>
+                      ) : null}
+                    </View>
+                  ) : (
+                    <>
+                      {item.replyPreview ? (
+                        <View style={[styles.replySnippet, isMine ? styles.replySnippetOut : styles.replySnippetIn]}>
+                          <Text style={[styles.replySnippetName, { color: isMine ? '#1f5f3f' : item.senderColor }]}>
+                            {item.replySenderName}
+                          </Text>
+                          <Text style={styles.replySnippetText} numberOfLines={2}>{item.replyPreview}</Text>
+                        </View>
+                      ) : null}
+                      <Text style={[styles.bubbleText, isMine && styles.bubbleTextOut]}>
+                        {item.content}
+                      </Text>
+                    </>
+                  )}
+                  <View style={styles.messageMeta}>
+                    <Text style={styles.msgTimePill}>
+                      {format(new Date(item.created_at), 'h:mm a')}
+                    </Text>
+                    {isMine && (
+                      <Ionicons
+                        name={
+                          item.syncStatus === 'pending'
+                            ? 'time-outline'
+                            : (item.readBy ?? []).some((rid) => rid !== user?.id)
+                            ? 'checkmark-done'
+                            : 'checkmark'
+                        }
+                        size={14}
+                        color={
+                          item.syncStatus === 'pending'
+                            ? '#999'
+                            : (item.readBy ?? []).some((rid) => rid !== user?.id)
+                            ? '#34B7F1'
+                            : '#aab7bf'
+                        }
+                        style={styles.statusCheck}
+                      />
+                    )}
+                  </View>
+                </View>
+              </View>
+
+              {(item.reactions ?? []).length > 0 ? (
+                <View style={[styles.reactionRow, isMine && styles.reactionRowOut]}>
+                  {(item.reactions ?? []).map((reactionEntry) => (
+                    <TouchableOpacity
+                      key={`${item.id}-${reactionEntry.emoji}`}
+                      activeOpacity={0.88}
+                      style={[
+                        styles.reactionChip,
+                        reactionEntry.reactedByMe && styles.reactionChipActive,
+                      ]}
+                      onPress={() => handleToggleReaction(item.id, reactionEntry.emoji)}
+                    >
+                      <Text style={styles.reactionEmoji}>{reactionEntry.emoji}</Text>
+                      <Text style={styles.reactionCount}>{reactionEntry.count}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              ) : null}
+            </TouchableOpacity>
+          </View>
+        </SwipeableMessage>
       </View>
     );
   }, [handleMessageAction, handleToggleReaction, messages, user?.id]);
 
   return (
     <View style={styles.container}>
-      <SafeAreaView edges={['top']} style={{ backgroundColor: BaseColors.brown900 }}>
-        <View style={styles.chatNav}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backBtn}
-          >
-            <Ionicons name="arrow-back" size={24} color={BaseColors.white} />
-          </TouchableOpacity>
-          <View style={[styles.groupAvatar, { backgroundColor: theme.accent }] }>
-            {groupAvatarUri ? (
-              <Image source={{ uri: groupAvatarUri }} style={styles.groupAvatarImage} />
-            ) : (
-              <Text style={styles.groupAvatarEmoji}>{groupEmoji}</Text>
-            )}
-          </View>
-          <TouchableOpacity
-            style={styles.groupInfo}
-            onPress={() => setShowMembersModal(true)}
-            accessibilityRole="button"
-            accessibilityLabel="View group members"
-          >
-            <Text style={styles.groupName} numberOfLines={1}>{groupName}</Text>
-            <Text style={styles.onlineText}>{groupMembersLabel} · {isPrivateGroup ? 'private group' : 'public group'}</Text>
-          </TouchableOpacity>
-          <View style={styles.navActions}>
-            <TouchableOpacity
-              style={[styles.navIconBtn, !hasVideoCall && styles.navIconBtnDisabled]}
-              onPress={handleVideoCall}
-              accessibilityRole="button"
-              accessibilityLabel="Start video call"
-            >
-              <Ionicons name="videocam" size={22} color={BaseColors.white} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.navIconBtn, !hasVoiceCall && styles.navIconBtnDisabled]}
-              onPress={handleVoiceCall}
-              accessibilityRole="button"
-              accessibilityLabel="Start voice call"
-            >
-              <Ionicons name="call" size={20} color={BaseColors.white} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.navIconBtn}
-              onPress={() => setShowMembersModal(true)}
-              accessibilityRole="button"
-              accessibilityLabel="Open group members menu"
-            >
-              <Ionicons name="ellipsis-vertical" size={20} color={BaseColors.white} />
-            </TouchableOpacity>
-          </View>
-        </View>
-      </SafeAreaView>
+      <HeaderBar
+        title={groupName}
+        subtitle={`${groupMembersLabel} · ${isPrivateGroup ? 'private group' : 'public group'}`}
+        onBackPress={() => navigation.goBack()}
+        enableBlur={true}
+        backgroundColor={BaseColors.brown900}
+        textColor={BaseColors.white}
+        subtitleColor={BaseColors.brown300}
+        rightAction={() => setShowMembersModal(true)}
+        rightIcon="ellipsis-vertical"
+        accentColor={BaseColors.white}
+      />
 
-      <View style={[styles.chatBackground, { backgroundColor: colors.background }]}> 
+      <View style={[styles.chatBackground, { backgroundColor: colors.background }]}>
         <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={{ flex: 1 }}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+          keyboardVerticalOffset={headerHeight}
         >
-          {showingCachedData && offlineTimestamp ? (
-            <View style={styles.offlineNotice}>
-              <Text style={styles.offlineNoticeText}>
-                Offline Mode · {formatOfflineTimestamp(offlineTimestamp)}
-              </Text>
-            </View>
-          ) : null}
-
-          {pendingAttachment ? (
-            <View style={styles.pendingAttachmentBar}>
-              <View style={[styles.pendingAttachmentChip, { backgroundColor: colors.card, borderColor: colors.border }]}> 
-                <Image source={{ uri: pendingAttachment.uri }} style={styles.pendingAttachmentPreview} />
-                <Text style={styles.pendingAttachmentText} numberOfLines={1}>{pendingAttachment.sourceLabel}</Text>
-                <TouchableOpacity onPress={() => setPendingAttachment(null)} accessibilityRole="button" accessibilityLabel="Remove pending attachment">
-                  <Ionicons name="close-circle" size={18} color="#667781" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          ) : null}
-
-          {replyTarget ? (
-            <View style={[styles.replyPreviewBar, { backgroundColor: colors.card, borderColor: colors.border }]}> 
-              <View style={[styles.replyAccent, { backgroundColor: theme.accent }]} />
-              <View style={styles.replyPreviewCopy}>
-                <Text style={[styles.replyPreviewName, { color: theme.accent }]}>{replyTarget.senderName}</Text>
-                <Text style={[styles.replyPreviewText, { color: colors.textSecondary }]} numberOfLines={1}>{replyTarget.preview}</Text>
-              </View>
-              <TouchableOpacity onPress={() => setReplyTarget(null)}>
-                <Ionicons name="close" size={18} color={colors.textMuted} />
-              </TouchableOpacity>
-            </View>
-          ) : null}
-
-          {typingPeople.length > 0 ? (
-            <View style={styles.typingBar}>
-              <View style={styles.typingDots}>
-                <Animated.View style={[styles.typingDot, { opacity: typingAnim }]} />
-                <Animated.View style={[styles.typingDot, { opacity: typingAnim, marginLeft: 4 }]} />
-                <Animated.View style={[styles.typingDot, { opacity: typingAnim, marginLeft: 4 }]} />
-              </View>
-              <Text style={styles.typingText}>
-                {typingPeople.length === 1
-                  ? `${typingPeople[0]} is typing…`
-                  : typingPeople.length === 2
-                  ? `${typingPeople[0]} and ${typingPeople[1]} are typing…`
-                  : 'Several people are typing…'}
-              </Text>
-            </View>
-          ) : null}
-
-          <FlatList
-            ref={flatListRef}
-            data={messages}
-            keyExtractor={(message) => message.id}
-            renderItem={renderMessage}
-            contentContainerStyle={styles.messagesList}
-            onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
-            showsVerticalScrollIndicator={false}
-          />
-
-          <View style={styles.bottomBar}>
-            <View style={[styles.inputContainer, { backgroundColor: colors.card, borderColor: colors.border }]}> 
-              <TouchableOpacity
-                style={styles.emojiBtn}
-                onPress={() => setShowEmojiPicker(true)}
-                accessibilityRole="button"
-                accessibilityLabel="Open emoji picker"
-              >
-                <Ionicons name="happy-outline" size={24} color="#85959f" />
-              </TouchableOpacity>
-              <TextInput
-                style={styles.textInput}
-                value={inputText}
-                onChangeText={(text) => {
-                  setInputText(text);
-                  setIsTyping(text.trim().length > 0);
-
-                  const isNowTyping = text.trim().length > 0;
-                  void presenceChannelRef.current?.track({
-                    typing: isNowTyping,
-                    name: user?.full_name?.trim() || 'Someone',
-                  });
-
-                  if (typingDebounceRef.current) {
-                    clearTimeout(typingDebounceRef.current);
-                  }
-
-                  if (isNowTyping) {
-                    typingDebounceRef.current = setTimeout(() => {
-                      void presenceChannelRef.current?.track({ typing: false, name: user?.full_name?.trim() || 'Someone' });
-                    }, 3000);
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={{ flex: 1 }}>
+              <FlatList
+                ref={flatListRef}
+                data={messages}
+                keyExtractor={(message) => message.id}
+                renderItem={renderMessage}
+                contentContainerStyle={[styles.messagesList, { flexGrow: 1 }]}
+                onContentSizeChange={() => {
+                  if (!showScrollToBottom) {
+                    flatListRef.current?.scrollToEnd({ animated: true });
                   }
                 }}
-                placeholder="Message"
-                placeholderTextColor="#85959f"
-                multiline
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
+                showsVerticalScrollIndicator={false}
+                keyboardDismissMode="on-drag"
+                keyboardShouldPersistTaps="handled"
               />
-              <TouchableOpacity
-                style={styles.attachBtn}
-                onPress={handlePickAttachment}
-                accessibilityRole="button"
-                accessibilityLabel="Attach image from library"
-              >
-                <Ionicons name="attach" size={24} color="#85959f" style={{ transform: [{ rotate: '45deg' }] }} />
-              </TouchableOpacity>
-              {!hasComposerContent && (
+
+              {showScrollToBottom && (
                 <TouchableOpacity
-                  style={styles.cameraBtn}
-                  onPress={handleCameraCapture}
-                  accessibilityRole="button"
-                  accessibilityLabel="Take photo with camera"
+                  style={[styles.scrollToBottomBtn, { backgroundColor: colors.card, borderColor: colors.border }]}
+                  onPress={scrollToBottom}
                 >
-                  <Ionicons name="camera" size={24} color="#85959f" />
+                  {hasNewMessages && (
+                    <View style={[styles.newMessagesBadge, { backgroundColor: theme.accent }]} />
+                  )}
+                  <Ionicons name="chevron-down" size={22} color={colors.text} />
                 </TouchableOpacity>
               )}
             </View>
-            <TouchableOpacity
-              style={[styles.sendBtn, { backgroundColor: theme.accent }]}
-              onPress={sendMessage}
-            >
-              {sendMessageMutation.isPending || isUploadingAttachment ? (
-                <ActivityIndicator size="small" color={BaseColors.white} />
-              ) : (
-                <Ionicons
-                  name={hasComposerContent ? "send" : "mic"}
-                  size={20}
-                  color={BaseColors.white}
-                  style={hasComposerContent && { marginLeft: 3 }}
+          </TouchableWithoutFeedback>
+
+          <View style={[styles.composerArea, { backgroundColor: colors.surface }]}>
+            {pendingAttachment ? (
+              <View style={styles.pendingAttachmentBar}>
+                <View style={[styles.pendingAttachmentChip, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                  <Image source={{ uri: pendingAttachment.uri }} style={styles.pendingAttachmentPreview} />
+                  <Text style={styles.pendingAttachmentText} numberOfLines={1}>{pendingAttachment.sourceLabel}</Text>
+                  <TouchableOpacity onPress={() => setPendingAttachment(null)} accessibilityRole="button" accessibilityLabel="Remove pending attachment">
+                    <Ionicons name="close-circle" size={18} color="#667781" />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ) : null}
+
+            {replyTarget ? (
+              <View style={[styles.replyPreviewBar, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <View style={[styles.replyAccent, { backgroundColor: theme.accent }]} />
+                <View style={styles.replyPreviewCopy}>
+                  <Text style={[styles.replyPreviewName, { color: theme.accent }]}>{replyTarget.senderName}</Text>
+                  <Text style={[styles.replyPreviewText, { color: colors.textSecondary }]} numberOfLines={1}>{replyTarget.preview}</Text>
+                </View>
+                <TouchableOpacity onPress={() => setReplyTarget(null)}>
+                  <Ionicons name="close" size={18} color={colors.textMuted} />
+                </TouchableOpacity>
+              </View>
+            ) : null}
+
+            {typingPeople.length > 0 ? (
+              <View style={styles.typingBar}>
+                <View style={styles.typingDots}>
+                  <Animated.View style={[styles.typingDot, { opacity: typingAnim }]} />
+                  <Animated.View style={[styles.typingDot, { opacity: typingAnim, marginLeft: 4 }]} />
+                  <Animated.View style={[styles.typingDot, { opacity: typingAnim, marginLeft: 4 }]} />
+                </View>
+                <Text style={styles.typingText}>
+                  {typingPeople.length === 1
+                    ? `${typingPeople[0]} is typing…`
+                    : typingPeople.length === 2
+                    ? `${typingPeople[0]} and ${typingPeople[1]} are typing…`
+                    : 'Several people are typing…'}
+                </Text>
+              </View>
+            ) : null}
+
+            <View style={[styles.bottomBar, { paddingBottom: isKeyboardVisible ? 12 : Math.max(insets.bottom, 12) }]}>
+              <View style={[styles.inputContainer, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <TouchableOpacity
+                  style={styles.emojiBtn}
+                  onPress={() => setShowEmojiPicker(true)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Open emoji picker"
+                >
+                  <Ionicons name="happy-outline" size={24} color="#85959f" />
+                </TouchableOpacity>
+                <TextInput
+                  style={styles.textInput}
+                  value={inputText}
+                  onChangeText={(text) => {
+                    setInputText(text);
+                    setIsTyping(text.trim().length > 0);
+
+                    const isNowTyping = text.trim().length > 0;
+                    void presenceChannelRef.current?.track({
+                      typing: isNowTyping,
+                      name: user?.full_name?.trim() || 'Someone',
+                    });
+
+                    if (typingDebounceRef.current) {
+                      clearTimeout(typingDebounceRef.current);
+                    }
+
+                    if (isNowTyping) {
+                      typingDebounceRef.current = setTimeout(() => {
+                        void presenceChannelRef.current?.track({ typing: false, name: user?.full_name?.trim() || 'Someone' });
+                      }, 3000);
+                    }
+                  }}
+                  placeholder="Message"
+                  placeholderTextColor="#85959f"
+                  multiline
+                  blurOnSubmit={false}
+                  selectionColor={theme.accent}
                 />
-              )}
-            </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.attachBtn}
+                  onPress={handlePickAttachment}
+                  accessibilityRole="button"
+                  accessibilityLabel="Attach image from library"
+                >
+                  <Ionicons name="attach" size={24} color="#85959f" style={{ transform: [{ rotate: '45deg' }] }} />
+                </TouchableOpacity>
+                {!hasComposerContent && (
+                  <TouchableOpacity
+                    style={styles.cameraBtn}
+                    onPress={handleCameraCapture}
+                    accessibilityRole="button"
+                    accessibilityLabel="Take photo with camera"
+                  >
+                    <Ionicons name="camera" size={24} color="#85959f" />
+                  </TouchableOpacity>
+                )}
+              </View>
+              <TouchableOpacity
+                style={[styles.sendBtn, { backgroundColor: theme.accent }]}
+                onPress={sendMessage}
+              >
+                {sendMessageMutation.isPending || isUploadingAttachment ? (
+                  <ActivityIndicator size="small" color={BaseColors.white} />
+                ) : (
+                  <Ionicons
+                    name={hasComposerContent ? "send" : "mic"}
+                    size={22}
+                    color={BaseColors.white}
+                    style={hasComposerContent && { marginLeft: 3 }}
+                  />
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
         </KeyboardAvoidingView>
       </View>
@@ -1963,6 +2095,7 @@ export default function GroupChatScreen() {
                     placeholder="Search by name or email"
                     placeholderTextColor="#8b97a0"
                     style={styles.adminSearchInput}
+                    selectionColor={theme.accent}
                   />
                   {memberSearchQuery.trim().length < 2 ? (
                     <Text style={styles.adminEmptyText}>Type at least 2 characters to search.</Text>
@@ -1994,7 +2127,11 @@ export default function GroupChatScreen() {
                 </View>
               </View>
             ) : null}
-            <ScrollView style={styles.membersList} contentContainerStyle={styles.membersListContent}>
+            <ScrollView
+              style={styles.membersList}
+              contentContainerStyle={styles.membersListContent}
+              keyboardDismissMode="on-drag"
+            >
               {groupMembers.map((member) => (
                 <View key={member.id} style={styles.memberRow}>
                   <View style={[styles.memberAvatar, { backgroundColor: member.color }]}>
@@ -2110,6 +2247,7 @@ export default function GroupChatScreen() {
               numberOfLines={4}
               textAlignVertical="top"
               maxLength={280}
+              selectionColor={theme.accent}
             />
 
             <TouchableOpacity
@@ -2207,6 +2345,21 @@ export default function GroupChatScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f4efe8' },
+  swipeableContainer: {
+    position: 'relative',
+    justifyContent: 'center',
+  },
+  replyIconContainer: {
+    position: 'absolute',
+    left: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: -1,
+  },
   chatBackground: { flex: 1 },
   chatNav: {
     flexDirection: 'row',
@@ -2378,7 +2531,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   offlineNoticeText: { color: '#fff', fontSize: 11, fontFamily: Typography.sansMedium },
-  bottomBar: { flexDirection: 'row', alignItems: 'flex-end', paddingHorizontal: 8, paddingBottom: 12, paddingTop: 8 },
+  scrollToBottomBtn: {
+    position: 'absolute',
+    bottom: 16,
+    right: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    borderWidth: 1,
+    zIndex: 10,
+  },
+  newMessagesBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    borderWidth: 1.5,
+    borderColor: '#fff',
+    zIndex: 11,
+  },
+  composerArea: {
+    backgroundColor: 'transparent',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: 'rgba(0,0,0,0.05)',
+  },
+  bottomBar: { flexDirection: 'row', alignItems: 'flex-end', paddingHorizontal: 8, paddingBottom: 12, paddingTop: 6 },
   inputContainer: {
     flex: 1,
     flexDirection: 'row',

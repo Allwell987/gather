@@ -11,6 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import HeaderBar from '../../components/common/HeaderBar';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import {
@@ -249,12 +250,15 @@ export default function HomeScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <SafeAreaView edges={['top']} style={{ backgroundColor: BaseColors.brown900 }}>
-        <View style={styles.nav}>
-          <View>
-            <Text style={styles.navHello}>{greeting}</Text>
-            <Text style={styles.navName}>{firstName} 👋</Text>
-          </View>
+      <HeaderBar
+        title={`${firstName} 👋`}
+        subtitle={greeting}
+        showBack={false}
+        backgroundColor={BaseColors.brown900}
+        textColor={BaseColors.white}
+        subtitleColor={BaseColors.brown200}
+        enableBlur={true}
+        rightElement={
           <View style={styles.navRight}>
             <TouchableOpacity style={styles.notifBtn}>
               <Ionicons name="notifications-outline" size={22} color={BaseColors.white} />
@@ -268,13 +272,15 @@ export default function HomeScreen() {
               <Text style={styles.avatarText}>{user?.full_name?.charAt(0) ?? 'G'}</Text>
             </TouchableOpacity>
           </View>
-        </View>
-      </SafeAreaView>
+        }
+        style={{ borderBottomWidth: 0 }}
+      />
 
       <Animated.ScrollView
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], { useNativeDriver: false })}
         scrollEventThrottle={16}
         showsVerticalScrollIndicator={false}
+        keyboardDismissMode="on-drag"
         contentContainerStyle={{ paddingBottom: 32 }}
         refreshControl={<RefreshControl refreshing={loading} onRefresh={fetchHomeData} tintColor={theme.accent} />}
       >
@@ -436,7 +442,8 @@ export default function HomeScreen() {
                 placeholderTextColor={colors.textMuted} 
                 multiline 
                 autoFocus 
-              /> 
+                selectionColor={theme.accent}
+              />
               <TouchableOpacity 
                 style={[styles.noteModalSaveBtn, { backgroundColor: theme.accent, opacity: savingVerseNote ? 0.6 : 1 }]} 
                 onPress={handleSaveVerseNote} 

@@ -9,6 +9,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import HeaderBar from '../../components/common/HeaderBar';
 import { useAuthStore } from '../../store/authStore';
 import { ensureProfileForSession } from '../../services/profile';
 import { supabase } from '../../services/supabase';
@@ -142,14 +143,18 @@ export default function ThemePickerScreen() {
         colors={[BaseColors.brown900, BaseColors.brown800]}
         style={StyleSheet.absoluteFillObject}
       />
-      <SafeAreaView style={styles.safe}>
-        {/* Header */}
+      <HeaderBar
+        title={isOnboardingFlow ? "Setup Profile" : "Appearance"}
+        showBack={!fromOnboarding}
+        onBackPress={() => navigation.goBack()}
+        backgroundColor={BaseColors.brown900}
+        textColor={BaseColors.white}
+        subtitleColor={BaseColors.brown300}
+        enableBlur={true}
+      />
+      <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
+        {/* Header content moved into scroll or adjusted */}
         <View style={styles.header}>
-          {!fromOnboarding && (
-            <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-              <Ionicons name="arrow-back" size={22} color={BaseColors.white} />
-            </TouchableOpacity>
-          )}
           <View style={styles.headerText}>
             <Text style={dynamicStyles.stepLabel}>
               {isOnboardingFlow ? 'Step 2 of 2' : 'Appearance'}
@@ -189,6 +194,7 @@ export default function ThemePickerScreen() {
         <ScrollView
           contentContainerStyle={activeTab === 'theme' ? styles.grid : styles.fontGrid}
           showsVerticalScrollIndicator={false}
+          keyboardDismissMode="on-drag"
         >
           {activeTab === 'theme' ? (
             // Colour grid

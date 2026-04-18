@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
+import HeaderBar from '../../components/common/HeaderBar';
 import { useToastStore } from '../../store/toastStore';
 import {
   getAuthRedirectUrl,
@@ -135,11 +136,15 @@ export default function EmailVerificationScreen() {
         colors={[BaseColors.brown900, BaseColors.brown800]}
         style={StyleSheet.absoluteFillObject}
       />
-      <SafeAreaView style={styles.safe}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={22} color={BaseColors.white} />
-        </TouchableOpacity>
-
+      <HeaderBar
+        title="Verification"
+        onBackPress={() => navigation.goBack()}
+        backgroundColor="transparent"
+        textColor={BaseColors.white}
+        enableBlur={true}
+        blurTint="dark"
+      />
+      <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
         <View style={styles.header}>
           <View style={styles.iconContainer}>
             <Ionicons name="mail-unread" size={48} color={BaseColors.white} />

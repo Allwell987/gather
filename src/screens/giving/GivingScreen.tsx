@@ -14,7 +14,10 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import LottieView from 'lottie-react-native';
+import * as Haptics from 'expo-haptics';
 import { Paystack, paystackProps } from 'react-native-paystack-webview';
+import HeaderBar from '../../components/common/HeaderBar';
 import { useThemeStore } from '../../store/themeStore';
 import { useAuthStore } from '../../store/authStore';
 import { BaseColors, Typography, Spacing, Radius, CHURCH } from '../../constants/theme';
@@ -147,6 +150,7 @@ export default function GivingScreen() {
       queryClient.invalidateQueries({ queryKey: ['campaigns'] });
       setCheckoutConfig(null);
       setShowSuccess(true);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     },
     onError: (error) => {
       console.error('Error saving donation:', error);
@@ -221,23 +225,17 @@ export default function GivingScreen() {
 
   return (
     <View style={styles.container}>
-      <SafeAreaView edges={['top']} style={{ backgroundColor: BaseColors.brown900 }}>
-        <View style={styles.heroNav}>
-          <TouchableOpacity
-            onPress={() => navigation.goBack()}
-            style={styles.backBtn}
-            accessibilityRole="button"
-            accessibilityLabel="Go back"
-          >
-            <Ionicons name="arrow-back" size={20} color={BaseColors.white} />
-          </TouchableOpacity>
-          <View style={styles.heroCenter}>
-            <Text style={styles.heroTitle}>Give</Text>
-            <Text style={styles.heroSubtitle}>{CHURCH.name}</Text>
-          </View>
-          <View style={{ width: 36 }} />
-        </View>
+      <HeaderBar
+        title="Give"
+        subtitle={CHURCH.name}
+        onBackPress={() => navigation.goBack()}
+        backgroundColor={BaseColors.brown900}
+        textColor={BaseColors.white}
+        subtitleColor={BaseColors.brown300}
+        enableBlur={true}
+      />
 
+      <View style={{ backgroundColor: BaseColors.brown900 }}>
         <View style={styles.heroStats}>
           <View style={[styles.heroGlow, { backgroundColor: theme.accentSubtle }]} />
           <Text style={styles.heroLabel}>Total Giving (This Year)</Text>
@@ -253,9 +251,13 @@ export default function GivingScreen() {
             </View>
           </View>
         </View>
-      </SafeAreaView>
+      </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 40 }}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 40 }}
+        keyboardDismissMode="on-drag"
+      >
         <View style={[styles.giveCard, { borderTopColor: theme.accent }]}>
           <Text style={styles.cardTitle}>Support our mission</Text>
 
@@ -315,6 +317,7 @@ export default function GivingScreen() {
               }}
               keyboardType="numeric"
               placeholder="0"
+              selectionColor={theme.accent}
             />
           </View>
           {amountError && (
@@ -429,7 +432,12 @@ export default function GivingScreen() {
       <Modal visible={showSuccess} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
-            <Ionicons name="checkmark-circle" size={64} color={theme.accent} />
+            <LottieView
+              source={require('../../../assets/animations/success-check.json')}
+              autoPlay
+              loop={false}
+              style={{ width: 120, height: 120 }}
+            />
             <Text style={styles.successTitle}>Gift received! 🙌</Text>
             <Text style={styles.successVerse}>&ldquo;Each of you should give what you have decided in your heart to give.&rdquo;</Text>
             <Text style={styles.successRef}>— 2 Corinthians 9:7</Text>

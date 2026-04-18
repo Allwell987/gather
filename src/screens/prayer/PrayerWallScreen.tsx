@@ -7,9 +7,12 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
+import LottieView from 'lottie-react-native';
 import { useThemeStore } from '../../store/themeStore';
 import { useToastStore } from '../../store/toastStore';
 import { useAuthStore } from '../../store/authStore';
+import { HeaderBar } from '../../components/common';
 import {
   formatOfflineTimestamp,
   readOfflineCache,
@@ -65,7 +68,7 @@ const mergePrayerRequests = (items: PrayerRequestUI[]) => {
   });
 };
 
-export default function PrayerWallScreen() {
+export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: boolean }) {
   const { theme, colors } = useThemeStore();
   const { showToast } = useToastStore();
   const { user } = useAuthStore();
@@ -81,6 +84,7 @@ export default function PrayerWallScreen() {
   const [submitting, setSubmitting] = useState(false);
   const [showingCachedData, setShowingCachedData] = useState(false);
   const [offlineTimestamp, setOfflineTimestamp] = useState<string | null>(null);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
 
   const headerOpacity = useRef(new Animated.Value(0)).current;
   const listOpacity = useRef(new Animated.Value(0)).current;
@@ -231,6 +235,7 @@ export default function PrayerWallScreen() {
   });
 
   const togglePraying = (id: string) => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setPrayers((prev) => prev.map((p) => {
       if (p.id !== id) return p;
       return {
@@ -325,6 +330,9 @@ export default function PrayerWallScreen() {
       setPrayers((prev) => [newPrayer, ...prev]);
       setNewPrayerText('');
       setShowCompose(false);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setShowSuccessAnimation(true);
+      setTimeout(() => setShowSuccessAnimation(false), 2500);
       showToast({ title: 'Prayer posted', message: 'Your request is live on the wall.', variant: 'success' });
     } catch (err) {
       if (await shouldQueueOfflineAction(err)) {
@@ -360,6 +368,7 @@ export default function PrayerWallScreen() {
         setPrayers((prev) => mergePrayerRequests([queuedPrayer, ...prev]));
         setNewPrayerText('');
         setShowCompose(false);
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
         showToast({
           title: 'Saved offline',
           message: 'Your prayer request will post when you are back online.',
@@ -367,6 +376,7 @@ export default function PrayerWallScreen() {
         });
         return;
       }
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       setComposeError('Could not post prayer. Please try again.');
     } finally {
       setSubmitting(false);
@@ -375,25 +385,26 @@ export default function PrayerWallScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }] }>
-      <SafeAreaView edges={['top']} style={{ backgroundColor: BaseColors.brown900 }}>
-        <Animated.View style={[styles.header, { opacity: headerOpacity }]}>
-          <View>
-            <Text style={styles.headerTitle}>Prayer Wall</Text>
-            <Text style={styles.headerSub}>The Wealth Reality Church</Text>
-          </View>
-          <TouchableOpacity
-            style={[styles.composeBtn, { backgroundColor: theme.accent }]}
-            onPress={() => {
-              setComposeError(null);
-              setShowCompose(true);
-            }}
-            accessibilityRole="button"
-            accessibilityLabel="Compose prayer request"
-          >
-            <Ionicons name="add" size={24} color={BaseColors.white} />
-          </TouchableOpacity>
-        </Animated.View>
+      {!hideHeader && (
+        <HeaderBar
+          title="Prayer Wall"
+          subtitle="The Wealth Reality Church"
+          enableBlur={true}
+          backgroundColor={BaseColors.brown900}
+          textColor={BaseColors.white}
+          subtitleColor={BaseColors.brown300}
+          showBack={false}
+          rightAction={() => {
+            void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            setComposeError(null);
+            setShowCompose(true);
+          }}
+          rightIcon="add"
+          accentColor={BaseColors.white}
+        />
+      )}
 
+      <SafeAreaView edges={[]} style={{ backgroundColor: 'transparent' }}>
         <Animated.View style={[styles.statsRow, { backgroundColor: colors.border, opacity: headerOpacity }] }>
           <View style={[styles.stat, { backgroundColor: theme.accentLight }]}>
             <Text style={[styles.statNum, { color: theme.accentDeep }]}>{prayers.length + 12}</Text>
@@ -411,10 +422,13 @@ export default function PrayerWallScreen() {
 
         <Animated.View style={[styles.tabs, { backgroundColor: colors.card, borderBottomColor: colors.border, opacity: headerOpacity }] }>
           {TABS.map((tab) => (
-            <TouchableOpacity
+              <TouchableOpacity
               key={tab}
               style={[styles.tab, activeTab === tab && { borderBottomColor: theme.accent }]}
-              onPress={() => setActiveTab(tab)}
+              onPress={() => {
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setActiveTab(tab);
+              }}
             >
               <Text style={[
                 styles.tabText,
@@ -432,6 +446,7 @@ export default function PrayerWallScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.list}
         style={{ opacity: listOpacity }}
+        keyboardDismissMode="on-drag"
       >
         {showingCachedData && offlineTimestamp && (
           <View style={[styles.cachedBanner, { borderColor: theme.accentBorder, backgroundColor: theme.accentLight }]}>
@@ -535,7 +550,11 @@ export default function PrayerWallScreen() {
               </TouchableOpacity>
             </View>
 
-            <ScrollView contentContainerStyle={styles.composeBody}>
+            <ScrollView
+              contentContainerStyle={styles.composeBody}
+              keyboardDismissMode="on-drag"
+              keyboardShouldPersistTaps="handled"
+            >
               <Text style={[styles.composeLabel, { color: colors.textSecondary }]}>Category</Text>
               <View style={styles.categoryRow}>
                 {CATEGORIES.map((cat) => (
@@ -577,6 +596,8 @@ export default function PrayerWallScreen() {
                   placeholder="Share what you need prayer for…"
                   placeholderTextColor={colors.textMuted}
                   multiline
+                  textAlignVertical="top"
+                  selectionColor={theme.accent}
                 />
                 {composeError && (
                   <View style={styles.errorContainer}>
@@ -617,6 +638,25 @@ export default function PrayerWallScreen() {
           </KeyboardAvoidingView>
         </SafeAreaView>
       </Modal>
+
+      {/* Success Animation Overlay */}
+      <Modal
+        visible={showSuccessAnimation}
+        transparent
+        animationType="fade"
+      >
+        <View style={styles.animationOverlay}>
+          <View style={styles.animationContainer}>
+            <LottieView
+              source={require('../../../assets/animations/success-check.json')}
+              autoPlay
+              loop={false}
+              style={styles.successLottie}
+            />
+            <Text style={styles.successTitle}>Request Posted!</Text>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -633,6 +673,7 @@ const styles = StyleSheet.create({
   statsRow: {
     flexDirection: 'row', gap: 1, backgroundColor: BaseColors.brown100,
     marginHorizontal: Spacing.xl, borderRadius: Radius.md, overflow: 'hidden',
+    marginTop: Spacing.md,
   },
   stat: { flex: 1, backgroundColor: BaseColors.white, padding: Spacing.md, alignItems: 'center' },
   statNum: { fontFamily: Typography.serif, fontSize: Typography.sizes.xl, color: BaseColors.brown900 },
@@ -703,4 +744,31 @@ const styles = StyleSheet.create({
   submitBtnText: { fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.md, color: BaseColors.white },
   answeredBadge: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8, paddingVertical: 4, borderRadius: Radius.sm },
   answeredBadgeText: { fontFamily: Typography.sansSemiBold, fontSize: 10, color: BaseColors.white, textTransform: 'uppercase' },
+  animationOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  animationContainer: {
+    backgroundColor: BaseColors.white,
+    padding: Spacing.xl,
+    borderRadius: Radius.lg,
+    alignItems: 'center',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  successLottie: {
+    width: 150,
+    height: 150,
+  },
+  successTitle: {
+    fontFamily: Typography.serif,
+    fontSize: Typography.sizes.lg,
+    color: BaseColors.brown900,
+    marginTop: Spacing.md,
+  },
 });

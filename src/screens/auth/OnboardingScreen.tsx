@@ -83,6 +83,7 @@ export default function OnboardingScreen() {
           pagingEnabled
           showsHorizontalScrollIndicator={false}
           scrollEventThrottle={16}
+          keyboardDismissMode="on-drag"
           getItemLayout={(_, index) => ({ length: width, offset: width * index, index })}
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { x: scrollX } } }],
