@@ -29,9 +29,6 @@ npm-debug.*
 yarn-debug.*
 yarn-error.*
 
-# EAS
-eas.json
-
 # Expo
 expo-env.d.ts
 
