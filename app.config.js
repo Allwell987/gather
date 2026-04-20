@@ -44,9 +44,7 @@ const baseConfig = {
   },
   plugins: [
     'expo-apple-authentication',
-    'expo-font',
     'expo-secure-store',
-    'expo-web-browser',
     [
       'expo-image-picker',
       {
