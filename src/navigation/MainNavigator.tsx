@@ -188,19 +188,20 @@ function CustomTabBar({ state, navigation }: {
   navigation: { navigate: (name: string) => void };
 }) {
   const insets = useSafeAreaInsets();
-  const { theme, colors } = useThemeStore();
+  const { theme, colors, themeMode } = useThemeStore();
   const { user } = useAuthStore();
   const { syncSummary } = useOfflineSyncStatus(user?.id);
 
   return (
-    <View style={styles.tabShell}>
+    <View style={[styles.tabShell, { backgroundColor: colors.background }]}>
       <View
         style={[
           styles.tabBar,
           {
-            paddingBottom: insets.bottom + 8,
+            paddingBottom: Math.max(insets.bottom, 8),
             backgroundColor: colors.card,
             borderTopColor: colors.border,
+            borderTopWidth: themeMode === 'dark' ? 0.5 : 1,
           },
         ]}
       >

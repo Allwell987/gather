@@ -355,9 +355,6 @@ export default function EventsScreen({ hideHeader = false }: { hideHeader?: bool
           title="Events"
           subtitle={CHURCH.name}
           onBackPress={() => navigation.goBack()}
-          backgroundColor={BaseColors.brown900}
-          textColor={BaseColors.white}
-          subtitleColor={BaseColors.brown300}
           enableBlur={true}
         />
       )}

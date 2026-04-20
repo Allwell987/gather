@@ -286,8 +286,6 @@ function GuestProfilePrompt({
       <HeaderBar
         title="My Profile"
         showBack={false}
-        backgroundColor={BaseColors.brown900}
-        textColor={BaseColors.white}
         enableBlur={true}
         style={{ borderBottomWidth: 0 }}
       />
@@ -1536,9 +1534,6 @@ export default function ProfileScreen() {
         showBack={false}
         rightIcon="pencil"
         rightAction={() => openEditor('profile')}
-        backgroundColor={BaseColors.brown900}
-        textColor={BaseColors.white}
-        accentColor={BaseColors.white}
         enableBlur={true}
         style={{ borderBottomWidth: 0 }}
       />

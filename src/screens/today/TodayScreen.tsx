@@ -136,7 +136,7 @@ export default function TodayScreen() {
     if (markingRead || hasReadToday || !user?.id || !devotional?.id) return;
 
     // Scale pop animation
-    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     Animated.sequence([
       Animated.timing(readScale, { toValue: 1.2, duration: 150, useNativeDriver: true }),
       Animated.spring(readScale, { toValue: 1, friction: 4, useNativeDriver: true }),
@@ -255,7 +255,7 @@ export default function TodayScreen() {
   }, [navigation]);
 
   const handleJoinLive = useCallback(() => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     const youtubeId = getYoutubeIdFromUrl(activeLive?.live_url);
     if (youtubeId) {
       openInAppPlayer(youtubeId);
@@ -334,11 +334,7 @@ export default function TodayScreen() {
         title="Today"
         subtitle={now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
         showBack={false}
-        backgroundColor={BaseColors.brown900}
-        textColor={BaseColors.white}
-        subtitleColor={BaseColors.brown200}
         rightIcon={isLive ? "radio" : undefined}
-        accentColor={BaseColors.red500}
         rightAction={isLive ? handleJoinLive : undefined}
         style={{ borderBottomWidth: 0 }}
         enableBlur={true}

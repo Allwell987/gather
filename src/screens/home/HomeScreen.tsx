@@ -254,14 +254,11 @@ export default function HomeScreen() {
         title={`${firstName} 👋`}
         subtitle={greeting}
         showBack={false}
-        backgroundColor={BaseColors.brown900}
-        textColor={BaseColors.white}
-        subtitleColor={BaseColors.brown200}
         enableBlur={true}
         rightElement={
           <View style={styles.navRight}>
             <TouchableOpacity style={styles.notifBtn}>
-              <Ionicons name="notifications-outline" size={22} color={BaseColors.white} />
+              <Ionicons name="notifications-outline" size={22} color={colors.text} />
               <View style={[styles.notifDot, { backgroundColor: theme.accent }]} />
             </TouchableOpacity>
             <Image source={require('../../../assets/icon.png')} style={styles.logoSmall} resizeMode="contain" />

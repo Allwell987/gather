@@ -173,9 +173,9 @@ export default function RegisterScreen() {
       <HeaderBar
         title="Create Account"
         onBackPress={() => navigation.goBack()}
-        backgroundColor={BaseColors.brown900}
-        textColor={BaseColors.white}
+        backgroundColor="transparent"
         enableBlur={true}
+        blurTint="dark"
       />
       <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
         <KeyboardAvoidingView

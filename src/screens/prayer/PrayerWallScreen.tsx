@@ -235,7 +235,7 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
   });
 
   const togglePraying = (id: string) => {
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
     setPrayers((prev) => prev.map((p) => {
       if (p.id !== id) return p;
       return {
@@ -330,7 +330,15 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
       setPrayers((prev) => [newPrayer, ...prev]);
       setNewPrayerText('');
       setShowCompose(false);
-      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      try {
+      try {
+        void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      } catch (e) {
+        // Ignore haptic errors
+      }
+      } catch (e) {
+        // Ignore haptic errors
+      }
       setShowSuccessAnimation(true);
       setTimeout(() => setShowSuccessAnimation(false), 2500);
       showToast({ title: 'Prayer posted', message: 'Your request is live on the wall.', variant: 'success' });
@@ -368,7 +376,7 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
         setPrayers((prev) => mergePrayerRequests([queuedPrayer, ...prev]));
         setNewPrayerText('');
         setShowCompose(false);
-        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
         showToast({
           title: 'Saved offline',
           message: 'Your prayer request will post when you are back online.',
@@ -376,7 +384,7 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
         });
         return;
       }
-      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error).catch(() => {});
       setComposeError('Could not post prayer. Please try again.');
     } finally {
       setSubmitting(false);
@@ -390,17 +398,13 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
           title="Prayer Wall"
           subtitle="The Wealth Reality Church"
           enableBlur={true}
-          backgroundColor={BaseColors.brown900}
-          textColor={BaseColors.white}
-          subtitleColor={BaseColors.brown300}
           showBack={false}
           rightAction={() => {
-            void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
             setComposeError(null);
             setShowCompose(true);
           }}
           rightIcon="add"
-          accentColor={BaseColors.white}
         />
       )}
 
@@ -426,7 +430,7 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
               key={tab}
               style={[styles.tab, activeTab === tab && { borderBottomColor: theme.accent }]}
               onPress={() => {
-                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
                 setActiveTab(tab);
               }}
             >

@@ -227,9 +227,6 @@ export default function CreateGroupScreen() {
         title="Create Group"
         subtitle="Set the picture and about before anyone joins."
         onBackPress={() => navigation.goBack()}
-        backgroundColor={BaseColors.brown900}
-        textColor={BaseColors.white}
-        subtitleColor={BaseColors.brown300}
         enableBlur={true}
       />
 

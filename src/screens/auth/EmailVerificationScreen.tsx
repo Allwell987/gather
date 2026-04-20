@@ -140,7 +140,6 @@ export default function EmailVerificationScreen() {
         title="Verification"
         onBackPress={() => navigation.goBack()}
         backgroundColor="transparent"
-        textColor={BaseColors.white}
         enableBlur={true}
         blurTint="dark"
       />

@@ -395,9 +395,6 @@ export default function CommunityScreen() {
         title="Community"
         subtitle={CHURCH.name}
         enableBlur={true}
-        backgroundColor={BaseColors.brown900}
-        textColor={BaseColors.white}
-        subtitleColor={BaseColors.brown300}
         showBack={false}
         rightElement={
           activeTab === 'Wall' ? (

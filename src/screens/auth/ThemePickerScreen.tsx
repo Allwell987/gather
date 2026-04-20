@@ -147,10 +147,9 @@ export default function ThemePickerScreen() {
         title={isOnboardingFlow ? "Setup Profile" : "Appearance"}
         showBack={!fromOnboarding}
         onBackPress={() => navigation.goBack()}
-        backgroundColor={BaseColors.brown900}
-        textColor={BaseColors.white}
-        subtitleColor={BaseColors.brown300}
+        backgroundColor="transparent"
         enableBlur={true}
+        blurTint="dark"
       />
       <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
         {/* Header content moved into scroll or adjusted */}

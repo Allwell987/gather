@@ -13,6 +13,8 @@ import { BlurView } from 'expo-blur';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BaseColors, Typography, Spacing } from '../../constants/theme';
 
+import { useThemeStore } from '../../store/themeStore';
+
 export interface HeaderBarProps {
   title: string;
   subtitle?: string;
@@ -39,46 +41,54 @@ export default function HeaderBar({
   rightAction,
   rightIcon,
   rightElement,
-  accentColor = BaseColors.sapphire,
-  backgroundColor = BaseColors.white,
-  textColor = BaseColors.gray900,
-  subtitleColor = BaseColors.gray600,
+  accentColor,
+  backgroundColor,
+  textColor,
+  subtitleColor,
   style,
   enableBlur = false,
   blurIntensity = 80,
-  blurTint = 'light',
+  blurTint,
 }: HeaderBarProps) {
+  const { colors, theme, themeMode } = useThemeStore();
   const HeaderContainer = enableBlur && Platform.OS === 'ios' ? BlurView : View;
+
+  // Use theme colors as defaults if not provided
+  const finalBgColor = backgroundColor || (enableBlur ? 'transparent' : colors.card);
+  const finalTextColor = textColor || colors.text;
+  const finalSubtitleColor = subtitleColor || colors.textSecondary;
+  const finalAccentColor = accentColor || theme.accent;
+  const finalBlurTint = blurTint || (themeMode === 'dark' ? 'dark' : 'light');
 
   return (
     <SafeAreaView edges={['top']} style={[
-      { backgroundColor: enableBlur ? 'transparent' : backgroundColor },
+      { backgroundColor: enableBlur ? 'transparent' : finalBgColor },
       style,
       enableBlur && styles.blurSafeArea
     ]}>
       <HeaderContainer
         intensity={blurIntensity}
-        tint={blurTint}
+        tint={finalBlurTint}
         style={[
           styles.container,
-          { backgroundColor: enableBlur ? 'transparent' : backgroundColor },
+          { backgroundColor: enableBlur ? 'transparent' : finalBgColor },
           enableBlur && styles.blurContainer
         ]}
       >
         {/* Left - Back Button */}
         {showBack && (
           <TouchableOpacity onPress={onBackPress} style={styles.leftButton}>
-            <Ionicons name="arrow-back" size={24} color={textColor} />
+            <Ionicons name="arrow-back" size={24} color={finalTextColor} />
           </TouchableOpacity>
         )}
 
         {/* Center - Title & Subtitle */}
         <View style={styles.center}>
-          <Text style={[Typography.heading3 as any, { color: textColor }]} numberOfLines={1}>
+          <Text style={[Typography.heading3 as any, { color: finalTextColor }]} numberOfLines={1}>
             {title}
           </Text>
           {subtitle && (
-            <Text style={[Typography.caption as any, { color: subtitleColor, marginTop: Spacing.xs }]} numberOfLines={1}>
+            <Text style={[Typography.caption as any, { color: finalSubtitleColor, marginTop: Spacing.xs }]} numberOfLines={1}>
               {subtitle}
             </Text>
           )}
@@ -91,7 +101,7 @@ export default function HeaderBar({
           </View>
         ) : rightAction && rightIcon ? (
           <TouchableOpacity onPress={rightAction} style={styles.rightButton}>
-            <Ionicons name={rightIcon as any} size={24} color={accentColor} />
+            <Ionicons name={rightIcon as any} size={24} color={finalAccentColor} />
           </TouchableOpacity>
         ) : null}
       </HeaderContainer>

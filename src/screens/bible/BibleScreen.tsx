@@ -293,12 +293,8 @@ export default function BibleScreen() {
         title={currentBook}
         subtitle={`Chapter ${currentChapter}`}
         onBackPress={() => setShowBookPicker(true)}
-        backgroundColor={BaseColors.brown900}
-        textColor={BaseColors.white}
-        subtitleColor={BaseColors.brown300}
         rightAction={() => setShowVersionPicker(true)}
         rightIcon="options-outline"
-        accentColor={BaseColors.white}
         enableBlur={true}
       />
 

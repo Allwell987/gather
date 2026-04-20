@@ -186,9 +186,9 @@ export default function LoginScreen() {
       <HeaderBar
         title="Sign In"
         onBackPress={() => navigation.goBack()}
-        backgroundColor={BaseColors.brown900}
-        textColor={BaseColors.white}
+        backgroundColor="transparent"
         enableBlur={true}
+        blurTint="dark"
       />
       <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
         <KeyboardAvoidingView

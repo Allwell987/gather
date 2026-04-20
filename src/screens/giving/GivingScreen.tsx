@@ -150,7 +150,7 @@ export default function GivingScreen() {
       queryClient.invalidateQueries({ queryKey: ['campaigns'] });
       setCheckoutConfig(null);
       setShowSuccess(true);
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
     },
     onError: (error) => {
       console.error('Error saving donation:', error);
@@ -229,9 +229,6 @@ export default function GivingScreen() {
         title="Give"
         subtitle={CHURCH.name}
         onBackPress={() => navigation.goBack()}
-        backgroundColor={BaseColors.brown900}
-        textColor={BaseColors.white}
-        subtitleColor={BaseColors.brown300}
         enableBlur={true}
       />
 

@@ -311,9 +311,6 @@ export default function EventDetailScreen() {
         onBackPress={() => navigation.goBack()}
         rightIcon="share-social-outline"
         rightAction={() => {}} // TODO: Implement share
-        backgroundColor={BaseColors.brown900}
-        textColor={BaseColors.white}
-        accentColor={BaseColors.white}
         enableBlur={true}
         style={{ borderBottomWidth: 0 }}
       />

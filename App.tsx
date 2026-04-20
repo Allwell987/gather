@@ -345,8 +345,8 @@ export default function App() {
               >
                 <StatusBar
                   barStyle={themeMode === 'dark' ? 'light-content' : 'dark-content'}
-                  backgroundColor="transparent"
-                  translucent
+                  backgroundColor={colors.background}
+                  translucent={false}
                 />
                 <RootNavigator />
                 <ToastHost />

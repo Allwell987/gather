@@ -22,11 +22,10 @@ import * as ImagePicker from 'expo-image-picker';
 import * as Clipboard from 'expo-clipboard';
 import * as Haptics from 'expo-haptics';
 import {
-  PanGestureHandler,
-  PanGestureHandlerGestureEvent,
+  Gesture,
+  GestureDetector,
 } from 'react-native-gesture-handler';
 import Reanimated, {
-  useAnimatedGestureHandler,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -397,28 +396,31 @@ const SwipeableMessage = ({ children, onReply }: SwipeableMessageProps) => {
   const translateX = useSharedValue(0);
   const hasTriggered = useSharedValue(false);
 
-  const onGestureEvent = useAnimatedGestureHandler<PanGestureHandlerGestureEvent>({
-    onActive: (event) => {
+  const gesture = Gesture.Pan()
+    .activeOffsetX([0, 10])
+    .failOffsetY([-5, 5])
+    .onUpdate((event) => {
       // Only swipe to the right
       if (event.translationX > 0) {
         translateX.value = event.translationX;
 
         if (event.translationX > SWIPE_THRESHOLD && !hasTriggered.value) {
           hasTriggered.value = true;
-          runOnJS(Haptics.impactAsync)(Haptics.ImpactFeedbackStyle.Light);
+          runOnJS(() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+          })();
         } else if (event.translationX < SWIPE_THRESHOLD && hasTriggered.value) {
           hasTriggered.value = false;
         }
       }
-    },
-    onEnd: () => {
+    })
+    .onEnd(() => {
       if (translateX.value > SWIPE_THRESHOLD) {
         runOnJS(onReply)();
       }
       translateX.value = withSpring(0, { damping: 15, stiffness: 150 });
       hasTriggered.value = false;
-    },
-  });
+    });
 
   const rStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
@@ -438,15 +440,11 @@ const SwipeableMessage = ({ children, onReply }: SwipeableMessageProps) => {
       <Reanimated.View style={[styles.replyIconContainer, iconStyle]}>
         <Ionicons name="return-up-back" size={20} color="#667781" />
       </Reanimated.View>
-      <PanGestureHandler
-        onGestureEvent={onGestureEvent}
-        activeOffsetX={[0, 10]}
-        failOffsetY={[-5, 5]}
-      >
+      <GestureDetector gesture={gesture}>
         <Reanimated.View style={rStyle}>
           {children}
         </Reanimated.View>
-      </PanGestureHandler>
+      </GestureDetector>
     </View>
   );
 };
@@ -1836,12 +1834,8 @@ export default function GroupChatScreen() {
         subtitle={`${groupMembersLabel} · ${isPrivateGroup ? 'private group' : 'public group'}`}
         onBackPress={() => navigation.goBack()}
         enableBlur={true}
-        backgroundColor={BaseColors.brown900}
-        textColor={BaseColors.white}
-        subtitleColor={BaseColors.brown300}
         rightAction={() => setShowMembersModal(true)}
         rightIcon="ellipsis-vertical"
-        accentColor={BaseColors.white}
       />
 
       <View style={[styles.chatBackground, { backgroundColor: colors.background }]}>
