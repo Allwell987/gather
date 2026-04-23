@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "183687397421",
+    "project_id": "wealth-reality-app",
+    "storage_bucket": "wealth-reality-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:183687397421:android:e0d777c9951be03cf878a4",
+        "android_client_info": {
+          "package_name": "com.wealthrealitychurch.gather"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUTIGI5vu9AEQ2_ZE_5PZIM52CKeNe108"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

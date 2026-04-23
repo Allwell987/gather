@@ -29,7 +29,7 @@ const baseConfig = {
       backgroundColor: '#1e140a',
     },
     package: 'com.wealthrealitychurch.gather',
-    googleServicesFile: './android/app/google-services.json',
+    googleServicesFile: './google-services.json',
     permissions: [
       'CAMERA',
       'READ_MEDIA_IMAGES',

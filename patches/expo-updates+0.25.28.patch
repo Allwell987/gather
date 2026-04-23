@@ -1,0 +1,21 @@
+diff --git a/node_modules/expo-updates/expo-updates-gradle-plugin/build.gradle.kts b/node_modules/expo-updates/expo-updates-gradle-plugin/build.gradle.kts
+index 6af024d..b033ada 100644
+--- a/node_modules/expo-updates/expo-updates-gradle-plugin/build.gradle.kts
++++ b/node_modules/expo-updates/expo-updates-gradle-plugin/build.gradle.kts
+@@ -8,12 +8,15 @@ plugins {
+ repositories {
+   google()
+   mavenCentral()
++  flatDir {
++    dir(file("../../../@react-native/gradle-plugin/react-native-gradle-plugin/build/libs"))
++  }
+ }
+ 
+ dependencies {
+   implementation(gradleApi())
+   compileOnly("com.android.tools.build:gradle:8.2.1")
+-  implementation("com.facebook.react:react-native-gradle-plugin")
++  implementation(files("../../@react-native/gradle-plugin/react-native-gradle-plugin/build/libs/react-native-gradle-plugin.jar"))
+ }
+ 
+ java {
