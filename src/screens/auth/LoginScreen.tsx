@@ -247,7 +247,7 @@ export default function LoginScreen() {
             <View style={styles.inputWrap}>
               <Text style={styles.label}>Email</Text>
               <TextInput
-                style={[styles.input, errors.email && styles.inputError]}
+                style={[styles.input, errors.email ? styles.inputError : null]}
                 value={email}
                 onChangeText={(t) => {
                   setEmail(t);
@@ -264,7 +264,7 @@ export default function LoginScreen() {
 
             <View style={styles.inputWrap}>
               <Text style={styles.label}>Password</Text>
-              <View style={[styles.passWrap, errors.password && styles.inputError]}>
+              <View style={[styles.passWrap, errors.password ? styles.inputError : null]}>
                 <TextInput
                   style={[styles.input, { flex: 1, borderWidth: 0, paddingHorizontal: 0 }]}
                   value={password}

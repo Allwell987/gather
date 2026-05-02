@@ -9,7 +9,10 @@
     "web": "expo start --web",
     "postinstall": "patch-package",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",
@@ -25,6 +28,7 @@
     "@react-navigation/bottom-tabs": "^6.5.20",
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/stack": "^6.3.29",
+    "@sentry/react-native": "^8.9.2",
     "@supabase/supabase-js": "^2.43.1",
     "@tanstack/react-query": "^5.40.0",
     "date-fns": "^3.6.0",
@@ -69,8 +73,15 @@
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
+    "@testing-library/react-native": "^12.4.3",
+    "@types/jest": "^30.0.0",
     "@types/react": "~18.2.79",
+    "eslint": "^8.57.0",
+    "eslint-config-expo": "^55.0.0",
+    "jest": "^30.3.0",
+    "jest-expo": "^55.0.16",
     "patch-package": "^8.0.0",
+    "react-test-renderer": "18.2.0",
     "typescript": "~5.3.3"
   },
   "overrides": {
@@ -81,6 +92,12 @@
     "tar": "^7.5.13",
     "send": "^0.19.0",
     "ajv": "^8.17.1",
+    "eslint": {
+      "ajv": "^6.14.0"
+    },
+    "@eslint/eslintrc": {
+      "ajv": "^6.14.0"
+    },
     "cacache": "^18.0.4"
   },
   "private": true

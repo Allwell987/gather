@@ -5,7 +5,6 @@ import {
   Image, Alert, Linking, RefreshControl, Share, Animated,
   ActivityIndicator, LayoutAnimation, Platform, UIManager
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { useThemeStore } from '../../store/themeStore';
@@ -74,7 +73,7 @@ const DAILY_DEVOTIONAL = {
   title: 'Walking in the Light',
   reference: '1 John 1:7',
   content: 'But if we walk in the light, as he is in the light, we have fellowship with one another...',
-  author: 'Lead Pastor',
+  author: 'Pst. Kish Agbaka',
 };
 
 export default function TodayScreen() {

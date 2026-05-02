@@ -229,7 +229,7 @@ export default function RegisterScreen() {
               <View style={[styles.inputWrap, { flex: 1 }]}>
                 <Text style={styles.label}>First name *</Text>
                 <TextInput
-                  style={[styles.input, errors.firstName && styles.inputError]}
+                  style={[styles.input, errors.firstName ? styles.inputError : null]}
                   value={firstName}
                   onChangeText={(t) => {
                     setFirstName(t);
@@ -257,7 +257,7 @@ export default function RegisterScreen() {
             <View style={styles.inputWrap}>
               <Text style={styles.label}>Email *</Text>
               <TextInput
-                style={[styles.input, errors.email && styles.inputError]}
+                style={[styles.input, errors.email ? styles.inputError : null]}
                 value={email}
                 onChangeText={(t) => {
                   setEmail(t);
@@ -274,7 +274,7 @@ export default function RegisterScreen() {
 
             <View style={styles.inputWrap}>
               <Text style={styles.label}>Password *</Text>
-              <View style={[styles.passWrap, errors.password && styles.inputError]}>
+              <View style={[styles.passWrap, errors.password ? styles.inputError : null]}>
                 <TextInput
                   style={[styles.input, { flex: 1, borderWidth: 0, paddingHorizontal: 0 }]}
                   value={password}
@@ -296,7 +296,7 @@ export default function RegisterScreen() {
 
             <View style={styles.inputWrap}>
               <Text style={styles.label}>Confirm Password *</Text>
-              <View style={[styles.passWrap, errors.confirmPassword && styles.inputError]}>
+              <View style={[styles.passWrap, errors.confirmPassword ? styles.inputError : null]}>
                 <TextInput
                   style={[styles.input, { flex: 1, borderWidth: 0, paddingHorizontal: 0 }]}
                   value={confirmPassword}

@@ -4,17 +4,16 @@ import {
   ActivityIndicator,
   Alert,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { parseISO, format, subHours, isBefore } from 'date-fns';
-import { SchedulableTriggerInputTypes } from 'expo-notifications';
 import { useThemeStore } from '../../store/themeStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
@@ -262,7 +261,7 @@ export default function EventDetailScreen() {
     const result = await scheduleNotification(
       'Upcoming Event',
       `${event.title} starts in 1 hour`,
-      { type: SchedulableTriggerInputTypes.DATE, date: reminderTime },
+      reminderTime,
       {
         type: 'event',
         eventId: event.id,
@@ -276,6 +275,18 @@ export default function EventDetailScreen() {
         message: 'You will get a reminder one hour before the event starts.',
         variant: 'success',
       });
+    }
+  };
+
+  const handleShare = async () => {
+    if (!event) return;
+    try {
+      await Share.share({
+        message: `Join us for ${event.title} at ${CHURCH.name}!\n\n📅 ${event.dateLabel}\n🕒 ${event.timeLabel}\n📍 ${event.location || CHURCH.fullLocation}\n\nDownload the Gather app to RSVP!`,
+        title: event.title,
+      });
+    } catch (error) {
+      console.error('Sharing error:', error);
     }
   };
 
@@ -310,7 +321,7 @@ export default function EventDetailScreen() {
         title="Event Details"
         onBackPress={() => navigation.goBack()}
         rightIcon="share-social-outline"
-        rightAction={() => {}} // TODO: Implement share
+        rightAction={handleShare}
         enableBlur={true}
         style={{ borderBottomWidth: 0 }}
       />

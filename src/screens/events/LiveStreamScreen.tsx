@@ -10,7 +10,6 @@ import {
   Linking,
   Dimensions,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
 import HeaderBar from '../../components/common/HeaderBar';

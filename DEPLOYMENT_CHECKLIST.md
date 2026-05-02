@@ -63,7 +63,16 @@ Step 3: Update Local Code
 - [ ] Run **`database/storage_avatars.sql`** — creates avatar storage bucket + policies
 - [ ] Run **`database/storage_chat_images.sql`** — creates chat images storage bucket + policies
 - [ ] Optionally run **`database/events_seed.sql`** to populate sample event data
-- [ ] Enable Realtime on: `messages`, `message_reactions`, `message_reads`, `prayer_requests`
+- [ ] **Realtime Activation**: Enable Realtime in Supabase Dashboard (Database -> Replication) for:
+  - `messages`
+  - `message_reactions`
+  - `message_reads`
+  - `prayer_requests`
+
+### 1.1 Development Environment & Tooling
+- [ ] **Node Version**: Use Node **v20 (LTS)** for best compatibility.
+- [ ] **NPM Permissions**: If you get `EACCES` errors, run: `sudo chown -R $(whoami) ~/.npm`
+- [ ] **Check Health**: Run `npm run check` regularly.
 
 ### 1.1 Google Sign-In Prerequisites (Supabase + Google Cloud)
 - [ ] In Supabase Dashboard -> Authentication -> Providers -> Google, enable Google provider
@@ -125,9 +134,10 @@ npx expo start --dev-client
 - [ ] Browse Bible, prayer wall, events, community
 - [ ] Create a group (public and private)
 - [ ] Join public group directly
-- [ ] Request to join private group; approve from admin panel
+- [ ] Request to join private group; approve from the new **Join Requests** screen
 - [ ] Promote member to admin; remove admin
 - [ ] Submit a giving transaction (₦500 minimum enforced)
+- [ ] **Share Event**: Open an event and tap the share icon; verify message content
 
 ---
 

@@ -1,5 +1,5 @@
 // src/screens/chat/ManageRequestsScreen.tsx
-import React, { useCallback } from 'react';
+import React from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -7,7 +7,6 @@ import {
   Text,
   TouchableOpacity,
   View,
-  Alert,
   Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';

@@ -1,0 +1,96 @@
+diff --git a/node_modules/jest-expo/src/preset/setup.js b/node_modules/jest-expo/src/preset/setup.js
+index 601b547..88312ff 100644
+--- a/node_modules/jest-expo/src/preset/setup.js
++++ b/node_modules/jest-expo/src/preset/setup.js
+@@ -7,7 +7,24 @@
+ const fs = require('fs');
+ const merge = require('lodash/merge');
+ const path = require('path');
+-const mockNativeModules = require('react-native/Libraries/BatchedBridge/NativeModules').default;
++let mockNativeModules;
++try {
++  const nativeModules = require('react-native/Libraries/BatchedBridge/NativeModules');
++  mockNativeModules = (nativeModules && nativeModules.default) || nativeModules;
++} catch (error) {
++  mockNativeModules = {
++    NativeUnimoduleProxy: { viewManagersMetadata: {} },
++    UIManager: {},
++    Linking: {},
++  };
++}
++if (!mockNativeModules || typeof mockNativeModules !== 'object') {
++  mockNativeModules = {
++    NativeUnimoduleProxy: { viewManagersMetadata: {} },
++    UIManager: {},
++    Linking: {},
++  };
++}
+ const stackTrace = require('stacktrace-js');
+ 
+ const publicExpoModules = require('./moduleMocks/expoModules');
+@@ -124,7 +141,13 @@ Object.keys(mockNativeModules.NativeUnimoduleProxy.viewManagersMetadata).forEach
+ );
+ 
+ // Mock Expo's default async require messaging sockets when running tests
+-jest.mock('expo/src/async-require/messageSocket', () => undefined);
++try {
++  jest.mock('expo/src/async-require/messageSocket', () => undefined);
++} catch (error) {
++  if (error.code !== 'MODULE_NOT_FOUND') {
++    throw error;
++  }
++}
+ 
+ try {
+   jest.mock('expo-file-system/legacy', () => ({
+@@ -315,17 +338,41 @@ jest.doMock('expo-modules-core', () => {
+ });
+ 
+ // Installs web implementations of the global.expo object for all platforms to polyfill APIs that are normally installed through JSI.
+-require('expo-modules-core/src/polyfill/dangerous-internal').installExpoGlobalPolyfill();
++try {
++  require('expo-modules-core/src/polyfill/dangerous-internal').installExpoGlobalPolyfill();
++} catch (error) {
++  if (error.code !== 'MODULE_NOT_FOUND') {
++    throw error;
++  }
++}
+ 
+-jest.doMock('expo/src/winter/FormData', () => ({
+-  // The `installFormDataPatch` function is for native runtime only,
+-  // so we don't need to patch `FormData` for the jest runtime.
+-  installFormDataPatch: jest.fn(),
+-}));
+-// Ensure the environment globals are installed before the first test runs.
+-require('expo/src/winter');
++try {
++  jest.doMock('expo/src/winter/FormData', () => ({
++    // The `installFormDataPatch` function is for native runtime only,
++    // so we don't need to patch `FormData` for the jest runtime.
++    installFormDataPatch: jest.fn(),
++  }));
++} catch (error) {
++  if (error.code !== 'MODULE_NOT_FOUND') {
++    throw error;
++  }
++}
++
++try {
++  require('expo/src/winter');
++} catch (error) {
++  if (error.code !== 'MODULE_NOT_FOUND') {
++    throw error;
++  }
++}
+ 
+ // Normally injected by Metro.
+ if (process.env.EXPO_OS !== 'web' && typeof window !== 'undefined') {
+-  require('expo/virtual/streams');
++  try {
++    require('expo/virtual/streams');
++  } catch (error) {
++    if (error.code !== 'MODULE_NOT_FOUND') {
++      throw error;
++    }
++  }
+ }

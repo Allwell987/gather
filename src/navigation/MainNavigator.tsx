@@ -26,6 +26,7 @@ import GroupChatScreen from '../screens/chat/GroupChatScreen';
 import CreateGroupScreen from '../screens/chat/CreateGroupScreen';
 import GivingScreen from '../screens/giving/GivingScreen';
 import EventDetailScreen from '../screens/events/EventDetailScreen';
+import ManageRequestsScreen from '../screens/chat/ManageRequestsScreen';
 import ThemePickerScreen from '../screens/auth/ThemePickerScreen';
 
 export type {
@@ -56,6 +57,7 @@ function HomeStackNavigator() {
       <HomeStack.Screen name="Home" component={HomeScreen} />
       <HomeStack.Screen name="Giving" component={GivingScreen} />
       <HomeStack.Screen name="GroupChat" component={GroupChatScreen} />
+      <HomeStack.Screen name="ManageRequests" component={ManageRequestsScreen} />
     </HomeStack.Navigator>
   );
 }

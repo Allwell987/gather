@@ -22,6 +22,9 @@ const baseConfig = {
     infoPlist: {
       CFBundleAllowMixedLocalizations: true,
     },
+    associatedDomains: [
+      'applinks:gather.wealthrealitychurch.com',
+    ],
   },
   android: {
     adaptiveIcon: {
@@ -40,6 +43,20 @@ const baseConfig = {
       'android.permission.MODIFY_AUDIO_SETTINGS',
       'android.permission.RECORD_AUDIO',
       'android.permission.SYSTEM_ALERT_WINDOW',
+    ],
+    intentFilters: [
+      {
+        action: 'VIEW',
+        autoVerify: true,
+        data: [
+          {
+            scheme: 'https',
+            host: 'gather.wealthrealitychurch.com',
+            pathPrefix: '/',
+          },
+        ],
+        category: ['BROWSER', 'DEFAULT'],
+      },
     ],
   },
   plugins: [

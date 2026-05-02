@@ -28,6 +28,7 @@ export type HomeStackParamList = {
   Home: undefined;
   Giving: undefined;
   GroupChat: { groupId: string; groupName: string };
+  ManageRequests: { groupId: string; groupName: string };
 };
 
 export type CommunityStackParamList = {

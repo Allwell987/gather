@@ -54,7 +54,7 @@ export default function BibleScreen() {
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
   const [showNoteModal, setShowNoteModal] = useState(false);
   const [noteText, setNoteText] = useState('');
-  const [fontSize, setFontSize] = useState(15);
+  const [fontSize] = useState(15);
   const [isOffline, setIsOffline] = useState(false);
   const [usingCached, setUsingCached] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);

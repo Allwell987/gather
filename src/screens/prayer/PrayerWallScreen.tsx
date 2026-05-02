@@ -331,12 +331,8 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
       setNewPrayerText('');
       setShowCompose(false);
       try {
-      try {
         void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-      } catch (e) {
-        // Ignore haptic errors
-      }
-      } catch (e) {
+      } catch {
         // Ignore haptic errors
       }
       setShowSuccessAnimation(true);
@@ -590,7 +586,7 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
                   style={[
                     styles.composeInput,
                     { backgroundColor: colors.card, borderColor: colors.border, color: colors.text },
-                    composeError && styles.inputError,
+                    composeError ? styles.inputError : null,
                   ]}
                   value={newPrayerText}
                   onChangeText={(t) => {

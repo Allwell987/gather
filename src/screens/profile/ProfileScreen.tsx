@@ -16,7 +16,6 @@ import {
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
@@ -1507,15 +1506,8 @@ export default function ProfileScreen() {
 
   // ── Guest view ──────────────────────────────────────────────────────────────
   if (!user) {
-    const parentNav = navigation.getParent();
     const goToAuth = () => {
       setIsGuest(false);
-      // Try navigating to 'Auth' if available, else fallback to 'Login' in AuthNavigator
-      if (parentNav && parentNav.getState && parentNav.getState().routeNames?.includes('Auth')) {
-        parentNav.navigate('Auth' as never);
-      } else {
-        navigation.navigate('Login' as never);
-      }
     };
     return (
       <GuestProfilePrompt

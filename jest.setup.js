@@ -1,0 +1,84 @@
+/* eslint-env jest */
+// Jest setup file
+import '@testing-library/react-native/extend-expect';
+
+// Mock NativeModules before anything else
+jest.mock('react-native/Libraries/BatchedBridge/NativeModules', () => ({
+  __esModule: true,
+  default: {
+    LinkingManager: {
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+    },
+    UIManager: {},
+    NativeUnimoduleProxy: {
+      viewManagersMetadata: {},
+      modulesConstants: {},
+      exportedMethods: {},
+    },
+  },
+}));
+
+// Mock react-native components
+jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
+
+// Mock expo-secure-store
+jest.mock('expo-secure-store', () => ({
+  getItemAsync: jest.fn(() => Promise.resolve(null)),
+  setItemAsync: jest.fn(() => Promise.resolve()),
+  deleteItemAsync: jest.fn(() => Promise.resolve()),
+}));
+
+// Mock @react-native-async-storage/async-storage
+jest.mock('@react-native-async-storage/async-storage', () =>
+  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+);
+
+// Mock supabase
+jest.mock('@supabase/supabase-js', () => ({
+  createClient: jest.fn(() => ({
+    auth: {
+      getSession: jest.fn(),
+      signInWithPassword: jest.fn(),
+      signUp: jest.fn(),
+      signOut: jest.fn(),
+      onAuthStateChange: jest.fn(),
+    },
+    from: jest.fn(() => ({
+      select: jest.fn(() => ({
+        eq: jest.fn(() => ({
+          single: jest.fn(),
+          then: jest.fn(),
+        })),
+        insert: jest.fn(() => ({
+          then: jest.fn(),
+        })),
+        update: jest.fn(() => ({
+          eq: jest.fn(() => ({
+            then: jest.fn(),
+          })),
+        })),
+        delete: jest.fn(() => ({
+          eq: jest.fn(() => ({
+            then: jest.fn(),
+          })),
+        })),
+      })),
+    })),
+  })),
+}));
+
+// Mock expo-notifications
+jest.mock('expo-notifications', () => ({
+  getExpoPushTokenAsync: jest.fn(() => Promise.resolve({ data: 'test-token' })),
+  requestPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
+  addNotificationReceivedListener: jest.fn(),
+  addNotificationResponseReceivedListener: jest.fn(),
+}));
+
+// Silence console warnings during tests
+global.console = {
+  ...console,
+  warn: jest.fn(),
+  error: jest.fn(),
+};

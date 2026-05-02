@@ -162,9 +162,9 @@ export const scheduleDailyVerseNotification = async (
     ? parsedMinute
     : 0;
   const trigger: Notifications.DailyTriggerInput = {
-    type: Notifications.SchedulableTriggerInputTypes.DAILY,
     hour,
     minute,
+    repeats: true,
   };
 
   return scheduleNotification(

@@ -7,7 +7,6 @@ import {
   Image,
   Keyboard,
   KeyboardAvoidingView,
-  Linking,
   Modal,
   Platform,
   ScrollView,
@@ -31,7 +30,7 @@ import Reanimated, {
   withSpring,
   runOnJS,
 } from 'react-native-reanimated';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeStore } from '../../store/themeStore';
@@ -41,7 +40,6 @@ import { HeaderBar } from '../../components/common';
 import { BaseColors, Typography } from '../../constants/theme';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-  formatOfflineTimestamp,
   readOfflineCache,
   writeOfflineCache,
 } from '../../services/offlineCache';
@@ -60,11 +58,9 @@ import {
 import {
   addGroupAdmin,
   addGroupMember,
-  approveJoinRequest,
   getGroupAdminIds,
   getPendingJoinRequests,
   logGroupAdminAction,
-  rejectJoinRequest,
   removeGroupAdmin,
   searchProfilesForGroupInvite,
   type GroupAdminAuditAction,
@@ -72,7 +68,7 @@ import {
 } from '../../services/chatGroups';
 import { supabase } from '../../services/supabase';
 import { format, isSameDay } from 'date-fns';
-import type { Database, Profile, ProfileRole, ChatGroupJoinRequestWithProfile } from '../../types/database';
+import type { Database, Profile, ProfileRole } from '../../types/database';
 import type { HomeStackNavigationProp, GroupChatRouteProp } from '../../types/navigation';
 
 interface Message {
@@ -148,11 +144,6 @@ interface MessageActionTarget {
 const GROUP_META: Record<string, { emoji: string; membersLabel: string }> = {
   'young-adults': { emoji: '👨‍👩', membersLabel: '14 members' },
   'mens-bible-study': { emoji: '📖', membersLabel: '9 members' },
-};
-
-const GROUP_CONTACTS: Record<string, { phoneNumber?: string; videoUrl?: string }> = {
-  'young-adults': { videoUrl: 'https://meet.jit.si/gather-young-adults' },
-  'mens-bible-study': { videoUrl: 'https://meet.jit.si/gather-mens-bible-study' },
 };
 
 const EMOJI_OPTIONS = ['🙏', '🔥', '🙌', '❤️', '😊', '👏', '🎉', '📖', '⛪', '🤍'];
@@ -460,9 +451,6 @@ export default function GroupChatScreen() {
   const groupId = route.params?.groupId ?? 'young-adults';
   const defaultGroupName = route.params?.groupName ?? 'Young Adults Fellowship';
   const groupMeta = GROUP_META[groupId] ?? { emoji: '👥', membersLabel: 'Members' };
-  const groupContacts = GROUP_CONTACTS[groupId];
-  const hasVideoCall = Boolean(groupContacts?.videoUrl);
-  const hasVoiceCall = Boolean(groupContacts?.phoneNumber);
 
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -479,8 +467,8 @@ export default function GroupChatScreen() {
   const [isSavingGroupSettings, setIsSavingGroupSettings] = useState(false);
   const [isUploadingGroupPicture, setIsUploadingGroupPicture] = useState(false);
   const [memberSearchQuery, setMemberSearchQuery] = useState('');
-  const [showingCachedData, setShowingCachedData] = useState(false);
-  const [offlineTimestamp, setOfflineTimestamp] = useState<string | null>(null);
+  const [, setShowingCachedData] = useState(false);
+  const [, setOfflineTimestamp] = useState<string | null>(null);
   const [typingPeople, setTypingPeople] = useState<string[]>([]);
   const typingDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const presenceChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
@@ -494,6 +482,114 @@ export default function GroupChatScreen() {
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [lastMessageId, setLastMessageId] = useState<string | null>(null);
   const [hasNewMessages, setHasNewMessages] = useState(false);
+
+  const getQueuedMessages = useCallback(async (): Promise<Message[]> => {
+    if (!user?.id) return [];
+    const actions = await getQueuedOfflineActions();
+    return actions
+      .filter((a): a is SendMessageOfflineAction & { type: 'send_message' } =>
+        a.type === 'send_message' && a.payload.groupId === groupId && a.payload.userId === user.id
+      )
+      .map((action) => {
+        const payload = action.payload;
+        let content = payload.content;
+        let messageType: 'text' | 'image' = 'text';
+        let imageUrl: string | undefined;
+
+        if (payload.pendingImage) {
+          messageType = 'image';
+          imageUrl = payload.pendingImage.previewUri;
+          content = serializeChatImageMessage({
+            imageUrl: payload.pendingImage.previewUri,
+            caption: payload.content,
+            fileName: payload.pendingImage.fileName ?? undefined,
+            mimeType: payload.pendingImage.mimeType ?? undefined,
+          });
+        }
+
+        const senderName = payload.senderName || user.full_name || 'You';
+
+        return {
+          id: action.id,
+          user_id: user.id,
+          group_id: groupId,
+          content,
+          messageType,
+          imageUrl,
+          imageCaption: messageType === 'image' ? content : undefined,
+          reply_to_message_id: payload.replyToMessageId ?? null,
+          replySenderName: payload.replySenderName,
+          replyPreview: payload.replyPreview,
+          created_at: action.createdAt,
+          updated_at: action.createdAt,
+          senderName,
+          senderInitials: getDisplayInitials(senderName),
+          senderColor: getDisplayColor(senderName, theme.accent, true),
+          isMine: true,
+          verificationLevel: getVerificationLevel(user.role, user.is_verified),
+          reactions: [],
+          readBy: [],
+          syncStatus: 'pending',
+        } as Message;
+      });
+  }, [groupId, theme.accent, user]);
+
+  const { data: groupDetails } = useQuery<GroupDetails | null>({
+    queryKey: ['chat-group-details', groupId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('chat_groups')
+        .select('*')
+        .eq('id', groupId)
+        .returns<GroupDetails>()
+        .maybeSingle();
+
+      if (error) {
+        console.error('loadGroupDetails error', error);
+        return null;
+      }
+
+      return data;
+    },
+  });
+
+  const { data: groupAdminIds = [] } = useQuery({
+    queryKey: ['chat-group-admins', groupId],
+    queryFn: () => getGroupAdminIds(groupId),
+  });
+
+  const groupAdminSet = useMemo(() => new Set(groupAdminIds), [groupAdminIds]);
+  const isGroupAdmin = user?.id ? groupAdminSet.has(user.id) : false;
+  const groupAdminCount = groupAdminSet.size;
+
+  const { data: pendingJoinRequests = [] } = useQuery({
+    queryKey: ['chat-group-pending-requests', groupId],
+    queryFn: () => getPendingJoinRequests(groupId),
+    enabled: isGroupAdmin,
+  });
+
+  const logAdminAction = useCallback(async (
+    action: GroupAdminAuditAction,
+    params: { targetUserId?: string | null; metadata?: Record<string, unknown> } = {}
+  ) => {
+    if (!user?.id) return;
+    try {
+      await logGroupAdminAction({
+        groupId,
+        actorUserId: user.id,
+        action,
+        targetUserId: params.targetUserId,
+        metadata: params.metadata,
+      });
+    } catch (error) {
+      console.error('Failed to log admin action:', error);
+    }
+  }, [groupId, user?.id]);
+
+  const groupName = groupDetails?.name ?? defaultGroupName;
+  const groupEmoji = groupDetails?.emoji ?? groupMeta.emoji;
+  const groupAbout = groupDetails?.description ?? 'Welcome to our fellowship group chat! Connect, share, and grow together.';
+  const isPrivateGroup = groupDetails?.is_private ?? false;
 
   useEffect(() => {
     const showSub = Keyboard.addListener(
@@ -509,140 +605,6 @@ export default function GroupChatScreen() {
       hideSub.remove();
     };
   }, []);
-
-  useEffect(() => {
-    const latest = messages[messages.length - 1]?.id;
-    if (latest && latest !== lastMessageId) {
-      if (showScrollToBottom) {
-        setHasNewMessages(true);
-      }
-      setLastMessageId(latest);
-    }
-  }, [messages, showScrollToBottom, lastMessageId]);
-
-  useEffect(() => {
-    if (!showScrollToBottom) {
-      setHasNewMessages(false);
-    }
-  }, [showScrollToBottom]);
-
-  const { data: groupDetails } = useQuery<GroupDetails | null>({
-    queryKey: ['chat-group-details', groupId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('chat_groups')
-        .select('id, name, emoji, description, display_picture_url, is_private, created_by')
-        .eq('id', groupId)
-        .returns<GroupDetails>()
-        .maybeSingle();
-
-      if (error) {
-        throw error;
-      }
-
-      return data;
-    },
-  });
-
-  const groupName = groupDetails?.name?.trim() || defaultGroupName;
-  const groupEmoji = groupDetails?.emoji || groupMeta.emoji;
-  const groupAvatarUri = groupDetails?.display_picture_url || null;
-  const groupAbout = groupDetails?.description?.trim() || 'No group about yet.';
-  const isPrivateGroup = groupDetails?.is_private ?? true;
-
-  const { data: groupAdminIds = [] } = useQuery<string[]>({
-    queryKey: ['chat-group-admins', groupId],
-    queryFn: () => getGroupAdminIds(groupId),
-  });
-
-  const groupAdminSet = useMemo(() => new Set(groupAdminIds), [groupAdminIds]);
-  const groupAdminCount = groupAdminIds.length;
-  const isGroupOwner = Boolean(user?.id && groupDetails?.created_by === user.id);
-  const isGroupAdmin = Boolean(user?.id && (isGroupOwner || groupAdminSet.has(user.id)));
-
-  const logAdminAction = useCallback(async (
-    action: GroupAdminAuditAction,
-    options?: { targetUserId?: string | null; metadata?: Record<string, unknown> },
-  ) => {
-    if (!user?.id) {
-      return;
-    }
-
-    try {
-      await logGroupAdminAction({
-        groupId,
-        actorUserId: user.id,
-        action,
-        targetUserId: options?.targetUserId,
-        metadata: options?.metadata,
-      });
-    } catch (error) {
-      console.warn('Failed to log admin action', error);
-    }
-  }, [groupId, user?.id]);
-
-  const { data: pendingJoinRequests = [] } = useQuery<ChatGroupJoinRequestWithProfile[]>({
-    queryKey: ['chat-group-pending-requests', groupId],
-    queryFn: () => getPendingJoinRequests(groupId),
-    enabled: isGroupAdmin && isPrivateGroup,
-  });
-
-  const getQueuedMessages = useCallback(async () => {
-    const queuedActions = await getQueuedOfflineActions();
-
-    return queuedActions
-      .filter((action): action is SendMessageOfflineAction => action.type === 'send_message')
-      .filter((action) => action.payload.groupId === groupId && action.payload.userId === user?.id)
-      .map((action) => ({
-        ...mapMessageRecord({
-          id: action.id,
-          user_id: action.payload.userId,
-          group_id: action.payload.groupId,
-          reply_to_message_id: action.payload.replyToMessageId ?? null,
-          content: action.payload.pendingImage
-            ? serializeChatImageMessage({
-                imageUrl: action.payload.pendingImage.previewUri,
-                caption: action.payload.content,
-                fileName: action.payload.pendingImage.fileName ?? undefined,
-                mimeType: action.payload.pendingImage.mimeType ?? undefined,
-              })
-            : action.payload.content,
-          created_at: action.createdAt,
-          updated_at: action.createdAt,
-          deleted_at: null,
-          profiles: {
-            full_name: action.payload.senderName,
-            is_verified: user?.is_verified ?? false,
-            role: user?.role ?? 'member',
-          },
-        }, user?.id, theme.accent),
-        replySenderName: action.payload.replySenderName,
-        replyPreview: action.payload.replyPreview,
-        syncStatus: 'pending' as const,
-      }));
-  }, [groupId, theme.accent, user?.id, user?.is_verified, user?.role]);
-
-  useEffect(() => {
-    let isActive = true;
-
-    const restoreCachedMessages = async () => {
-      const cached = await readOfflineCache<Message[]>(messagesCacheKey);
-
-      if (!cached || !isActive) {
-        return;
-      }
-
-      queryClient.setQueryData(['messages', groupId, user?.id], cached.data);
-      setShowingCachedData(true);
-      setOfflineTimestamp(cached.updatedAt);
-    };
-
-    void restoreCachedMessages();
-
-    return () => {
-      isActive = false;
-    };
-  }, [groupId, messagesCacheKey, queryClient, user?.id]);
 
   const { data: messages = [] } = useQuery({
     queryKey: messagesQueryKey,
@@ -703,6 +665,16 @@ export default function GroupChatScreen() {
       }
     },
   });
+
+  useEffect(() => {
+    const latest = messages[messages.length - 1]?.id;
+    if (latest && latest !== lastMessageId) {
+      if (showScrollToBottom) {
+        setHasNewMessages(true);
+      }
+      setLastMessageId(latest);
+    }
+  }, [messages, showScrollToBottom, lastMessageId]);
 
   const { data: explicitGroupMembers } = useQuery<GroupMember[] | null>({
     queryKey: ['chat-group-members', groupId, user?.id],
@@ -807,49 +779,6 @@ export default function GroupChatScreen() {
   });
 
   const hasComposerContent = Boolean(inputText.trim() || pendingAttachment);
-
-  const approveJoinRequestMutation = useMutation({
-    mutationFn: ({ requestId, requestUserId }: { requestId: string; requestUserId: string }) => (
-      approveJoinRequest(requestId, groupId, requestUserId)
-    ),
-    onSuccess: async (_data, variables) => {
-      await queryClient.invalidateQueries({ queryKey: ['chat-group-pending-requests', groupId] });
-      await queryClient.invalidateQueries({ queryKey: ['chat-group-members', groupId, user?.id] });
-      await logAdminAction('join_request_approved', { targetUserId: variables.requestUserId });
-      showToast({
-        title: 'Request approved',
-        message: 'The member has been added to the group.',
-        variant: 'success',
-      });
-    },
-    onError: (error) => {
-      showToast({
-        title: 'Approval failed',
-        message: error instanceof Error ? error.message : String(error),
-        variant: 'error',
-      });
-    },
-  });
-
-  const rejectJoinRequestMutation = useMutation({
-    mutationFn: ({ requestId }: { requestId: string; requestUserId: string }) => rejectJoinRequest(requestId),
-    onSuccess: async (_data, variables) => {
-      await queryClient.invalidateQueries({ queryKey: ['chat-group-pending-requests', groupId] });
-      await logAdminAction('join_request_rejected', { targetUserId: variables.requestUserId });
-      showToast({
-        title: 'Request rejected',
-        message: 'The join request has been declined.',
-        variant: 'success',
-      });
-    },
-    onError: (error) => {
-      showToast({
-        title: 'Rejection failed',
-        message: error instanceof Error ? error.message : String(error),
-        variant: 'error',
-      });
-    },
-  });
 
   const addMemberMutation = useMutation({
     mutationFn: (memberUserId: string) => addGroupMember(groupId, memberUserId),
@@ -1214,7 +1143,7 @@ export default function GroupChatScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 0.7,
       allowsEditing: true,
       base64: true,
@@ -1262,7 +1191,7 @@ export default function GroupChatScreen() {
     }
 
     const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ['images'],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 0.7,
       allowsEditing: true,
       base64: true,
@@ -1464,58 +1393,6 @@ export default function GroupChatScreen() {
     setSelectedMessageAction(null);
   }, [selectedMessageAction, showToast]);
 
-  const openExternalTarget = useCallback(async (url: string, actionLabel: 'call' | 'video call') => {
-    try {
-      const supported = await Linking.canOpenURL(url);
-
-      if (!supported) {
-        showToast({
-          title: 'Action unavailable',
-          message: `This ${actionLabel} link is not supported on your device.`,
-          variant: 'warning',
-        });
-        return;
-      }
-
-      await Linking.openURL(url);
-    } catch {
-      showToast({
-        title: 'Action failed',
-        message: `Could not start the ${actionLabel}. Please try again.`,
-        variant: 'error',
-      });
-    }
-  }, [showToast]);
-
-  const handleVideoCall = useCallback(() => {
-    const videoUrl = groupContacts?.videoUrl;
-
-    if (!videoUrl) {
-      showToast({
-        title: 'Video call unavailable',
-        message: 'No video call link is configured for this group yet.',
-        variant: 'warning',
-      });
-      return;
-    }
-
-    void openExternalTarget(videoUrl, 'video call');
-  }, [groupContacts, openExternalTarget, showToast]);
-
-  const handleVoiceCall = useCallback(() => {
-    const phoneNumber = groupContacts?.phoneNumber;
-
-    if (!phoneNumber) {
-      showToast({
-        title: 'Call unavailable',
-        message: 'No call number is configured for this group yet.',
-        variant: 'warning',
-      });
-      return;
-    }
-
-    void openExternalTarget(`tel:${phoneNumber}`, 'call');
-  }, [groupContacts, openExternalTarget, showToast]);
 
   const openGroupSettings = useCallback(() => {
     setGroupAboutDraft(groupDetails?.description ?? '');
@@ -1545,7 +1422,7 @@ export default function GroupChatScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 0.75,
       allowsEditing: true,
       base64: true,
@@ -2036,48 +1913,26 @@ export default function GroupChatScreen() {
 
                 {isPrivateGroup ? (
                   <View style={styles.adminSection}>
-                    <Text style={styles.adminSectionTitle}>Pending join requests</Text>
-                    {pendingJoinRequests.length === 0 ? (
-                      <Text style={styles.adminEmptyText}>No pending requests.</Text>
-                    ) : (
-                      pendingJoinRequests.map((request) => {
-                        const requesterName = request.profile?.full_name?.trim() || request.profile?.email || 'Member';
-                        const isApproving = approveJoinRequestMutation.isPending
-                          && approveJoinRequestMutation.variables?.requestId === request.id;
-                        const isRejecting = rejectJoinRequestMutation.isPending
-                          && rejectJoinRequestMutation.variables?.requestId === request.id;
-
-                        return (
-                          <View key={request.id} style={styles.adminRequestRow}>
-                            <Text style={styles.adminRequestName}>{requesterName}</Text>
-                            <View style={styles.adminRequestActions}>
-                              <TouchableOpacity
-                                style={styles.adminApproveBtn}
-                                onPress={() => approveJoinRequestMutation.mutate({ requestId: request.id, requestUserId: request.user_id })}
-                                disabled={isApproving || isRejecting}
-                              >
-                                {isApproving ? (
-                                  <ActivityIndicator size="small" color={BaseColors.white} />
-                                ) : (
-                                  <Text style={styles.adminActionBtnText}>Accept</Text>
-                                )}
-                              </TouchableOpacity>
-                              <TouchableOpacity
-                                style={styles.adminRejectBtn}
-                                onPress={() => rejectJoinRequestMutation.mutate({ requestId: request.id, requestUserId: request.user_id })}
-                                disabled={isApproving || isRejecting}
-                              >
-                                {isRejecting ? (
-                                  <ActivityIndicator size="small" color="#111b21" />
-                                ) : (
-                                  <Text style={styles.adminRejectBtnText}>Reject</Text>
-                                )}
-                              </TouchableOpacity>
-                            </View>
+                    <TouchableOpacity
+                      style={styles.manageRequestsBtn}
+                      onPress={() => {
+                        setShowMembersModal(false);
+                        navigation.navigate('ManageRequests', { groupId, groupName });
+                      }}
+                    >
+                      <View style={styles.manageRequestsLeft}>
+                        <Ionicons name="people-circle-outline" size={20} color={theme.accent} />
+                        <Text style={styles.manageRequestsText}>Manage join requests</Text>
+                      </View>
+                      <View style={styles.manageRequestsRight}>
+                        {pendingJoinRequests.length > 0 && (
+                          <View style={[styles.requestsBadge, { backgroundColor: theme.accent }]}>
+                            <Text style={styles.requestsBadgeText}>{pendingJoinRequests.length}</Text>
                           </View>
-                        );
-                      })
-                    )}
+                        )}
+                        <Ionicons name="chevron-forward" size={16} color="#667781" />
+                      </View>
+                    </TouchableOpacity>
                   </View>
                 ) : null}
 
@@ -2720,6 +2575,45 @@ const styles = StyleSheet.create({
     fontFamily: Typography.sans,
     fontSize: 12,
     color: '#667781',
+  },
+  manageRequestsBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: '#dce5eb',
+  },
+  manageRequestsLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  manageRequestsText: {
+    fontFamily: Typography.sansSemiBold,
+    fontSize: 14,
+    color: '#111b21',
+  },
+  manageRequestsRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  requestsBadge: {
+    minWidth: 20,
+    height: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 6,
+  },
+  requestsBadgeText: {
+    fontFamily: Typography.sansSemiBold,
+    fontSize: 10,
+    color: '#fff',
   },
   adminRequestRow: {
     flexDirection: 'row',

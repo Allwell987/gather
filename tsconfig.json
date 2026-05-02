@@ -18,10 +18,10 @@
       ]
     }
   },
+  "extends": "expo/tsconfig.base",
   "exclude": [
     "dist",
     "node_modules",
     "supabase/functions"
-  ],
-  "extends": "expo/tsconfig.base"
+  ]
 }
