@@ -39,6 +39,12 @@
         <data android:scheme="com.wealthrealitychurch.gather"/>
         <data android:scheme="exp+gather-twrc"/>
       </intent-filter>
+      <intent-filter android:autoVerify="true" data-generated="true">
+        <action android:name="android.intent.action.VIEW"/>
+        <data android:scheme="https" android:host="gather.wealthrealitychurch.com" android:pathPrefix="/"/>
+        <category android:name="android.intent.category.BROWSER"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+      </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>
   </application>
