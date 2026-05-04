@@ -7,17 +7,30 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "channel": "development"
+      "channel": "development",
+      "ios": {
+        "buildConfiguration": "Debug"
+      }
     },
     "preview": {
       "distribution": "internal",
-      "channel": "preview"
+      "channel": "preview",
+      "ios": {
+        "buildConfiguration": "Release"
+      }
     },
     "production": {
-      "channel": "production"
+      "channel": "production",
+      "ios": {
+        "buildConfiguration": "Release"
+      }
     }
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "appleId": "developer@wealthrealitychurch.com"
+      }
+    }
   }
 }

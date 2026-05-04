@@ -19,12 +19,23 @@ const baseConfig = {
     supportsTablet: false,
     usesAppleSignIn: true,
     bundleIdentifier: 'com.wealthrealitychurch.gather',
+    deploymentTarget: '17.0',
+    minimumOSVersion: '17.0',
     infoPlist: {
       CFBundleAllowMixedLocalizations: true,
+      NSPhotoLibraryAddUsageDescription: 'Gather uses your photos to enhance your experience.',
     },
     associatedDomains: [
       'applinks:gather.wealthrealitychurch.com',
     ],
+    privacyManifests: {
+      NSPrivacyAccessedAPITypes: [
+        {
+          NSPrivacyAccessedAPIType: 'NSPrivacyAccessedAPICategorySystemBootTime',
+          NSPrivacyAccessedAPITypeReasons: ['35F9.1'],
+        },
+      ],
+    },
   },
   android: {
     adaptiveIcon: {
@@ -75,6 +86,13 @@ const baseConfig = {
       {
         icon: './assets/notification-icon.png',
         color: '#1a56db',
+      },
+    ],
+    [
+      '@sentry/react-native/expo',
+      {
+        organization: 'wealth-reality',
+        project: 'gather-app',
       },
     ],
   ],

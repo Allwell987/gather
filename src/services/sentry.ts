@@ -1,58 +1,4 @@
-/**
- * Sentry error tracking service
- * 
- * To enable Sentry:
- * 1. Run: npm install @sentry/react-native
- * 2. Add your DSN to .env: EXPO_PUBLIC_SENTRY_DSN=your-dsn
- * 3. Initialize in App.tsx: import { initSentry } from './src/services/sentry'; initSentry();
- */
-
-interface SentryModule {
-  init: (options: SentryOptions) => void;
-  setUser: (user: SentryUser | null) => void;
-  addBreadcrumb: (breadcrumb: SentryBreadcrumb) => void;
-  captureException: (error: Error, options?: Record<string, unknown>) => void;
-  captureMessage: (message: string, level?: string) => void;
-  Severity: {
-    Fatal: string;
-    Error: string;
-    Warning: string;
-    Info: string;
-    Debug: string;
-  };
-}
-
-interface SentryOptions {
-  dsn: string;
-  enabled: boolean;
-  tracesSampleRate: number;
-  sampleRate: number;
-  attachStacktrace: boolean;
-  normalizeDepth: number;
-}
-
-interface SentryUser {
-  id: string;
-  email?: string;
-  username?: string;
-}
-
-interface SentryBreadcrumb {
-  category: string;
-  message: string;
-  level: string;
-  data?: Record<string, unknown>;
-}
-
-let Sentry: SentryModule | null = null;
-
-// Try to load Sentry module
-try {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  Sentry = require('@sentry/react-native');
-} catch {
-  // Sentry not installed - will use no-op implementations
-}
+import * as Sentry from '@sentry/react-native';
 
 /**
  * Initialize Sentry for error tracking and performance monitoring
@@ -61,22 +7,24 @@ export const initSentry = () => {
   const dsn = process.env.EXPO_PUBLIC_SENTRY_DSN;
 
   if (!dsn) {
-    console.warn('Sentry DSN not configured. Set EXPO_PUBLIC_SENTRY_DSN in .env');
-    return;
-  }
-
-  if (!Sentry) {
-    console.warn('Sentry not installed. Run: npm install @sentry/react-native');
+    if (process.env.NODE_ENV === 'production') {
+      console.error('Sentry DSN not configured in production. Set EXPO_PUBLIC_SENTRY_DSN in .env');
+    } else {
+      console.warn('Sentry DSN not configured. Set EXPO_PUBLIC_SENTRY_DSN in .env');
+    }
     return;
   }
 
   Sentry.init({
     dsn,
+    // debug: __DEV__, // Set to true to see Sentry logs in development
     enabled: process.env.NODE_ENV === 'production',
     tracesSampleRate: 0.1,
-    sampleRate: 0.1,
+    // sampleRate: 0.1, // Overall sample rate for errors, usually keep at 1.0 unless you have high volume
     attachStacktrace: true,
-    normalizeDepth: 10,
+    _experiments: {
+      // profilesSampleRate: 0.1,
+    },
   });
 };
 
@@ -88,8 +36,6 @@ export const setSentryUser = (user: {
   email?: string;
   name?: string;
 } | null) => {
-  if (!Sentry) return;
-
   if (user) {
     Sentry.setUser({
       id: user.id,
@@ -109,12 +55,10 @@ export const addSentryBreadcrumb = (
   message: string,
   data?: Record<string, unknown>
 ) => {
-  if (!Sentry) return;
-
   Sentry.addBreadcrumb({
     category,
     message,
-    level: Sentry.Severity.Info,
+    level: 'info',
     data,
   });
 };
@@ -126,7 +70,6 @@ export const captureSentryError = (
   error: Error,
   context?: Record<string, unknown>
 ) => {
-  if (!Sentry) return;
   Sentry.captureException(error, { extra: context });
 };
 
@@ -135,8 +78,7 @@ export const captureSentryError = (
  */
 export const captureSentryMessage = (
   message: string,
-  level: 'fatal' | 'error' | 'warning' | 'info' | 'debug' = 'info'
+  level: Sentry.SeverityLevel = 'info'
 ) => {
-  if (!Sentry) return;
   Sentry.captureMessage(message, level);
 };

@@ -10,6 +10,7 @@ const PROFILE_SELECT = `
   email,
   full_name,
   avatar_url,
+  address,
   church_id,
   role,
   is_verified,
@@ -127,6 +128,7 @@ const toUserProfile = (
   church_id: profile?.church_id ?? null,
   role: (profile?.role as any) ?? 'member',
   is_verified: profile?.is_verified ?? Boolean(session.user.email_confirmed_at),
+  address: profile?.address ?? null,
   bible_version: profile?.bible_version ?? DEFAULT_BIBLE_VERSION,
   reminder_time: profile?.reminder_time ?? DEFAULT_REMINDER_TIME,
   streak_count: profile?.streak_count ?? 0,
@@ -144,6 +146,7 @@ const toStoredUserProfile = (profile: ProfileRow): UserProfile => ({
   church_id: profile.church_id,
   role: profile.role as any,
   is_verified: profile.is_verified ?? false,
+  address: profile.address ?? null,
   bible_version: profile.bible_version ?? DEFAULT_BIBLE_VERSION,
   reminder_time: profile.reminder_time ?? DEFAULT_REMINDER_TIME,
   streak_count: profile.streak_count ?? 0,
@@ -244,7 +247,7 @@ export const ensureProfileForSession = async (
 
 export const updateProfile = async (
   userId: string,
-  updates: Partial<Pick<ProfileRow, 'full_name' | 'avatar_url' | 'bible_version' | 'reminder_time'>>
+  updates: Partial<Pick<ProfileRow, 'full_name' | 'avatar_url' | 'address' | 'bible_version' | 'reminder_time'>>
 ): Promise<UserProfile> => {
   const payload: Partial<ProfileRow> = {};
 
@@ -255,6 +258,12 @@ export const updateProfile = async (
   if ('avatar_url' in updates) {
     payload.avatar_url = typeof updates.avatar_url === 'string'
       ? updates.avatar_url.trim() || null
+      : null;
+  }
+
+  if ('address' in updates) {
+    payload.address = typeof updates.address === 'string'
+      ? updates.address.trim() || null
       : null;
   }
 

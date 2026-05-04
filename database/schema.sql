@@ -22,6 +22,8 @@ CREATE TABLE IF NOT EXISTS profiles (
   email TEXT NOT NULL UNIQUE,
   full_name TEXT,
   avatar_url TEXT,
+  address TEXT,
+  birthday TEXT,
   church_id UUID,
   role TEXT DEFAULT 'member', -- 'member', 'leader', 'pastor', 'admin'
   is_verified BOOLEAN DEFAULT false,
@@ -39,6 +41,14 @@ DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='is_verified') THEN
         ALTER TABLE profiles ADD COLUMN is_verified BOOLEAN DEFAULT false;
+    END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='address') THEN
+        ALTER TABLE profiles ADD COLUMN address TEXT;
+    END IF;
+
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='birthday') THEN
+        ALTER TABLE profiles ADD COLUMN birthday TEXT;
     END IF;
 
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='profiles' AND column_name='updated_at') THEN

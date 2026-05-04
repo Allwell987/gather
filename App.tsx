@@ -2,6 +2,11 @@
 import React, { useEffect, useCallback } from 'react';
 import { Alert, AppState, View, LogBox } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
+
+// Ignore specific warnings
+LogBox.ignoreLogs([
+  'InteractionManager has been deprecated',
+]);
 import * as SplashScreen from 'expo-splash-screen';
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
@@ -42,7 +47,11 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import RootNavigator from './src/navigation/RootNavigator';
 import ToastHost from './src/components/ToastHost';
+import * as Sentry from '@sentry/react-native';
 import { initSentry } from './src/services/sentry';
+
+// Initialize Sentry
+initSentry();
 import {
   flushPendingNotificationNavigation,
   navigationRef,
@@ -63,21 +72,13 @@ import { registerForPushNotificationsAsync } from './src/services/notifications'
 import { flushOfflineActions } from './src/services/offlineActionQueue';
 import { ensureProfileForSession } from './src/services/profile';
 
-// Ignore specific warnings
-LogBox.ignoreLogs([
-  'InteractionManager has been deprecated',
-]);
-
-// Initialize Sentry
-initSentry();
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: { staleTime: 1000 * 60 * 5, retry: 2 },
   },
 });
 
-export default function App() {
+function App() {
   const [fontsLoaded, setFontsLoaded] = React.useState(false);
   const {
     setUser,
@@ -363,3 +364,5 @@ export default function App() {
     </GestureHandlerRootView>
   );
 }
+
+export default Sentry.wrap(App);

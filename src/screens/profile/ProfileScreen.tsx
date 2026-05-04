@@ -22,6 +22,7 @@ import * as ImagePicker from 'expo-image-picker';
 import Button from '../../components/common/Button';
 import TextInput from '../../components/common/TextInput';
 import HeaderBar from '../../components/common/HeaderBar';
+import * as Sentry from '@sentry/react-native';
 import { useOfflineSyncStatus } from '../../hooks/useOfflineSyncStatus';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
@@ -413,6 +414,8 @@ export default function ProfileScreen() {
   const [editorError, setEditorError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [fullName, setFullName] = useState('');
+  const [address, setAddress] = useState('');
+  const [birthday, setBirthday] = useState('');
   const [bibleVersion, setBibleVersion] = useState<BibleVersion>('niv');
   const [reminderTime, setReminderTime] = useState('06:00');
   const [password, setPassword] = useState('');
@@ -504,6 +507,8 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     setFullName(user?.full_name ?? '');
+    setAddress(user?.address ?? '');
+    setBirthday(user?.birthday ?? '');
     setBibleVersion(user?.bible_version ?? 'niv');
     setReminderTime(user?.reminder_time ?? '06:00');
     setEmailDraft(user?.email ?? '');
@@ -608,6 +613,8 @@ export default function ProfileScreen() {
     setEditorError(null);
     setIsSaving(false);
     setFullName(user?.full_name ?? '');
+    setAddress(user?.address ?? '');
+    setBirthday(user?.birthday ?? '');
     setBibleVersion(user?.bible_version ?? 'niv');
     setReminderTime(user?.reminder_time ?? '06:00');
     setPassword('');
@@ -833,6 +840,8 @@ export default function ProfileScreen() {
 
       const updatedUser = await updateProfile(user.id, {
         full_name: fullName,
+        address,
+        birthday,
         avatar_url: nextAvatarUrl,
       });
 
@@ -1165,6 +1174,25 @@ export default function ProfileScreen() {
             onChangeText={setFullName}
             placeholder="Enter your full name"
             autoCapitalize="words"
+            accentColor={theme.accent}
+            selectionColor={theme.accent}
+            containerStyle={styles.sheetField}
+          />
+          <TextInput
+            label="Address"
+            value={address}
+            onChangeText={setAddress}
+            placeholder="Enter your address"
+            autoCapitalize="words"
+            accentColor={theme.accent}
+            selectionColor={theme.accent}
+            containerStyle={styles.sheetField}
+          />
+          <TextInput
+            label="Birthday"
+            value={birthday}
+            onChangeText={setBirthday}
+            placeholder="e.g., June 12, 2000"
             accentColor={theme.accent}
             selectionColor={theme.accent}
             containerStyle={styles.sheetField}
@@ -1579,6 +1607,11 @@ export default function ProfileScreen() {
                   {memberBadgeLabel}
                 </Text>
               </View>
+              {user?.address && (
+                <Text style={[styles.heroAddress, { color: colors.textSecondary }]}>
+                  📍 {user.address}
+                </Text>
+              )}
             </View>
         </View>
       </View>
@@ -1956,6 +1989,21 @@ export default function ProfileScreen() {
           <Text style={styles.signOutText}>Sign out</Text>
         </TouchableOpacity>
 
+        {/* Sentry Test Button (Dev Only) */}
+        {__DEV__ && (
+          <TouchableOpacity
+            style={[styles.signOutBtn, { borderColor: colors.border, marginTop: Spacing.md }]}
+            onPress={() => {
+              showToast({ title: 'Crashing...', message: 'Triggering Sentry test error.', variant: 'info' });
+              setTimeout(() => {
+                throw new Error('Sentry Test Error from Gather App');
+              }, 500);
+            }}
+          >
+            <Text style={[styles.signOutText, { color: theme.accent }]}>Test Sentry Crash</Text>
+          </TouchableOpacity>
+        )}
+
         <Text style={[styles.versionText, { color: colors.textMuted }]}>
           Gather v1.0.0 · Made with care for {CHURCH.name}
         </Text>
@@ -2078,6 +2126,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   memberBadgeText: { fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.xs },
+  heroAddress: { 
+    fontFamily: Typography.sans, 
+    fontSize: Typography.sizes.sm, 
+    marginTop: Spacing.sm,
+  },
   statsRow: {
     flexDirection: 'row',
     gap: 1,

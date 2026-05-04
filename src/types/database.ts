@@ -12,6 +12,8 @@ export interface Profile {
   email: string;
   full_name: string | null;
   avatar_url: string | null;
+  address: string | null;
+  birthday: string | null;
   church_id: string | null;
   role: ProfileRole;
   is_verified: boolean;
