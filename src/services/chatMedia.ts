@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { decodeBase64ToArrayBuffer } from './base64';
 
 const CHAT_IMAGE_BUCKET = 'chat-images';
 const CHAT_IMAGE_KIND = 'chat-image';
@@ -25,17 +26,6 @@ const getImageFileExtension = (contentType?: string | null) => {
     default:
       return 'jpg';
   }
-};
-
-const decodeBase64ToArrayBuffer = (value: string) => {
-  const binary = atob(value);
-  const bytes = new Uint8Array(binary.length);
-
-  for (let index = 0; index < binary.length; index += 1) {
-    bytes[index] = binary.charCodeAt(index);
-  }
-
-  return bytes.buffer;
 };
 
 export const serializeChatImageMessage = ({

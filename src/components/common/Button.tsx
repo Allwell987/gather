@@ -9,6 +9,7 @@ import {
   Animated,
   Easing,
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
 
 export interface ButtonProps {
@@ -44,7 +45,10 @@ export default function Button({
   };
 
   const handlePress = () => {
-    if (!loading && !disabled) onPress();
+    if (!loading && !disabled) {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      onPress();
+    }
   };
 
   const isDisabled = loading || disabled;

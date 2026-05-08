@@ -25,7 +25,23 @@ const APPLE_SIGN_IN_ERROR_MESSAGES: Record<string, string> = {
 };
 
 function base64URLEncode(array: Uint8Array): string {
-  return btoa(String.fromCharCode(...array))
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  let base64 = '';
+
+  for (let i = 0; i < array.length; i += 3) {
+    const b1 = array[i];
+    const b2 = i + 1 < array.length ? array[i + 1] : NaN;
+    const b3 = i + 2 < array.length ? array[i + 2] : NaN;
+
+    const c1 = b1 >> 2;
+    const c2 = ((b1 & 3) << 4) | (isNaN(b2) ? 0 : b2 >> 4);
+    const c3 = isNaN(b2) ? 64 : ((b2 & 15) << 2) | (isNaN(b3) ? 0 : b3 >> 6);
+    const c4 = isNaN(b3) ? 64 : b3 & 63;
+
+    base64 += chars.charAt(c1) + chars.charAt(c2) + (c3 === 64 ? '' : chars.charAt(c3)) + (c4 === 64 ? '' : chars.charAt(c4));
+  }
+
+  return base64
     .replace(/\+/g, '-')
     .replace(/\//g, '_')
     .replace(/=/g, '');
@@ -39,7 +55,8 @@ export async function signInWithGoogle(): Promise<{ user?: GoogleUser; error?: s
       return { error: configMessage };
     }
 
-    const redirectTo = getAuthRedirectUrl();
+    // Use a unique parameter to tell App.tsx to ignore this redirect
+    const redirectTo = getAuthRedirectUrl({ source: 'auth-session' });
 
     const { data: oauthData, error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -49,6 +66,8 @@ export async function signInWithGoogle(): Promise<{ user?: GoogleUser; error?: s
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
+          // Pass the client ID if available to help Google identify the requester
+          client_id: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
         },
       },
     });
@@ -59,51 +78,70 @@ export async function signInWithGoogle(): Promise<{ user?: GoogleUser; error?: s
 
     const result = await WebBrowser.openAuthSessionAsync(oauthData.url, redirectTo);
 
-    if (result.type !== 'success' || !('url' in result) || !result.url) {
+    if (result.type !== 'success') {
       return { error: 'Authentication was cancelled or failed' };
     }
 
+    // On some Android devices, the redirect might have already been handled by App.tsx
+    // during the time WebBrowser was closing. Check for an active session first.
+    const { data: { session: existingSession } } = await supabase.auth.getSession();
+    if (existingSession?.user) {
+      return { user: mapSupabaseUserToGoogleUser(existingSession.user) };
+    }
+
     const params = getAuthParamsFromUrl(result.url);
-    const authFeedback = getAuthFeedbackMessage({
-      errorCode: params.error_code,
-      errorDescription: params.error_description,
-    });
 
     if (params.error || params.error_code || params.error_description) {
-      return { error: authFeedback };
+      return {
+        error: getAuthFeedbackMessage({
+          errorCode: params.error_code,
+          errorDescription: params.error_description,
+        }),
+      };
     }
 
-    if (!params.code) {
-      return { error: 'Google sign-in did not return an authorization code.' };
+    // Handle session establishment via code (PKCE) or tokens (Implicit)
+    if (params.code) {
+      const { data: { session }, error: exchangeError } = await supabase.auth.exchangeCodeForSession(params.code);
+      if (exchangeError) {
+        // If it was already exchanged (e.g. by App.tsx), get the current session
+        const { data: { session: currentSession } } = await supabase.auth.getSession();
+        if (currentSession?.user) {
+          return { user: mapSupabaseUserToGoogleUser(currentSession.user) };
+        }
+        return { error: getSupabaseAuthErrorMessage(exchangeError.message) };
+      }
+
+      const user = session?.user;
+      if (user) return { user: mapSupabaseUserToGoogleUser(user) };
+    } else if (params.access_token && params.refresh_token) {
+      const { data: { session }, error: setSessionError } = await supabase.auth.setSession({
+        access_token: params.access_token,
+        refresh_token: params.refresh_token,
+      });
+      if (setSessionError) return { error: getSupabaseAuthErrorMessage(setSessionError.message) };
+
+      const user = session?.user;
+      if (user) return { user: mapSupabaseUserToGoogleUser(user) };
     }
 
-    const { data: sessionData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(params.code);
-
-    if (exchangeError) {
-      return { error: getSupabaseAuthErrorMessage(exchangeError.message) };
-    }
-
-    const user = sessionData.user;
-
-    if (!user) {
-      return {};
-    }
-
-    const metadata = user.user_metadata ?? {};
-    const googleUser: GoogleUser = {
-      id: user.id,
-      email: user.email ?? '',
-      name: String(metadata.full_name ?? metadata.name ?? user.email ?? 'Google User'),
-      picture: typeof metadata.avatar_url === 'string'
-        ? metadata.avatar_url
-        : (typeof metadata.picture === 'string' ? metadata.picture : undefined),
-    };
-
-    return { user: googleUser };
+    return { error: 'Google sign-in did not return a valid session.' };
   } catch (err) {
     console.error('Google sign-in error:', err);
     return { error: 'An unexpected error occurred during sign in' };
   }
+}
+
+function mapSupabaseUserToGoogleUser(user: any): GoogleUser {
+  const metadata = user.user_metadata ?? {};
+  return {
+    id: user.id,
+    email: user.email ?? '',
+    name: String(metadata.full_name ?? metadata.name ?? user.email ?? 'Google User'),
+    picture: typeof metadata.avatar_url === 'string'
+      ? metadata.avatar_url
+      : (typeof metadata.picture === 'string' ? metadata.picture : undefined),
+  };
 }
 
 export async function signInWithApple(): Promise<{ error?: string }> {

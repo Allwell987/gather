@@ -24,14 +24,14 @@ export default function RootNavigator() {
           flex: 1,
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: BaseColors.cream,
+          backgroundColor: '#17120d',
         }}
       >
         <LottieView
           source={require('../../assets/animations/loader.json')}
           autoPlay
           loop
-          style={{ width: 60, height: 60 }}
+          style={{ width: 80, height: 80 }}
         />
       </View>
     );

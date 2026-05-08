@@ -1,12 +1,7 @@
 // App.tsx
 import React, { useEffect, useCallback } from 'react';
-import { Alert, AppState, View, LogBox } from 'react-native';
+import { Alert, AppState, Button, View, LogBox } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-
-// Ignore specific warnings
-LogBox.ignoreLogs([
-  'InteractionManager has been deprecated',
-]);
 import * as SplashScreen from 'expo-splash-screen';
 import * as Linking from 'expo-linking';
 import * as Notifications from 'expo-notifications';
@@ -49,9 +44,6 @@ import RootNavigator from './src/navigation/RootNavigator';
 import ToastHost from './src/components/ToastHost';
 import * as Sentry from '@sentry/react-native';
 import { initSentry } from './src/services/sentry';
-
-// Initialize Sentry
-initSentry();
 import {
   flushPendingNotificationNavigation,
   navigationRef,
@@ -71,6 +63,14 @@ import {
 import { registerForPushNotificationsAsync } from './src/services/notifications';
 import { flushOfflineActions } from './src/services/offlineActionQueue';
 import { ensureProfileForSession } from './src/services/profile';
+
+// Ignore specific warnings
+LogBox.ignoreLogs([
+  'InteractionManager has been deprecated',
+]);
+
+// Initialize Sentry
+initSentry();
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -120,6 +120,13 @@ function App() {
 
   const handleAuthLink = useCallback(async (url: string) => {
     const params = getAuthParamsFromUrl(url);
+
+    // If the link comes from a manual auth session (like Google/Apple via WebBrowser),
+    // we should let the caller of WebBrowser.openAuthSessionAsync handle it to avoid
+    // race conditions and double-exchange errors.
+    if (params.source === 'auth-session') {
+      return;
+    }
 
     const handleAuthFailure = (errorCode?: string, errorDescription?: string) => {
       const message = getAuthFeedbackMessage({ errorCode, errorDescription });

@@ -20,6 +20,7 @@ import {
 import { signInWithApple, signInWithGoogle } from '../../services/auth';
 import { BaseColors, Typography, Spacing, Radius, CHURCH } from '../../constants/theme';
 import { useAuthStore } from '../../store/authStore';
+import { useToastStore } from '../../store/toastStore';
 import type { AuthStackNavigationProp } from '../../types/navigation';
 
 interface FormErrors {
@@ -32,6 +33,7 @@ interface FormErrors {
 export default function RegisterScreen() {
   const navigation = useNavigation<AuthStackNavigationProp>();
   const { setPendingVerificationEmail, setAuthFeedback, setIsOnboarded } = useAuthStore();
+  const { showToast } = useToastStore();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -42,6 +44,8 @@ export default function RegisterScreen() {
   const [showPass, setShowPass] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+
   const [googleLoading, setGoogleLoading] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
   const [appleAvailable, setAppleAvailable] = useState(false);
@@ -80,10 +84,11 @@ export default function RegisterScreen() {
 
   const handleRegister = async () => {
     if (!validate()) return;
+    setAuthError(null);
 
     const configMessage = getSupabaseConfigMessage();
     if (configMessage) {
-      Alert.alert('Supabase setup required', configMessage);
+      setAuthError(configMessage);
       return;
     }
 
@@ -105,7 +110,9 @@ export default function RegisterScreen() {
 
       if (error) {
         setPendingVerificationEmail(null);
-        Alert.alert('Sign up failed', getSupabaseAuthErrorMessage(error.message));
+        const message = getSupabaseAuthErrorMessage(error.message);
+        setAuthError(message);
+        showToast({ title: 'Sign up failed', message, variant: 'error' });
         setLoading(false);
         return;
       }
@@ -117,41 +124,55 @@ export default function RegisterScreen() {
         navigation.navigate('EmailVerification', { email: normalizedEmail });
 
         if (isExpoGo) {
-          Alert.alert(
-            'Expo Go note',
-            'Email verification links are not reliable in Expo Go. Use a development build for stable auth callbacks.'
-          );
+          showToast({
+            title: 'Note',
+            message: 'Email links are less reliable in Expo Go. Use a dev build if possible.',
+            variant: 'info'
+          });
         }
         return;
       }
 
-      if (data.session || data.user?.email_confirmed_at) {
+      if (data.session) {
         setPendingVerificationEmail(null);
-        setLoading(false);
-        // Onboarding flow or Home
+        setIsOnboarded(true);
       }
     } catch (err) {
       console.error('Registration error:', err);
       setPendingVerificationEmail(null);
       setLoading(false);
-      Alert.alert('Error', 'An unexpected error occurred. Please try again.');
+      const message = 'An unexpected error occurred. Please try again.';
+      setAuthError(message);
+      showToast({ title: 'Error', message, variant: 'error' });
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleGoogleSignIn = async () => {
+    setAuthError(null);
     setGoogleLoading(true);
-    const { error } = await signInWithGoogle();
+    const { user, error } = await signInWithGoogle();
     setGoogleLoading(false);
-    if (error) Alert.alert('Google Sign-up Failed', error);
-    else setIsOnboarded(true);
+    if (error) {
+      setAuthError(error);
+      showToast({ title: 'Google sign-in failed', message: error, variant: 'error' });
+    } else if (user) {
+      setIsOnboarded(true);
+    }
   };
 
   const handleAppleSignIn = async () => {
+    setAuthError(null);
     setAppleLoading(true);
     const { error } = await signInWithApple();
     setAppleLoading(false);
-    if (error) Alert.alert('Apple Sign-up Failed', error);
-    else setIsOnboarded(true);
+    if (error) {
+      setAuthError(error);
+      showToast({ title: 'Apple sign-in failed', message: error, variant: 'error' });
+    } else {
+      setIsOnboarded(true);
+    }
   };
 
   const renderInputError = (error?: string) => {
@@ -167,7 +188,7 @@ export default function RegisterScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={[BaseColors.brown900, BaseColors.brown800]}
+        colors={['#1a140e', '#2d1e12', '#17120d']}
         style={StyleSheet.absoluteFillObject}
       />
       <HeaderBar
@@ -190,44 +211,60 @@ export default function RegisterScreen() {
           >
             <View style={styles.header}>
               <Text style={styles.stepLabel}>Step 1 of 2</Text>
-              <Text style={styles.title}>Create your account</Text>
-              <Text style={styles.subtitle}>Join the {CHURCH.name} community</Text>
+              <Text style={styles.title}>Create Account</Text>
+              <Text style={styles.subtitle}>Begin your journey with the Wealth Reality Church</Text>
             </View>
 
-            <TouchableOpacity
-              style={styles.googleBtn}
-              onPress={handleGoogleSignIn}
-              disabled={googleLoading}
-            >
-              {googleLoading ? (
-                <ActivityIndicator size="small" color={BaseColors.brown900} />
-              ) : (
-                <>
-                  <Text style={styles.googleIcon}>G</Text>
-                  <Text style={styles.googleText}>Continue with Google</Text>
-                </>
-              )}
-            </TouchableOpacity>
+            <View style={styles.socialButtons}>
+              <TouchableOpacity
+                style={styles.googleBtn}
+                onPress={handleGoogleSignIn}
+                disabled={googleLoading}
+              >
+                {googleLoading ? (
+                  <ActivityIndicator size="small" color={BaseColors.gold} />
+                ) : (
+                  <>
+                    <Ionicons name="logo-google" size={18} color={BaseColors.white} />
+                    <Text style={styles.googleText}>Google</Text>
+                  </>
+                )}
+              </TouchableOpacity>
 
-            {appleAvailable && (
-              <AppleAuthentication.AppleAuthenticationButton
-                buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
-                cornerRadius={Radius.md}
-                style={[styles.appleBtn, appleLoading && styles.socialBtnDisabled]}
-                onPress={handleAppleSignIn}
-              />
-            )}
+              {appleAvailable && (
+                <TouchableOpacity
+                  style={styles.appleBtn}
+                  onPress={handleAppleSignIn}
+                  disabled={appleLoading}
+                >
+                  {appleLoading ? (
+                    <ActivityIndicator size="small" color={BaseColors.white} />
+                  ) : (
+                    <>
+                      <Ionicons name="logo-apple" size={20} color={BaseColors.white} />
+                      <Text style={styles.appleText}>Apple</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              )}
+            </View>
 
             <View style={styles.dividerRow}>
               <View style={styles.divider} />
-              <Text style={styles.dividerText}>or sign up with email</Text>
+              <Text style={styles.dividerText}>or continue with email</Text>
               <View style={styles.divider} />
             </View>
 
+            {authError ? (
+              <View style={styles.authErrorBanner}>
+                <Ionicons name="alert-circle" size={16} color={BaseColors.red600} />
+                <Text style={styles.authErrorText}>{authError}</Text>
+              </View>
+            ) : null}
+
             <View style={styles.nameRow}>
               <View style={[styles.inputWrap, { flex: 1 }]}>
-                <Text style={styles.label}>First name *</Text>
+                <Text style={styles.label}>First name</Text>
                 <TextInput
                   style={[styles.input, errors.firstName ? styles.inputError : null]}
                   value={firstName}
@@ -235,7 +272,7 @@ export default function RegisterScreen() {
                     setFirstName(t);
                     if (errors.firstName) setErrors({ ...errors, firstName: undefined });
                   }}
-                  placeholder="Grace"
+                  placeholder="e.g. Grace"
                   placeholderTextColor={BaseColors.brown400}
                   selectionColor={BaseColors.gold}
                 />
@@ -247,7 +284,7 @@ export default function RegisterScreen() {
                   style={styles.input}
                   value={lastName}
                   onChangeText={setLastName}
-                  placeholder="Okafor"
+                  placeholder="e.g. Okafor"
                   placeholderTextColor={BaseColors.brown400}
                   selectionColor={BaseColors.gold}
                 />
@@ -255,7 +292,7 @@ export default function RegisterScreen() {
             </View>
 
             <View style={styles.inputWrap}>
-              <Text style={styles.label}>Email *</Text>
+              <Text style={styles.label}>Email Address</Text>
               <TextInput
                 style={[styles.input, errors.email ? styles.inputError : null]}
                 value={email}
@@ -263,7 +300,7 @@ export default function RegisterScreen() {
                   setEmail(t);
                   if (errors.email) setErrors({ ...errors, email: undefined });
                 }}
-                placeholder="grace@email.com"
+                placeholder="youremail@domain.com"
                 placeholderTextColor={BaseColors.brown400}
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -273,7 +310,7 @@ export default function RegisterScreen() {
             </View>
 
             <View style={styles.inputWrap}>
-              <Text style={styles.label}>Password *</Text>
+              <Text style={styles.label}>Password</Text>
               <View style={[styles.passWrap, errors.password ? styles.inputError : null]}>
                 <TextInput
                   style={[styles.input, { flex: 1, borderWidth: 0, paddingHorizontal: 0 }]}
@@ -282,20 +319,20 @@ export default function RegisterScreen() {
                     setPassword(t);
                     if (errors.password) setErrors({ ...errors, password: undefined });
                   }}
-                  placeholder="Min. 8 characters"
+                  placeholder="Choose a strong password"
                   placeholderTextColor={BaseColors.brown400}
                   secureTextEntry={!showPass}
                   selectionColor={BaseColors.gold}
                 />
                 <TouchableOpacity onPress={() => setShowPass(!showPass)} style={styles.eyeBtn}>
-                  <Ionicons name={showPass ? 'eye-off' : 'eye'} size={18} color={BaseColors.brown300} />
+                  <Ionicons name={showPass ? 'eye-off' : 'eye'} size={18} color={BaseColors.gold} />
                 </TouchableOpacity>
               </View>
               {renderInputError(errors.password)}
             </View>
 
             <View style={styles.inputWrap}>
-              <Text style={styles.label}>Confirm Password *</Text>
+              <Text style={styles.label}>Confirm Password</Text>
               <View style={[styles.passWrap, errors.confirmPassword ? styles.inputError : null]}>
                 <TextInput
                   style={[styles.input, { flex: 1, borderWidth: 0, paddingHorizontal: 0 }]}
@@ -304,7 +341,7 @@ export default function RegisterScreen() {
                     setConfirmPassword(t);
                     if (errors.confirmPassword) setErrors({ ...errors, confirmPassword: undefined });
                   }}
-                  placeholder="Repeat your password"
+                  placeholder="Repeat password"
                   placeholderTextColor={BaseColors.brown400}
                   secureTextEntry={!showPass}
                   selectionColor={BaseColors.gold}
@@ -317,13 +354,18 @@ export default function RegisterScreen() {
               style={styles.submitBtn}
               onPress={handleRegister}
               disabled={loading}
-              activeOpacity={0.85}
+              activeOpacity={0.9}
             >
-              {loading ? (
-                <ActivityIndicator color={BaseColors.white} />
-              ) : (
-                <Text style={styles.submitText}>Create account →</Text>
-              )}
+              <LinearGradient
+                colors={[BaseColors.gold, BaseColors.goldDeep]}
+                style={styles.submitGradient}
+              >
+                {loading ? (
+                  <ActivityIndicator color={BaseColors.white} />
+                ) : (
+                  <Text style={styles.submitText}>CREATE ACCOUNT</Text>
+                )}
+              </LinearGradient>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.signInLink}>
@@ -341,60 +383,101 @@ export default function RegisterScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   safe: { flex: 1 },
-  scroll: { padding: Spacing['2xl'], paddingTop: Spacing.lg },
-  backBtn: {
-    width: 36, height: 36, borderRadius: Radius.full,
-    backgroundColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center',
-    marginBottom: Spacing.xl,
-  },
-  header: { marginBottom: Spacing.xl },
+  scroll: { flexGrow: 1, padding: Spacing.xl, paddingTop: Spacing.lg, paddingBottom: Spacing['2xl'] },
+  header: { marginBottom: Spacing.xl, alignItems: 'center' },
   stepLabel: {
-    fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.xs,
-    letterSpacing: 1.5, textTransform: 'uppercase', color: BaseColors.gold, marginBottom: 4,
+    fontFamily: Typography.sansSemiBold, fontSize: 10,
+    letterSpacing: 2, textTransform: 'uppercase', color: BaseColors.gold, marginBottom: 8,
   },
   title: {
-    fontFamily: Typography.serif, fontSize: Typography.sizes['3xl'],
-    color: BaseColors.white, marginBottom: Spacing.sm,
+    fontFamily: Typography.serif, fontSize: 32,
+    color: BaseColors.white, marginBottom: 4,
   },
-  subtitle: { fontFamily: Typography.sans, fontSize: Typography.sizes.base, color: BaseColors.brown300 },
+  subtitle: {
+    fontFamily: Typography.sans, fontSize: 14,
+    color: BaseColors.brown300, textAlign: 'center',
+    lineHeight: 20, paddingHorizontal: 20
+  },
+  socialButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.md,
+    marginBottom: Spacing.xl
+  },
   googleBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm,
-    borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.15)', borderRadius: Radius.md,
-    paddingVertical: 12, marginBottom: Spacing.md, backgroundColor: 'rgba(255,255,255,0.06)',
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: Radius.md,
+    paddingVertical: 12, backgroundColor: 'rgba(255,255,255,0.05)',
   },
-  googleIcon: { fontFamily: Typography.sansSemiBold, fontSize: 18, color: BaseColors.white },
-  googleText: { fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.base, color: BaseColors.white },
-  appleBtn: { width: '100%', height: 48, marginBottom: Spacing.xl },
-  socialBtnDisabled: { opacity: 0.7 },
-  dividerRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: Spacing.xl },
-  divider: { flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.1)' },
-  dividerText: { fontFamily: Typography.sans, fontSize: Typography.sizes.sm, color: BaseColors.brown300 },
+  googleText: { fontFamily: Typography.sansSemiBold, fontSize: 14, color: BaseColors.white },
+  appleBtn: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: Radius.md,
+    paddingVertical: 12, backgroundColor: BaseColors.black,
+  },
+  appleText: { fontFamily: Typography.sansSemiBold, fontSize: 14, color: BaseColors.white },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: Spacing.xl },
+  divider: { flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.05)' },
+  dividerText: { fontFamily: Typography.sans, fontSize: 12, color: BaseColors.brown400, letterSpacing: 0.5 },
+  authErrorBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(220, 38, 38, 0.1)',
+    borderWidth: 1,
+    borderColor: 'rgba(220, 38, 38, 0.2)',
+    borderRadius: Radius.md,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: Spacing.lg,
+  },
+  authErrorText: {
+    flex: 1,
+    fontFamily: Typography.sansMedium,
+    fontSize: 13,
+    color: '#fca5a5',
+    lineHeight: 18,
+  },
   nameRow: { flexDirection: 'row', gap: Spacing.md },
   inputWrap: { marginBottom: Spacing.lg },
   label: {
-    fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.xs,
-    letterSpacing: 0.8, textTransform: 'uppercase', color: BaseColors.brown300, marginBottom: 6,
+    fontFamily: Typography.sansSemiBold, fontSize: 11,
+    letterSpacing: 1, textTransform: 'uppercase', color: BaseColors.brown300, marginBottom: 8,
   },
   input: {
-    backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.12)', borderRadius: Radius.sm,
-    paddingHorizontal: Spacing.md, paddingVertical: 11,
-    fontFamily: Typography.sans, fontSize: Typography.sizes.base, color: BaseColors.white,
+    backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)', borderRadius: Radius.md,
+    paddingHorizontal: 16, paddingVertical: 14,
+    fontFamily: Typography.sans, fontSize: 16, color: BaseColors.white,
   },
-  inputError: { borderColor: BaseColors.red500 },
-  errorContainer: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
+  inputError: { borderColor: BaseColors.red700 },
+  errorContainer: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 },
   errorText: { fontFamily: Typography.sans, fontSize: 11, color: BaseColors.red500 },
   passWrap: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.08)',
-    borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.12)', borderRadius: Radius.sm, paddingHorizontal: Spacing.md,
+    flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: Radius.md, paddingHorizontal: 16,
   },
   eyeBtn: { padding: Spacing.sm },
   submitBtn: {
-    backgroundColor: BaseColors.gold, borderRadius: Radius.md,
-    paddingVertical: 15, alignItems: 'center', marginTop: Spacing.sm, marginBottom: Spacing.xl,
+    borderRadius: Radius.md,
+    overflow: 'hidden',
+    marginTop: Spacing.md,
+    marginBottom: Spacing.xl,
+    shadowColor: BaseColors.gold,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  submitText: { fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.md, color: BaseColors.white },
-  signInLink: { alignItems: 'center' },
-  signInText: { fontFamily: Typography.sans, fontSize: Typography.sizes.base, color: BaseColors.brown300 },
+  submitGradient: {
+    paddingVertical: 18,
+    alignItems: 'center',
+  },
+  submitText: {
+    fontFamily: Typography.sansSemiBold, fontSize: 15,
+    color: BaseColors.white, letterSpacing: 2
+  },
+  signInLink: { alignItems: 'center', marginTop: 'auto', paddingVertical: Spacing.lg },
+  signInText: { fontFamily: Typography.sans, fontSize: 14, color: BaseColors.brown300 },
   signInHighlight: { fontFamily: Typography.sansSemiBold, color: BaseColors.gold },
 });

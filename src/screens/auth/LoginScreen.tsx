@@ -146,14 +146,16 @@ export default function LoginScreen() {
   };
 
   const handleGoogleSignIn = async () => {
+    setAuthError(null);
     setGoogleLoading(true);
-    const { error } = await signInWithGoogle();
+    const { user, error } = await signInWithGoogle();
     setGoogleLoading(false);
     if (error) {
       setAuthError(error);
       showToast({ title: 'Google sign-in failed', message: error, variant: 'error' });
+    } else if (user) {
+      setIsOnboarded(true);
     }
-    else setIsOnboarded(true);
   };
 
   const handleAppleSignIn = async () => {
@@ -180,7 +182,7 @@ export default function LoginScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={[BaseColors.brown900, BaseColors.brown800]}
+        colors={['#1a140e', '#2d1e12', '#17120d']}
         style={StyleSheet.absoluteFillObject}
       />
       <HeaderBar
@@ -202,50 +204,59 @@ export default function LoginScreen() {
             keyboardDismissMode="on-drag"
           >
             <View style={styles.header}>
-              <Text style={styles.title}>Welcome back 👋</Text>
-              <Text style={styles.subtitle}>{CHURCH.name}</Text>
+              <Text style={styles.title}>Welcome Back</Text>
+              <Text style={styles.subtitle}>Sign in to your kingdom community</Text>
             </View>
 
-            <TouchableOpacity
-              style={styles.googleBtn}
-              onPress={handleGoogleSignIn}
-              disabled={googleLoading}
-            >
-              {googleLoading ? (
-                <ActivityIndicator size="small" color={BaseColors.brown900} />
-              ) : (
-                <>
-                  <Text style={styles.googleIcon}>G</Text>
-                  <Text style={styles.googleText}>Continue with Google</Text>
-                </>
-              )}
-            </TouchableOpacity>
+            <View style={styles.socialButtons}>
+              <TouchableOpacity
+                style={styles.googleBtn}
+                onPress={handleGoogleSignIn}
+                disabled={googleLoading}
+              >
+                {googleLoading ? (
+                  <ActivityIndicator size="small" color={BaseColors.gold} />
+                ) : (
+                  <>
+                    <Ionicons name="logo-google" size={18} color={BaseColors.white} />
+                    <Text style={styles.googleText}>Google</Text>
+                  </>
+                )}
+              </TouchableOpacity>
 
-            {appleAvailable && (
-              <AppleAuthentication.AppleAuthenticationButton
-                buttonType={AppleAuthentication.AppleAuthenticationButtonType.CONTINUE}
-                buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.WHITE}
-                cornerRadius={Radius.md}
-                style={[styles.appleBtn, appleLoading && styles.socialBtnDisabled]}
-                onPress={handleAppleSignIn}
-              />
-            )}
+              {appleAvailable && (
+                <TouchableOpacity
+                  style={styles.appleBtn}
+                  onPress={handleAppleSignIn}
+                  disabled={appleLoading}
+                >
+                  {appleLoading ? (
+                    <ActivityIndicator size="small" color={BaseColors.white} />
+                  ) : (
+                    <>
+                      <Ionicons name="logo-apple" size={20} color={BaseColors.white} />
+                      <Text style={styles.appleText}>Apple</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              )}
+            </View>
 
             <View style={styles.dividerRow}>
               <View style={styles.divider} />
-              <Text style={styles.dividerText}>or sign in with email</Text>
+              <Text style={styles.dividerText}>or continue with email</Text>
               <View style={styles.divider} />
             </View>
 
             {authError ? (
               <View style={styles.authErrorBanner}>
-                <Ionicons name="alert-circle" size={12} color={BaseColors.red600} />
+                <Ionicons name="alert-circle" size={16} color={BaseColors.red600} />
                 <Text style={styles.authErrorText}>{authError}</Text>
               </View>
             ) : null}
 
             <View style={styles.inputWrap}>
-              <Text style={styles.label}>Email</Text>
+              <Text style={styles.label}>Email Address</Text>
               <TextInput
                 style={[styles.input, errors.email ? styles.inputError : null]}
                 value={email}
@@ -253,7 +264,7 @@ export default function LoginScreen() {
                   setEmail(t);
                   if (errors.email) setErrors({ ...errors, email: undefined });
                 }}
-                placeholder="your@email.com"
+                placeholder="youremail@domain.com"
                 placeholderTextColor={BaseColors.brown400}
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -272,7 +283,7 @@ export default function LoginScreen() {
                     setPassword(t);
                     if (errors.password) setErrors({ ...errors, password: undefined });
                   }}
-                  placeholder="Your password"
+                  placeholder="Enter your password"
                   placeholderTextColor={BaseColors.brown400}
                   secureTextEntry={!showPass}
                   selectionColor={BaseColors.gold}
@@ -283,7 +294,7 @@ export default function LoginScreen() {
                   accessibilityRole="button"
                   accessibilityLabel={showPass ? 'Hide password' : 'Show password'}
                 >
-                  <Ionicons name={showPass ? 'eye-off' : 'eye'} size={18} color={BaseColors.brown300} />
+                  <Ionicons name={showPass ? 'eye-off' : 'eye'} size={18} color={BaseColors.gold} />
                 </TouchableOpacity>
               </View>
               {renderInputError(errors.password)}
@@ -298,81 +309,22 @@ export default function LoginScreen() {
               <Text style={styles.forgotText}>Forgot password?</Text>
             </TouchableOpacity>
 
-            <Modal
-              visible={forgotVisible}
-              transparent
-              animationType="fade"
-              onRequestClose={closeForgotModal}
-            >
-              <View style={styles.modalOverlay}>
-                <View style={styles.modalCard}>
-                  <View style={styles.modalHeader}>
-                    <Text style={styles.modalTitle}>Reset password</Text>
-                    <TouchableOpacity
-                      onPress={closeForgotModal}
-                      style={styles.modalCloseBtn}
-                      accessibilityRole="button"
-                      accessibilityLabel="Close reset password"
-                    >
-                      <Ionicons name="close" size={20} color={BaseColors.brown300} />
-                    </TouchableOpacity>
-                  </View>
-
-                  {resetSent ? (
-                    <View style={styles.resetSentWrap}>
-                      <Ionicons name="mail-open-outline" size={40} color={BaseColors.gold} style={{ marginBottom: Spacing.md }} />
-                      <Text style={styles.resetSentTitle}>Check your inbox</Text>
-                      <Text style={styles.resetSentSub}>We sent a password reset link to{' '}
-                        <Text style={styles.resetSentEmail}>{resetEmail.trim().toLowerCase()}</Text>
-                      </Text>
-                      <TouchableOpacity style={styles.resetDoneBtn} onPress={closeForgotModal}>
-                        <Text style={styles.resetDoneBtnText}>Done</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ) : (
-                    <>
-                      <Text style={styles.modalSubtitle}>
-                        Enter your account email and we&apos;ll send you a reset link.
-                      </Text>
-                      <TextInput
-                        style={styles.modalInput}
-                        value={resetEmail}
-                        onChangeText={setResetEmail}
-                        placeholder="your@email.com"
-                        placeholderTextColor={BaseColors.brown400}
-                        keyboardType="email-address"
-                        autoCapitalize="none"
-                        autoFocus
-                        selectionColor={BaseColors.gold}
-                      />
-                      <TouchableOpacity
-                        style={[styles.modalSubmitBtn, resetLoading && { opacity: 0.7 }]}
-                        onPress={handleForgotPassword}
-                        disabled={resetLoading}
-                      >
-                        {resetLoading
-                          ? <ActivityIndicator color={BaseColors.white} />
-                          : <Text style={styles.modalSubmitText}>Send reset link</Text>}
-                      </TouchableOpacity>
-                    </>
-                  )}
-                </View>
-              </View>
-            </Modal>
-
             <TouchableOpacity
               style={styles.submitBtn}
               onPress={handleLogin}
               disabled={loading}
-              activeOpacity={0.85}
-              accessibilityRole="button"
-              accessibilityLabel="Sign in"
+              activeOpacity={0.9}
             >
-              {loading ? (
-                <ActivityIndicator color={BaseColors.white} />
-              ) : (
-                <Text style={styles.submitText}>Sign in</Text>
-              )}
+              <LinearGradient
+                colors={[BaseColors.gold, BaseColors.goldDeep]}
+                style={styles.submitGradient}
+              >
+                {loading ? (
+                  <ActivityIndicator color={BaseColors.white} />
+                ) : (
+                  <Text style={styles.submitText}>SIGN IN</Text>
+                )}
+              </LinearGradient>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -395,89 +347,108 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   safe: { flex: 1 },
-  scroll: { padding: Spacing['2xl'], paddingTop: Spacing.lg },
-  backBtn: {
-    width: 36, height: 36, borderRadius: Radius.full,
-    backgroundColor: 'rgba(255,255,255,0.08)', alignItems: 'center', justifyContent: 'center',
-    marginBottom: Spacing.xl,
+  scroll: { flexGrow: 1, padding: Spacing.xl, paddingTop: Spacing.lg, paddingBottom: Spacing['2xl'] },
+  header: { marginBottom: Spacing.xl, alignItems: 'center' },
+  title: { fontFamily: Typography.serif, fontSize: 32, color: BaseColors.white, marginBottom: 4 },
+  subtitle: { fontFamily: Typography.sans, fontSize: 14, color: BaseColors.brown300 },
+  socialButtons: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.md,
+    marginBottom: Spacing.xl
   },
-  header: { marginBottom: Spacing.xl },
-  title: { fontFamily: Typography.serif, fontSize: Typography.sizes['3xl'], color: BaseColors.white, marginBottom: 4 },
-  subtitle: { fontFamily: Typography.sans, fontSize: Typography.sizes.base, color: BaseColors.brown300 },
   googleBtn: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm,
-    borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.15)', borderRadius: Radius.md,
-    paddingVertical: 12, marginBottom: Spacing.md, backgroundColor: 'rgba(255,255,255,0.06)',
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: Radius.md,
+    paddingVertical: 12, backgroundColor: 'rgba(255,255,255,0.05)',
   },
-  googleIcon: { fontFamily: Typography.sansSemiBold, fontSize: 18, color: BaseColors.white },
-  googleText: { fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.base, color: BaseColors.white },
-  appleBtn: { width: '100%', height: 48, marginBottom: Spacing.xl },
-  socialBtnDisabled: { opacity: 0.7 },
-  dividerRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: Spacing.xl },
-  divider: { flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.1)' },
-  dividerText: { fontFamily: Typography.sans, fontSize: Typography.sizes.sm, color: BaseColors.brown300 },
+  googleText: { fontFamily: Typography.sansSemiBold, fontSize: 14, color: BaseColors.white },
+  appleBtn: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: Radius.md,
+    paddingVertical: 12, backgroundColor: BaseColors.black,
+  },
+  appleText: { fontFamily: Typography.sansSemiBold, fontSize: 14, color: BaseColors.white },
+  dividerRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: Spacing.xl },
+  divider: { flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.05)' },
+  dividerText: { fontFamily: Typography.sans, fontSize: 12, color: BaseColors.brown400, letterSpacing: 0.5 },
   authErrorBanner: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 6,
-    backgroundColor: BaseColors.red50,
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(220, 38, 38, 0.1)',
     borderWidth: 1,
-    borderColor: BaseColors.red100,
+    borderColor: 'rgba(220, 38, 38, 0.2)',
     borderRadius: Radius.md,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     marginBottom: Spacing.lg,
   },
   authErrorText: {
     flex: 1,
     fontFamily: Typography.sansMedium,
-    fontSize: Typography.sizes.sm,
-    color: BaseColors.red700,
+    fontSize: 13,
+    color: '#fca5a5',
     lineHeight: 18,
   },
   inputWrap: { marginBottom: Spacing.lg },
   label: {
-    fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.xs,
-    letterSpacing: 0.8, textTransform: 'uppercase', color: BaseColors.brown300, marginBottom: 6,
+    fontFamily: Typography.sansSemiBold, fontSize: 11,
+    letterSpacing: 1, textTransform: 'uppercase', color: BaseColors.brown300, marginBottom: 8,
   },
   input: {
-    backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.12)', borderRadius: Radius.sm,
-    paddingHorizontal: Spacing.md, paddingVertical: 11,
-    fontFamily: Typography.sans, fontSize: Typography.sizes.base, color: BaseColors.white,
+    backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.08)', borderRadius: Radius.md,
+    paddingHorizontal: 16, paddingVertical: 14,
+    fontFamily: Typography.sans, fontSize: 16, color: BaseColors.white,
   },
-  inputError: { borderColor: BaseColors.red500 },
-  errorContainer: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
+  inputError: { borderColor: BaseColors.red700 },
+  errorContainer: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 },
   errorText: { fontFamily: Typography.sans, fontSize: 11, color: BaseColors.red500 },
   passWrap: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.08)',
-    borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.12)', borderRadius: Radius.sm, paddingHorizontal: Spacing.md,
+    flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: Radius.md, paddingHorizontal: 16,
   },
   eyeBtn: { padding: Spacing.sm },
   forgotBtn: { alignSelf: 'flex-end', marginBottom: Spacing.xl },
-  forgotText: { fontFamily: Typography.sansMedium, fontSize: Typography.sizes.sm, color: BaseColors.gold },
+  forgotText: { fontFamily: Typography.sansMedium, fontSize: 13, color: BaseColors.gold },
   submitBtn: {
-    backgroundColor: BaseColors.gold, borderRadius: Radius.md,
-    paddingVertical: 15, alignItems: 'center', marginBottom: Spacing.xl,
+    borderRadius: Radius.md,
+    overflow: 'hidden',
+    marginBottom: Spacing.xl,
+    shadowColor: BaseColors.gold,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  submitText: { fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.md, color: BaseColors.white },
-  registerLink: { alignItems: 'center' },
-  registerText: { fontFamily: Typography.sans, fontSize: Typography.sizes.base, color: BaseColors.brown300 },
+  submitGradient: {
+    paddingVertical: 18,
+    alignItems: 'center',
+  },
+  submitText: {
+    fontFamily: Typography.sansSemiBold, fontSize: 15,
+    color: BaseColors.white, letterSpacing: 2
+  },
+  registerLink: { alignItems: 'center', marginTop: 'auto', paddingVertical: Spacing.lg },
+  registerText: { fontFamily: Typography.sans, fontSize: 14, color: BaseColors.brown300 },
   registerHighlight: { fontFamily: Typography.sansSemiBold, color: BaseColors.gold },
-  // Forgot password modal
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: Spacing['2xl'] },
-  modalCard: { width: '100%', backgroundColor: BaseColors.brown900, borderRadius: Radius.lg, padding: Spacing.xl, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+  // Modal styles remain similar but updated with theme colors
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', alignItems: 'center', padding: Spacing['2xl'] },
+  modalCard: { width: '100%', backgroundColor: '#1a140e', borderRadius: Radius.lg, padding: Spacing.xl, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
   modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.md },
-  modalTitle: { fontFamily: Typography.serif, fontSize: Typography.sizes.xl, color: BaseColors.white },
+  modalTitle: { fontFamily: Typography.serif, fontSize: 24, color: BaseColors.white },
   modalCloseBtn: { padding: 4 },
-  modalSubtitle: { fontFamily: Typography.sans, fontSize: Typography.sizes.sm, color: BaseColors.brown300, marginBottom: Spacing.lg, lineHeight: 20 },
-  modalInput: { backgroundColor: 'rgba(255,255,255,0.08)', borderWidth: 1.5, borderColor: 'rgba(255,255,255,0.12)', borderRadius: Radius.sm, paddingHorizontal: Spacing.md, paddingVertical: 11, fontFamily: Typography.sans, fontSize: Typography.sizes.base, color: BaseColors.white, marginBottom: Spacing.lg },
-  modalSubmitBtn: { backgroundColor: BaseColors.gold, borderRadius: Radius.md, paddingVertical: 13, alignItems: 'center' },
-  modalSubmitText: { fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.base, color: BaseColors.white },
+  modalSubtitle: { fontFamily: Typography.sans, fontSize: 14, color: BaseColors.brown300, marginBottom: Spacing.lg, lineHeight: 20 },
+  modalInput: { backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: Radius.md, paddingHorizontal: 16, paddingVertical: 14, fontFamily: Typography.sans, fontSize: 16, color: BaseColors.white, marginBottom: Spacing.lg },
+  modalSubmitBtn: { borderRadius: Radius.md, overflow: 'hidden' },
+  modalSubmitGradient: { paddingVertical: 14, alignItems: 'center' },
+  modalSubmitText: { fontFamily: Typography.sansSemiBold, fontSize: 14, color: BaseColors.white, letterSpacing: 1 },
   resetSentWrap: { alignItems: 'center', paddingVertical: Spacing.lg },
-  resetSentTitle: { fontFamily: Typography.serif, fontSize: Typography.sizes.xl, color: BaseColors.white, marginBottom: Spacing.sm },
-  resetSentSub: { fontFamily: Typography.sans, fontSize: Typography.sizes.sm, color: BaseColors.brown300, textAlign: 'center', lineHeight: 20, marginBottom: Spacing.xl },
+  resetSentTitle: { fontFamily: Typography.serif, fontSize: 24, color: BaseColors.white, marginBottom: Spacing.sm },
+  resetSentSub: { fontFamily: Typography.sans, fontSize: 14, color: BaseColors.brown300, textAlign: 'center', lineHeight: 22, marginBottom: Spacing.xl },
   resetSentEmail: { color: BaseColors.white, fontFamily: Typography.sansSemiBold },
-  resetDoneBtn: { backgroundColor: BaseColors.gold, borderRadius: Radius.md, paddingVertical: 13, paddingHorizontal: Spacing['2xl'], alignItems: 'center' },
-  resetDoneBtnText: { fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.base, color: BaseColors.white },
+  resetDoneBtn: { borderRadius: Radius.md, overflow: 'hidden', paddingHorizontal: 40 },
+  resetDoneBtnGradient: { paddingVertical: 14, alignItems: 'center' },
+  resetDoneBtnText: { fontFamily: Typography.sansSemiBold, fontSize: 14, color: BaseColors.white },
 });

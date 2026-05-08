@@ -1,7 +1,7 @@
 // src/screens/auth/EmailVerificationScreen.tsx
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator,
+  View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
@@ -133,7 +133,7 @@ export default function EmailVerificationScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={[BaseColors.brown900, BaseColors.brown800]}
+        colors={['#1a140e', '#2d1e12', '#17120d']}
         style={StyleSheet.absoluteFillObject}
       />
       <HeaderBar
@@ -144,62 +144,73 @@ export default function EmailVerificationScreen() {
         blurTint="dark"
       />
       <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
-        <View style={styles.header}>
-          <View style={styles.iconContainer}>
-            <Ionicons name="mail-unread" size={48} color={BaseColors.white} />
-          </View>
-          <Text style={styles.title}>Check your email</Text>
-          <Text style={styles.subtitle}>
-            A verification link was sent to{'\n'}
-            <Text style={styles.email}>{email}</Text>
-          </Text>
-        </View>
-
-        <View style={styles.instructions}>
-          {isExpoGo && (
-            <View style={styles.noteCard}>
-              <Ionicons name="information-circle" size={18} color={BaseColors.white} />
-              <Text style={styles.noteText}>
-                Expo Go urls are temporary. For best results, use a development build.
-              </Text>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.header}>
+            <View style={styles.iconContainer}>
+              <Ionicons name="mail-unread" size={48} color={BaseColors.gold} />
             </View>
-          )}
-          <Text style={styles.instructionText}>
-            You can click the link in the email now, or skip this step and verify your account later from your Profile.
-          </Text>
-        </View>
+            <Text style={styles.title}>Check your email</Text>
+            <Text style={styles.subtitle}>
+              A verification link was sent to{'\n'}
+              <Text style={styles.email}>{email}</Text>
+            </Text>
+          </View>
 
-        <View style={styles.actions}>
-          <TouchableOpacity
-            style={styles.continueBtn}
-            onPress={handleContinue}
-            disabled={loading}
-          >
-            {loading ? <ActivityIndicator color={BaseColors.brown900} /> : <Text style={styles.continueBtnText}>I&apos;ve verified my email</Text>}
-          </TouchableOpacity>
+          <View style={styles.instructions}>
+            {isExpoGo && (
+              <View style={styles.noteCard}>
+                <Ionicons name="information-circle" size={18} color={BaseColors.gold} />
+                <Text style={styles.noteText}>
+                  Expo Go urls are temporary. For best results, use a development build.
+                </Text>
+              </View>
+            )}
+            <Text style={styles.instructionText}>
+              You can click the link in the email now, or skip this step and verify your account later from your Profile.
+            </Text>
+          </View>
 
-          <TouchableOpacity
-            style={styles.skipBtn}
-            onPress={handleSkip}
-          >
-            <Text style={styles.skipBtnText}>Skip for now →</Text>
-          </TouchableOpacity>
+          <View style={styles.actions}>
+            <TouchableOpacity
+              style={styles.continueBtn}
+              onPress={handleContinue}
+              disabled={loading}
+              activeOpacity={0.9}
+            >
+              <LinearGradient
+                colors={[BaseColors.gold, BaseColors.goldDeep]}
+                style={styles.continueGradient}
+              >
+                {loading ? <ActivityIndicator color={BaseColors.white} /> : <Text style={styles.continueBtnText}>I&apos;VE VERIFIED MY EMAIL</Text>}
+              </LinearGradient>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.resendBtn}
-            onPress={handleResendEmail}
-            disabled={resendLoading}
-          >
-            <Text style={styles.resendBtnText}>{resendLoading ? 'Sending...' : 'Resend verification email'}</Text>
-          </TouchableOpacity>
-        </View>
+            <TouchableOpacity
+              style={styles.skipBtn}
+              onPress={handleSkip}
+            >
+              <Text style={styles.skipBtnText}>Skip for now →</Text>
+            </TouchableOpacity>
 
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Wrong email?{' '}
-            <Text style={styles.footerLink} onPress={() => navigation.navigate('Register')}>Sign up again</Text>
-          </Text>
-        </View>
+            <TouchableOpacity
+              style={styles.resendBtn}
+              onPress={handleResendEmail}
+              disabled={resendLoading}
+            >
+              <Text style={styles.resendBtnText}>{resendLoading ? 'Sending...' : 'Resend verification email'}</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>
+              Wrong email?{' '}
+              <Text style={styles.footerLink} onPress={() => navigation.navigate('Register')}>Sign up again</Text>
+            </Text>
+          </View>
+        </ScrollView>
       </SafeAreaView>
     </View>
   );
@@ -207,25 +218,40 @@ export default function EmailVerificationScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  safe: { flex: 1, paddingHorizontal: Spacing.xl },
-  backBtn: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
-  header: { alignItems: 'center', marginTop: Spacing['2xl'], marginBottom: Spacing.xl },
-  iconContainer: { width: 80, height: 80, borderRadius: 40, backgroundColor: 'rgba(255,255,255,0.1)', alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.lg },
-  title: { fontFamily: Typography.serif, fontSize: Typography.sizes.xl, color: BaseColors.white, textAlign: 'center' },
-  subtitle: { fontFamily: Typography.sans, fontSize: Typography.sizes.base, color: BaseColors.brown300, textAlign: 'center', marginTop: Spacing.sm },
+  safe: { flex: 1 },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: Spacing.xl,
+    paddingBottom: Spacing.xl,
+  },
+  header: { alignItems: 'center', marginTop: Spacing.xl, marginBottom: Spacing.xl },
+  iconContainer: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255,255,255,0.03)',
+    borderWidth: 1,
+    borderColor: 'rgba(201, 146, 42, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.lg
+  },
+  title: { fontFamily: Typography.serif, fontSize: 32, color: BaseColors.white, textAlign: 'center' },
+  subtitle: { fontFamily: Typography.sans, fontSize: 16, color: BaseColors.brown300, textAlign: 'center', marginTop: Spacing.sm, lineHeight: 24 },
   email: { color: BaseColors.white, fontFamily: Typography.sansSemiBold },
-  instructions: { marginBottom: Spacing.xl },
-  noteCard: { flexDirection: 'row', gap: Spacing.sm, padding: Spacing.md, borderRadius: Radius.md, backgroundColor: 'rgba(255,255,255,0.08)', marginBottom: Spacing.md },
-  noteText: { flex: 1, fontFamily: Typography.sans, fontSize: Typography.sizes.xs, color: BaseColors.brown100, lineHeight: 18 },
-  instructionText: { fontFamily: Typography.sans, fontSize: Typography.sizes.sm, color: BaseColors.brown200, textAlign: 'center', lineHeight: 20 },
+  instructions: { marginBottom: Spacing['2xl'] },
+  noteCard: { flexDirection: 'row', gap: Spacing.sm, padding: Spacing.md, borderRadius: Radius.md, backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.05)', marginBottom: Spacing.md },
+  noteText: { flex: 1, fontFamily: Typography.sans, fontSize: 12, color: BaseColors.brown300, lineHeight: 18 },
+  instructionText: { fontFamily: Typography.sans, fontSize: 14, color: BaseColors.brown300, textAlign: 'center', lineHeight: 22 },
   actions: { gap: Spacing.md, marginBottom: Spacing.xl },
-  continueBtn: { backgroundColor: BaseColors.white, borderRadius: Radius.md, paddingVertical: 16, alignItems: 'center' },
-  continueBtnText: { fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.base, color: BaseColors.brown900 },
+  continueBtn: { borderRadius: Radius.md, overflow: 'hidden' },
+  continueGradient: { paddingVertical: 18, alignItems: 'center' },
+  continueBtnText: { fontFamily: Typography.sansSemiBold, fontSize: 15, color: BaseColors.white, letterSpacing: 2 },
   skipBtn: { paddingVertical: 12, alignItems: 'center' },
-  skipBtnText: { fontFamily: Typography.sansSemiBold, fontSize: Typography.sizes.base, color: BaseColors.gold },
-  resendBtn: { borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)', borderRadius: Radius.md, paddingVertical: 14, alignItems: 'center' },
-  resendBtnText: { fontFamily: Typography.sans, fontSize: Typography.sizes.sm, color: BaseColors.brown300 },
-  footer: { alignItems: 'center' },
-  footerText: { fontFamily: Typography.sans, fontSize: Typography.sizes.sm, color: BaseColors.brown300 },
+  skipBtnText: { fontFamily: Typography.sansSemiBold, fontSize: 15, color: BaseColors.gold },
+  resendBtn: { borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: Radius.md, paddingVertical: 14, alignItems: 'center' },
+  resendBtnText: { fontFamily: Typography.sans, fontSize: 14, color: BaseColors.brown400 },
+  footer: { alignItems: 'center', marginBottom: Spacing.xl },
+  footerText: { fontFamily: Typography.sans, fontSize: 14, color: BaseColors.brown300 },
   footerLink: { color: BaseColors.gold, fontFamily: Typography.sansSemiBold },
 });

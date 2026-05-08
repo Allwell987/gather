@@ -91,6 +91,7 @@ const baseConfig = {
     [
       '@sentry/react-native/expo',
       {
+        url: 'https://sentry.io/',
         organization: 'wealth-reality',
         project: 'gather-app',
       },

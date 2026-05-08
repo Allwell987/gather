@@ -18,10 +18,19 @@ export const initSentry = () => {
   Sentry.init({
     dsn,
     // debug: __DEV__, // Set to true to see Sentry logs in development
-    enabled: process.env.NODE_ENV === 'production',
+    enabled: true,
     tracesSampleRate: 0.1,
     // sampleRate: 0.1, // Overall sample rate for errors, usually keep at 1.0 unless you have high volume
     attachStacktrace: true,
+    replaysSessionSampleRate: 0.1,
+    replaysOnErrorSampleRate: 1.0,
+    integrations: [
+      Sentry.mobileReplayIntegration({
+        maskAllText: true,
+        maskAllImages: true,
+        maskAllVectors: true,
+      }),
+    ],
     _experiments: {
       // profilesSampleRate: 0.1,
     },
@@ -78,7 +87,7 @@ export const captureSentryError = (
  */
 export const captureSentryMessage = (
   message: string,
-  level: Sentry.SeverityLevel = 'info'
+  level: 'fatal' | 'error' | 'warning' | 'log' | 'info' | 'debug' = 'info'
 ) => {
   Sentry.captureMessage(message, level);
 };

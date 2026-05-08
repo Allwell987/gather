@@ -3,15 +3,16 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Network from 'expo-network';
 import type { BibleChapter, BibleTranslation } from '../types/bible';
 
-const CACHE_KEY = 'bible-cache-v2'; // Bumped version for new structure
+const INDEX_KEY = 'bible-index-v1';
 
-interface CacheData {
-  [translation: string]: {
-    [book: string]: {
-      [chapter: number]: BibleChapter;
-    };
+interface BibleIndex {
+  downloaded: {
+    [translation: string]: string[]; // list of book names
   };
 }
+
+const getChapterKey = (translation: string, book: string, chapter: number) =>
+  `bible:${translation}:${book.toLowerCase().replace(/\s+/g, '_')}:${chapter}`;
 
 export async function getNetworkState(): Promise<{ isConnected: boolean; type: string | null }> {
   try {
@@ -22,16 +23,33 @@ export async function getNetworkState(): Promise<{ isConnected: boolean; type: s
   }
 }
 
+async function updateIndex(translation: string, book: string) {
+  try {
+    const rawIndex = await AsyncStorage.getItem(INDEX_KEY);
+    const index: BibleIndex = rawIndex ? JSON.parse(rawIndex) : { downloaded: {} };
+
+    if (!index.downloaded[translation]) {
+      index.downloaded[translation] = [];
+    }
+
+    if (!index.downloaded[translation].includes(book)) {
+      index.downloaded[translation].push(book);
+      await AsyncStorage.setItem(INDEX_KEY, JSON.stringify(index));
+    }
+  } catch (err) {
+    console.error('Failed to update bible index:', err);
+  }
+}
+
 export async function getCachedChapter(
   book: string,
   chapter: number,
   translation: BibleTranslation = 'kjv'
 ): Promise<BibleChapter | null> {
   try {
-    const cached = await AsyncStorage.getItem(CACHE_KEY);
-    if (!cached) return null;
-    const data: CacheData = JSON.parse(cached);
-    return data[translation]?.[book]?.[chapter] ?? null;
+    const key = getChapterKey(translation, book, chapter);
+    const cached = await AsyncStorage.getItem(key);
+    return cached ? JSON.parse(cached) : null;
   } catch {
     return null;
   }
@@ -40,14 +58,9 @@ export async function getCachedChapter(
 export async function cacheChapter(chapter: BibleChapter): Promise<void> {
   try {
     const translation = chapter.translation || 'kjv';
-    const cached = await AsyncStorage.getItem(CACHE_KEY);
-    const data: CacheData = cached ? JSON.parse(cached) : {};
-
-    if (!data[translation]) data[translation] = {};
-    if (!data[translation][chapter.book]) data[translation][chapter.book] = {};
-
-    data[translation][chapter.book][chapter.chapter] = chapter;
-    await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    const key = getChapterKey(translation, chapter.book, chapter.chapter);
+    await AsyncStorage.setItem(key, JSON.stringify(chapter));
+    await updateIndex(translation, chapter.book);
   } catch (err) {
     console.error('Failed to cache chapter:', err);
   }
@@ -56,17 +69,17 @@ export async function cacheChapter(chapter: BibleChapter): Promise<void> {
 export async function cacheMultipleChapters(chapters: BibleChapter[]): Promise<void> {
   if (chapters.length === 0) return;
   try {
-    const cached = await AsyncStorage.getItem(CACHE_KEY);
-    const data: CacheData = cached ? JSON.parse(cached) : {};
+    const translation = chapters[0].translation || 'kjv';
+    const book = chapters[0].book;
 
-    for (const chapter of chapters) {
-      const translation = chapter.translation || 'kjv';
-      if (!data[translation]) data[translation] = {};
-      if (!data[translation][chapter.book]) data[translation][chapter.book] = {};
-      data[translation][chapter.book][chapter.chapter] = chapter;
-    }
+    // Use multiSet for efficiency
+    const pairs: [string, string][] = chapters.map(ch => [
+      getChapterKey(translation, ch.book, ch.chapter),
+      JSON.stringify(ch)
+    ]);
 
-    await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    await AsyncStorage.multiSet(pairs);
+    await updateIndex(translation, book);
   } catch (err) {
     console.error('Failed to cache multiple chapters:', err);
   }
@@ -74,10 +87,10 @@ export async function cacheMultipleChapters(chapters: BibleChapter[]): Promise<v
 
 export async function getDownloadedTranslations(): Promise<BibleTranslation[]> {
   try {
-    const cached = await AsyncStorage.getItem(CACHE_KEY);
-    if (!cached) return [];
-    const data: CacheData = JSON.parse(cached);
-    return Object.keys(data) as BibleTranslation[];
+    const rawIndex = await AsyncStorage.getItem(INDEX_KEY);
+    if (!rawIndex) return [];
+    const index: BibleIndex = JSON.parse(rawIndex);
+    return Object.keys(index.downloaded) as BibleTranslation[];
   } catch {
     return [];
   }
@@ -85,35 +98,39 @@ export async function getDownloadedTranslations(): Promise<BibleTranslation[]> {
 
 export async function deleteTranslation(translation: BibleTranslation): Promise<void> {
   try {
-    const cached = await AsyncStorage.getItem(CACHE_KEY);
-    if (!cached) return;
-    const data: CacheData = JSON.parse(cached);
-    delete data[translation];
-    await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    const rawIndex = await AsyncStorage.getItem(INDEX_KEY);
+    if (!rawIndex) return;
+    const index: BibleIndex = JSON.parse(rawIndex);
+
+    const books = index.downloaded[translation] || [];
+    const keysToDelete: string[] = [];
+
+    // This is a bit expensive if we don't know the chapter counts,
+    // but we can scan all keys starting with bible:translation:
+    const allKeys = await AsyncStorage.getAllKeys();
+    const translationPrefix = `bible:${translation}:`;
+    const targetKeys = allKeys.filter(k => k.startsWith(translationPrefix));
+
+    await AsyncStorage.multiRemove(targetKeys);
+
+    delete index.downloaded[translation];
+    await AsyncStorage.setItem(INDEX_KEY, JSON.stringify(index));
   } catch (err) {
     console.error('Failed to delete translation:', err);
   }
 }
 
 export async function initializeOfflineBible(): Promise<void> {
-  // We can preload a few essential chapters for first-time users
-  const cached = await AsyncStorage.getItem(CACHE_KEY);
-  if (!cached) {
-    // Initial structure
-    const initialData: CacheData = {
-      kjv: {
-        John: {
-          3: {
-            book: 'John',
-            chapter: 3,
-            translation: 'kjv',
-            verses: [
-              { num: 16, text: 'For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.' }
-            ]
-          }
-        }
-      }
+  const rawIndex = await AsyncStorage.getItem(INDEX_KEY);
+  if (!rawIndex) {
+    const chapter = {
+      book: 'John',
+      chapter: 3,
+      translation: 'kjv',
+      verses: [
+        { num: 16, text: 'For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.' }
+      ]
     };
-    await AsyncStorage.setItem(CACHE_KEY, JSON.stringify(initialData));
+    await cacheChapter(chapter as BibleChapter);
   }
 }

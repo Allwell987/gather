@@ -191,6 +191,7 @@ export default function ThemePickerScreen() {
 
         {/* Content based on tab */}
         <ScrollView
+          style={styles.scroll}
           contentContainerStyle={activeTab === 'theme' ? styles.grid : styles.fontGrid}
           showsVerticalScrollIndicator={false}
           keyboardDismissMode="on-drag"
@@ -319,6 +320,7 @@ export default function ThemePickerScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   safe: { flex: 1 },
+  scroll: { flex: 1 },
   header: { paddingHorizontal: Spacing['2xl'], paddingTop: Spacing.lg, paddingBottom: Spacing.md },
   backBtn: {
     width: 36, height: 36,

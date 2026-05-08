@@ -40,13 +40,41 @@ const decodeJwtPayload = (token: string) => {
     const base64 = parts[1]
       .replace(/-/g, '+')
       .replace(/_/g, '/');
-    const paddedBase64 = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=');
 
-    return JSON.parse(atob(paddedBase64)) as {
+    const padding = '='.repeat((4 - (base64.length % 4)) % 4);
+    const base64WithPadding = base64 + padding;
+
+    let decoded;
+    if (typeof atob === 'function') {
+      decoded = atob(base64WithPadding);
+    } else {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+      let str = base64WithPadding.replace(/=+$/, '');
+      let output = '';
+      for (let bc = 0, bs = 0, buffer, i = 0; (buffer = str.charAt(i++)); ) {
+        buffer = chars.indexOf(buffer);
+        if (buffer === -1) continue;
+        bs = bc % 4 ? bs * 64 + buffer : buffer;
+        if (bc++ % 4) {
+          output += String.fromCharCode(255 & (bs >> ((-2 * bc) & 6)));
+        }
+      }
+      decoded = output;
+    }
+
+    // JSON.parse can fail if there's trailing garbage from bitwise shifts or incorrect padding.
+    // We slice from the first '{' to the last '}' to be safe.
+    const start = decoded.indexOf('{');
+    const end = decoded.lastIndexOf('}');
+    if (start === -1 || end === -1) throw new Error('Invalid JSON structure');
+    const cleanJson = decoded.substring(start, end + 1);
+
+    return JSON.parse(cleanJson) as {
       role?: string;
       ref?: string;
     };
-  } catch {
+  } catch (err) {
+    console.error('JWT decode error:', err);
     return null;
   }
 };
@@ -126,9 +154,18 @@ const supportedEmailOtpTypes: SupportedEmailOtpType[] = [
 
 export const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
-export const getAuthRedirectUrl = () => Linking.createURL(authCallbackPath, isExpoGo
-  ? undefined
-  : { scheme: authScheme });
+export const getAuthRedirectUrl = (params?: Record<string, string>) => {
+  const url = Linking.createURL(authCallbackPath, isExpoGo
+    ? undefined
+    : { scheme: authScheme });
+
+  if (params && Object.keys(params).length > 0) {
+    const searchParams = new URLSearchParams(params);
+    return `${url}${url.includes('?') ? '&' : '?'}${searchParams.toString()}`;
+  }
+
+  return url;
+};
 
 export const isSupportedEmailOtpType = (
   value?: string

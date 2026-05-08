@@ -2,6 +2,7 @@
 import React from 'react';
 import { createStackNavigator , CardStyleInterpolators } from '@react-navigation/stack';
 import OnboardingScreen from '../screens/auth/OnboardingScreen';
+import LandingScreen from '../screens/auth/LandingScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import EmailVerificationScreen from '../screens/auth/EmailVerificationScreen';
@@ -19,7 +20,7 @@ export default function AuthNavigator() {
     ? 'ThemePicker'
     : authFeedback || pendingVerificationEmail
       ? 'EmailVerification'
-      : 'Onboarding';
+      : 'Landing';
 
   return (
     <Stack.Navigator
@@ -35,6 +36,7 @@ export default function AuthNavigator() {
         },
       }}
     >
+      <Stack.Screen name="Landing" component={LandingScreen} />
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Register" component={RegisterScreen} />

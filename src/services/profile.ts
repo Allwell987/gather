@@ -2,6 +2,7 @@ import type { Session } from '@supabase/supabase-js';
 import { getAuthRedirectUrl, supabase } from './supabase';
 import type { UserProfile } from '../store/authStore';
 import type { BibleVersion, Profile } from '../types/database';
+import { decodeBase64ToArrayBuffer } from './base64';
 
 type ProfileRow = Profile;
 
@@ -11,6 +12,7 @@ const PROFILE_SELECT = `
   full_name,
   avatar_url,
   address,
+  birthday,
   church_id,
   role,
   is_verified,
@@ -59,17 +61,6 @@ const getFileExtensionFromName = (value?: string | null) => {
   const allowed = new Set(['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif']);
 
   return allowed.has(extension) ? extension : null;
-};
-
-const decodeBase64ToArrayBuffer = (value: string) => {
-  const binary = atob(value);
-  const bytes = new Uint8Array(binary.length);
-
-  for (let index = 0; index < binary.length; index += 1) {
-    bytes[index] = binary.charCodeAt(index);
-  }
-
-  return bytes.buffer;
 };
 
 const readImageDataAsArrayBuffer = async ({
@@ -129,6 +120,7 @@ const toUserProfile = (
   role: (profile?.role as any) ?? 'member',
   is_verified: profile?.is_verified ?? Boolean(session.user.email_confirmed_at),
   address: profile?.address ?? null,
+  birthday: profile?.birthday ?? null,
   bible_version: profile?.bible_version ?? DEFAULT_BIBLE_VERSION,
   reminder_time: profile?.reminder_time ?? DEFAULT_REMINDER_TIME,
   streak_count: profile?.streak_count ?? 0,
@@ -147,6 +139,7 @@ const toStoredUserProfile = (profile: ProfileRow): UserProfile => ({
   role: profile.role as any,
   is_verified: profile.is_verified ?? false,
   address: profile.address ?? null,
+  birthday: profile.birthday,
   bible_version: profile.bible_version ?? DEFAULT_BIBLE_VERSION,
   reminder_time: profile.reminder_time ?? DEFAULT_REMINDER_TIME,
   streak_count: profile.streak_count ?? 0,
@@ -169,6 +162,7 @@ const buildInsertPayload = (session: Session, pushToken?: string | null) => ({
   email: getProfileEmail(session),
   full_name: normalizeFullName(session.user.user_metadata?.full_name),
   is_verified: Boolean(session.user.email_confirmed_at),
+  birthday: null,
   bible_version: DEFAULT_BIBLE_VERSION,
   reminder_time: DEFAULT_REMINDER_TIME,
   streak_count: 0,
@@ -247,7 +241,7 @@ export const ensureProfileForSession = async (
 
 export const updateProfile = async (
   userId: string,
-  updates: Partial<Pick<ProfileRow, 'full_name' | 'avatar_url' | 'address' | 'bible_version' | 'reminder_time'>>
+  updates: Partial<Pick<ProfileRow, 'full_name' | 'avatar_url' | 'address' | 'birthday' | 'bible_version' | 'reminder_time'>>
 ): Promise<UserProfile> => {
   const payload: Partial<ProfileRow> = {};
 
@@ -264,6 +258,12 @@ export const updateProfile = async (
   if ('address' in updates) {
     payload.address = typeof updates.address === 'string'
       ? updates.address.trim() || null
+      : null;
+  }
+
+  if ('birthday' in updates) {
+    payload.birthday = typeof updates.birthday === 'string'
+      ? updates.birthday.trim() || null
       : null;
   }
 

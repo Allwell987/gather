@@ -23,18 +23,50 @@ interface ThemeState {
   fontStyle: FontStyle;
   fontConfig: FontConfig;
   themeMode: ThemeMode;
-  colors: typeof SemanticColors.light;
+  typography: typeof Typography;
+  colors: typeof SemanticColors.light & {
+    accent: string;
+    accentDeep: string;
+    accentMid: string;
+    accentLight: string;
+    accentBorder: string;
+    accentSubtle: string;
+  };
   setAccent: (key: AccentKey) => void;
   setFontStyle: (key: FontStyle) => void;
   setThemeMode: (mode: ThemeMode) => void;
 }
 
-const getColors = (mode: ThemeMode) => {
-  if (mode === 'system') {
-    const systemScheme = Appearance.getColorScheme();
-    return systemScheme === 'dark' ? SemanticColors.dark : SemanticColors.light;
-  }
-  return mode === 'dark' ? SemanticColors.dark : SemanticColors.light;
+const getTypography = (config: FontConfig) => {
+  return {
+    ...Typography,
+    serif: config.serif,
+    serifItalic: config.serifItalic,
+    sans: config.sans,
+    sansMedium: config.sansMedium,
+    sansSemiBold: config.sansSemiBold,
+    caption: { ...Typography.caption, fontFamily: config.sans },
+    body2: { ...Typography.body2, fontFamily: config.sans },
+    body1: { ...Typography.body1, fontFamily: config.sans },
+    heading3: { ...Typography.heading3, fontFamily: config.serif },
+    heading2: { ...Typography.heading2, fontFamily: config.serif },
+  };
+};
+
+const getColors = (mode: ThemeMode, accent: AccentTheme) => {
+  const baseColors = mode === 'system'
+    ? (Appearance.getColorScheme() === 'dark' ? SemanticColors.dark : SemanticColors.light)
+    : (mode === 'dark' ? SemanticColors.dark : SemanticColors.light);
+
+  return {
+    ...baseColors,
+    accent: accent.accent,
+    accentDeep: accent.accentDeep,
+    accentMid: accent.accentMid,
+    accentLight: accent.accentLight,
+    accentBorder: accent.accentBorder,
+    accentSubtle: accent.accentSubtle,
+  };
 };
 
 export const useThemeStore = create<ThemeState>()(
@@ -46,21 +78,26 @@ export const useThemeStore = create<ThemeState>()(
       fontStyle: 'elegant',
       fontConfig: DEFAULT_FONT_STYLE,
       themeMode: 'system',
-      colors: getColors('system'),
+      typography: getTypography(DEFAULT_FONT_STYLE),
+      colors: getColors('system', ACCENT_THEMES.find((t) => t.key === 'teal') ?? ACCENT_THEMES[0]),
 
       setAccent: (key: AccentKey) => {
         const accent = ACCENT_THEMES.find((t) => t.key === key) ?? ACCENT_THEMES[0];
-        set({ accentKey: key, accent, theme: accent });
+        set({
+          accentKey: key,
+          accent,
+          theme: accent,
+          colors: getColors(get().themeMode, accent)
+        });
       },
 
       setFontStyle: (key: FontStyle) => {
         const fontConfig = FONT_STYLES.find((f) => f.key === key) ?? DEFAULT_FONT_STYLE;
-        applyTypographyFontConfig(fontConfig);
-        set({ fontStyle: key, fontConfig });
+        set({ fontStyle: key, fontConfig, typography: getTypography(fontConfig) });
       },
 
       setThemeMode: (mode: ThemeMode) => {
-        set({ themeMode: mode, colors: getColors(mode) });
+        set({ themeMode: mode, colors: getColors(mode, get().accent) });
       },
     }),
     {
@@ -68,9 +105,9 @@ export const useThemeStore = create<ThemeState>()(
       storage: createJSONStorage(() => AsyncStorage),
       onRehydrateStorage: () => (state) => {
         if (state) {
-          state.colors = getColors(state.themeMode);
+          state.colors = getColors(state.themeMode, state.accent);
           state.theme = state.accent;
-          applyTypographyFontConfig(state.fontConfig ?? DEFAULT_FONT_STYLE);
+          state.typography = getTypography(state.fontConfig ?? DEFAULT_FONT_STYLE);
         }
       },
     }

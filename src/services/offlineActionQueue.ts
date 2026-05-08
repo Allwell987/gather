@@ -63,6 +63,7 @@ export interface OfflineActionSummary {
 }
 
 let activeFlushPromise: Promise<FlushOfflineActionsResult> | null = null;
+let writeLock: Promise<void> = Promise.resolve();
 
 const isNetworkAvailable = async () => {
   const state = await NetInfo.fetch();
@@ -100,11 +101,17 @@ const readOfflineActionQueue = async (): Promise<OfflineAction[]> => {
 };
 
 const writeOfflineActionQueue = async (actions: OfflineAction[]) => {
-  try {
-    await AsyncStorage.setItem(OFFLINE_ACTION_QUEUE_KEY, JSON.stringify(actions));
-  } catch (error) {
-    console.error('Failed to write offline action queue:', error);
-  }
+  // Simple lock mechanism to prevent race conditions during rapid writes
+  await writeLock;
+  const resolveLock = (async () => {
+    try {
+      await AsyncStorage.setItem(OFFLINE_ACTION_QUEUE_KEY, JSON.stringify(actions));
+    } catch (error) {
+      console.error('Failed to write offline action queue:', error);
+    }
+  })();
+  writeLock = resolveLock;
+  return resolveLock;
 };
 
 const readLastOfflineSyncAt = async (userId: string) => {
