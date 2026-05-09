@@ -67,7 +67,7 @@ export async function signInWithGoogle(): Promise<{ user?: GoogleUser; error?: s
           access_type: 'offline',
           prompt: 'consent',
           // Pass the client ID if available to help Google identify the requester
-          client_id: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID,
+          client_id: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || '',
         },
       },
     });

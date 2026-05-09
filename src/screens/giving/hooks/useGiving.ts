@@ -10,21 +10,21 @@ export function useGiving() {
   const queryClient = useQueryClient();
   const { showToast } = useToastStore();
 
-  const { data: history = [] } = useQuery({
+  const { data: history = [] } = useQuery<Giving[]>({
     queryKey: ['giving-history', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
       const { data } = await supabase.from('giving').select('*').eq('user_id', user.id).order('created_at', { ascending: false });
-      return data || [];
+      return (data as Giving[]) || [];
     },
     enabled: !!user?.id,
   });
 
-  const { data: campaigns = [] } = useQuery({
+  const { data: campaigns = [] } = useQuery<Campaign[]>({
     queryKey: ['campaigns'],
     queryFn: async () => {
       const { data } = await supabase.from('campaigns').select('*').eq('is_active', true);
-      return data || [];
+      return (data as Campaign[]) || [];
     },
   });
 

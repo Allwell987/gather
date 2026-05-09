@@ -12,7 +12,8 @@ import {
   DEFAULT_FONT_STYLE,
   applyTypographyFontConfig,
   ThemeMode,
-  SemanticColors
+  SemanticColors,
+  Typography
 } from '../constants/theme';
 import { Appearance } from 'react-native';
 

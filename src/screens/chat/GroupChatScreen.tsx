@@ -132,11 +132,12 @@ export default function GroupChatScreen() {
   const flatListRef = useRef<FlatList>(null);
   const typingAnim = useRef(new Animated.Value(0)).current;
 
-  const { data: groupDetails } = useQuery({
+  const { data: groupDetails } = useQuery<{ name: string; description: string } | null>({
     queryKey: ['chat-group-details', groupId],
     queryFn: async () => {
-      const { data, error } = await supabase.from('chat_groups').select('*').eq('id', groupId).maybeSingle();
-      return error ? null : data;
+      const { data, error } = await supabase.from('chat_groups').select('name, description').eq('id', groupId).maybeSingle();
+      if (error || !data) return null;
+      return data as { name: string; description: string };
     },
   });
 
@@ -288,7 +289,7 @@ export default function GroupChatScreen() {
       <MessageActionSheet
         target={selectedMessageAction}
         onClose={() => setSelectedMessageAction(null)}
-        onReaction={r => { toggleReaction({ messageId: selectedMessageAction.id, reaction: r }); setSelectedMessageAction(null); }}
+        onReaction={r => { toggleReaction(selectedMessageAction.id, r); setSelectedMessageAction(null); }}
         onReply={() => { setReplyTarget(selectedMessageAction); setSelectedMessageAction(null); }}
         onCopy={() => { Clipboard.setStringAsync(selectedMessageAction.copyValue); setSelectedMessageAction(null); }}
         onEdit={() => { setEditingMessageId(selectedMessageAction.id); setInputText(selectedMessageAction.copyValue); setSelectedMessageAction(null); }}

@@ -276,12 +276,16 @@ export function useGroupChat(groupId: string, accentColor: string) {
     void presenceChannelRef.current?.track({ typing: isTyping, name: user?.full_name || 'Someone' });
   };
 
+  const toggleReaction = useCallback((messageId: string, reaction: string) => {
+    toggleReactionMutation.mutate({ messageId, reaction });
+  }, [toggleReactionMutation]);
+
   return {
     messages,
     isLoading,
     sendMessage: sendMessageMutation.mutate,
     isSending: sendMessageMutation.isPending,
-    toggleReaction: toggleReactionMutation.mutate,
+    toggleReaction,
     typingPeople,
     setTyping,
     markAsRead: (ids: string[]) => user?.id && markMessagesAsRead(ids, user.id),

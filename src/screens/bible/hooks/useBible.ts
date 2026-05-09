@@ -70,13 +70,13 @@ export function useBible(book: string, chapter: number, translation: BibleTransl
   };
 
   // Highlights & Notes
-  const { data: highlights = [] } = useQuery({
+  const { data: highlights = [] } = useQuery<BibleHighlight[]>({
     queryKey: ['bible-highlights', user?.id, book, chapter],
     queryFn: async () => {
       if (!user?.id) return [];
       const { data, error } = await supabase.from('bible_highlights').select('*').eq('user_id', user.id).eq('book', book).eq('chapter', chapter);
       if (error) throw error;
-      return data;
+      return data as BibleHighlight[];
     },
     enabled: !!user?.id,
   });

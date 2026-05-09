@@ -12,6 +12,7 @@ const baseConfig = {
   },
   assetBundlePatterns: ['**/*'],
   runtimeVersion: '1.0.0',
+  newArchEnabled: false,
   updates: {
     url: 'https://u.expo.dev/33325d84-541e-4330-8a9d-09e1ed6eafec',
   },

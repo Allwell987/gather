@@ -22,15 +22,6 @@ export const initSentry = () => {
     tracesSampleRate: 0.1,
     // sampleRate: 0.1, // Overall sample rate for errors, usually keep at 1.0 unless you have high volume
     attachStacktrace: true,
-    replaysSessionSampleRate: 0.1,
-    replaysOnErrorSampleRate: 1.0,
-    integrations: [
-      Sentry.mobileReplayIntegration({
-        maskAllText: true,
-        maskAllImages: true,
-        maskAllVectors: true,
-      }),
-    ],
     _experiments: {
       // profilesSampleRate: 0.1,
     },

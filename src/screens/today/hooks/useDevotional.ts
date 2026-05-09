@@ -3,18 +3,19 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../../services/supabase';
 import { format } from 'date-fns';
 import { useAuthStore } from '../../../store/authStore';
+import type { Devotional } from '../../../types/database';
 
 export function useDevotional() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const today = format(new Date(), 'yyyy-MM-dd');
 
-  const { data: devotional, isLoading } = useQuery({
+  const { data: devotional, isLoading } = useQuery<Devotional | null>({
     queryKey: ['devotional', today],
     queryFn: async () => {
       const { data, error } = await supabase.from('devotionals').select('*').lte('publish_date', today).order('publish_date', { ascending: false }).limit(1).maybeSingle();
       if (error) throw error;
-      return data;
+      return data as Devotional | null;
     },
   });
 

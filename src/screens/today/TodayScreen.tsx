@@ -34,8 +34,8 @@ export default function TodayScreen() {
       />
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        {isLive && (
-          <TouchableOpacity style={[styles.live, { backgroundColor: theme.accent }]} onPress={() => Linking.openURL(activeLive.live_url)}>
+        {isLive && activeLive && (
+          <TouchableOpacity style={[styles.live, { backgroundColor: theme.accent }]} onPress={() => activeLive.live_url && Linking.openURL(activeLive.live_url)}>
             <Ionicons name="radio" size={18} color="#fff" />
             <Text style={styles.liveText}>{t('liveLabel', locale)} {activeLive.title}</Text>
           </TouchableOpacity>
