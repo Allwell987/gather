@@ -29,6 +29,7 @@ import { supabase } from '../../services/supabase';
 import { BaseColors, Typography, Spacing, Radius, CHURCH } from '../../constants/theme';
 import type { Database, EventCategory } from '../../types/database';
 import type { EventsStackNavigationProp, EventDetailRouteProp } from '../../types/navigation';
+import { t } from '../../services/locale';
 
 const CATEGORY_MAP: Record<
   EventCategory,
@@ -230,8 +231,8 @@ export default function EventDetailScreen() {
           });
 
           showToast({
-            title: 'Saved offline',
-            message: 'Your RSVP will sync automatically when you are back online.',
+            title: t('savedOfflineTitle'),
+            message: t('savedOfflineRsvp'),
             variant: 'warning',
           });
           return;

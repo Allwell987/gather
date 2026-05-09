@@ -18,6 +18,7 @@ import {
   readOfflineCache,
   writeOfflineCache,
 } from '../../services/offlineCache';
+import { t } from '../../services/locale';
 import {
   enqueueOfflineAction,
   getQueuedOfflineActions,
@@ -374,8 +375,8 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
         setShowCompose(false);
         void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
         showToast({
-          title: 'Saved offline',
-          message: 'Your prayer request will post when you are back online.',
+          title: t('savedOfflineTitle'),
+          message: t('savedOfflinePrayer'),
           variant: 'warning',
         });
         return;

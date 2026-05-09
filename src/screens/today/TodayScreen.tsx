@@ -11,12 +11,14 @@ import { useAuthStore } from '../../store/authStore';
 import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
 import { useLiveStatus } from '../../hooks/useLiveStatus';
 import { useDevotional } from './hooks/useDevotional';
+import { formatAppDate, getDeviceLocale, t } from '../../services/locale';
 
 export default function TodayScreen() {
   const { theme, colors } = useThemeStore();
   const { user } = useAuthStore();
   const { isLive, activeLive } = useLiveStatus();
   const { devotional, isLoading, hasReadToday, markAsRead, isMarking } = useDevotional();
+  const locale = getDeviceLocale();
 
   const handleShare = () => {
     if (devotional) Share.share({ message: `"${devotional.title}"\n— ${devotional.anchor_scripture}` });
@@ -25,8 +27,8 @@ export default function TodayScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <HeaderBar
-        title="Today"
-        subtitle={new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+        title={t('today', locale)}
+        subtitle={formatAppDate(new Date(), { weekday: 'long', month: 'long', day: 'numeric' }, locale)}
         showBack={false}
         enableBlur
       />
@@ -35,12 +37,12 @@ export default function TodayScreen() {
         {isLive && (
           <TouchableOpacity style={[styles.live, { backgroundColor: theme.accent }]} onPress={() => Linking.openURL(activeLive.live_url)}>
             <Ionicons name="radio" size={18} color="#fff" />
-            <Text style={styles.liveText}>LIVE: {activeLive.title}</Text>
+            <Text style={styles.liveText}>{t('liveLabel', locale)} {activeLive.title}</Text>
           </TouchableOpacity>
         )}
 
         <View style={styles.content}>
-          <Text style={styles.sectionTitle}>Daily Devotional</Text>
+          <Text style={styles.sectionTitle}>{t('dailyDevotional', locale)}</Text>
           <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
             {isLoading ? (
               <ActivityIndicator size="large" color={theme.accent} style={{ padding: 40 }} />
@@ -58,12 +60,12 @@ export default function TodayScreen() {
                     disabled={hasReadToday || isMarking}
                   >
                     <Text style={{ color: hasReadToday ? theme.accent : '#fff', fontWeight: 'bold' }}>
-                      {isMarking ? '...' : hasReadToday ? 'Read ✓' : 'Mark as Read'}
+                      {isMarking ? '...' : hasReadToday ? t('readDone', locale) : t('markAsRead', locale)}
                     </Text>
                   </TouchableOpacity>
                 </View>
               </>
-            ) : <Text>No devotional today.</Text>}
+            ) : <Text>{t('noDevotionalToday', locale)}</Text>}
           </View>
         </View>
       </ScrollView>

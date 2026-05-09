@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { formatAppDate, formatAppTime, getDeviceLocale, t } from './locale';
 
 export interface OfflineCacheEntry<T> {
   data: T;
@@ -68,8 +69,19 @@ export const formatOfflineTimestamp = (value?: string | null) => {
     return '';
   }
 
-  return `Saved ${date.toLocaleDateString()} at ${date.toLocaleTimeString([], {
+  const locale = getDeviceLocale();
+  const dateString = formatAppDate(date, {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+  }, locale);
+  const timeString = formatAppTime(date, {
     hour: 'numeric',
     minute: '2-digit',
-  })}`;
+  }, locale);
+
+  return t('savedAtPhrase', locale)
+    .replace('{date}', dateString)
+    .replace('{time}', timeString);
 };

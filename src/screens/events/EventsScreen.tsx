@@ -21,6 +21,7 @@ import {
   readOfflineCache,
   writeOfflineCache,
 } from '../../services/offlineCache';
+import { t } from '../../services/locale';
 import {
   enqueueOfflineAction,
   getQueuedOfflineActions,
@@ -321,8 +322,8 @@ export default function EventsScreen({ hideHeader = false }: { hideHeader?: bool
         queryClient.setQueryData(eventsQueryKey, updatedEvents);
         void writeOfflineCache(eventsCacheKey, updatedEvents);
         showToast({
-          title: 'Saved offline',
-          message: 'Your RSVP will sync automatically when you are back online.',
+          title: t('savedOfflineTitle'),
+          message: t('savedOfflineRsvp'),
           variant: 'warning',
         });
         return;
