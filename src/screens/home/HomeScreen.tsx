@@ -1,8 +1,8 @@
 // src/screens/home/HomeScreen.tsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  Image, RefreshControl, Share
+  Image, RefreshControl, Share, ActivityIndicator, Linking
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -10,13 +10,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import HeaderBar from '../../components/common/HeaderBar';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
-import { BaseColors, Typography, Spacing, Radius, DAILY_VERSE } from '../../constants/theme';
+import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
 import { useHome } from './hooks/useHome';
+import { fetchDailyVerse, DailyVerse } from '../../services/dailyVerse';
+import { fetchYoutubeVideos, YoutubeVideo, getYoutubeWatchUrl } from '../../services/youtube';
 import type { HomeScreenNavigationProp } from '../../types/navigation';
 
 const QUICK_ACCESS = [
   { id: 'bible', label: 'Bible', icon: 'book-outline', tab: 'BibleTab', color: '#4A90A4' },
-  { id: 'community', label: 'Community', icon: 'people-outline', tab: 'CommunityTab', color: '#9B59B6' },
+  { id: 'prayer', label: 'AI Prayer', icon: 'sparkles-outline', screen: 'PrayerGenerator', color: '#8E44AD' },
   { id: 'give', label: 'Give', icon: 'card-outline', screen: 'Giving', color: '#27AE60' },
   { id: 'today', label: 'Today', icon: 'calendar-outline', tab: 'TodayTab', color: '#E67E22' },
 ];
@@ -27,7 +29,27 @@ export default function HomeScreen() {
   const { theme, colors } = useThemeStore();
   const { greeting, nextService, events, isLoading, streak, refetch } = useHome(user);
 
-  const handleShare = () => Share.share({ message: `${DAILY_VERSE.text}\n— ${DAILY_VERSE.reference}` });
+  const [dailyVerse, setDailyVerse] = useState<DailyVerse | null>(null);
+  const [latestVideos, setLatestVideos] = useState<YoutubeVideo[]>([]);
+  const [isVideosLoading, setIsVideosLoading] = useState(false);
+
+  useEffect(() => {
+    fetchDailyVerse().then(setDailyVerse);
+    setIsVideosLoading(true);
+    fetchYoutubeVideos(4)
+      .then(setLatestVideos)
+      .finally(() => setIsVideosLoading(false));
+  }, []);
+
+  const handleShare = () => {
+    if (dailyVerse) {
+      Share.share({ message: `${dailyVerse.text}\n— ${dailyVerse.reference}` });
+    }
+  };
+
+  const handleWatchSermon = (videoId: string) => {
+    Linking.openURL(getYoutubeWatchUrl(videoId));
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -54,12 +76,18 @@ export default function HomeScreen() {
           <LinearGradient colors={[BaseColors.brown900, BaseColors.brown900]} style={StyleSheet.absoluteFill} />
           <View style={styles.verseCard}>
             <Text style={styles.verseEye}>✦ Verse of the day</Text>
-            <Text style={styles.verseText}>{DAILY_VERSE.text}</Text>
-            <Text style={{ color: theme.accentBorder }}>{DAILY_VERSE.reference}</Text>
-            <TouchableOpacity style={styles.shareBtn} onPress={handleShare}>
-              <Ionicons name="share-social-outline" size={14} color="#fff" />
-              <Text style={{ color: '#fff' }}>Share</Text>
-            </TouchableOpacity>
+            {dailyVerse ? (
+              <>
+                <Text style={styles.verseText}>{dailyVerse.text}</Text>
+                <Text style={{ color: theme.accentBorder }}>{dailyVerse.reference}</Text>
+                <TouchableOpacity style={styles.shareBtn} onPress={handleShare}>
+                  <Ionicons name="share-social-outline" size={14} color="#fff" />
+                  <Text style={{ color: '#fff' }}>Share</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <ActivityIndicator color="#fff" style={{ marginVertical: 20 }} />
+            )}
           </View>
         </View>
 
@@ -90,6 +118,31 @@ export default function HomeScreen() {
             </View>
             <Text style={{ color: colors.text }}>{nextService?.time}</Text>
           </View>
+
+          {latestVideos.length > 0 && (
+            <>
+              <View style={styles.sectionHeader}>
+                <Text style={styles.sectionTitle}>Latest Sermons</Text>
+                <TouchableOpacity onPress={() => Linking.openURL('https://youtube.com')}>
+                  <Text style={{ color: theme.accent, fontSize: 12 }}>View all</Text>
+                </TouchableOpacity>
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.sermonsScroll} contentContainerStyle={{ gap: 12 }}>
+                {latestVideos.map(video => (
+                  <TouchableOpacity key={video.id} style={[styles.sermonCard, { backgroundColor: colors.card, borderColor: colors.border }]} onPress={() => handleWatchSermon(video.id)}>
+                    <Image source={{ uri: video.thumbnail }} style={styles.sermonThumb} />
+                    <View style={styles.sermonInfo}>
+                      <Text style={[styles.sermonTitle, { color: colors.text }]} numberOfLines={2}>{video.title}</Text>
+                      <View style={styles.playRow}>
+                        <Ionicons name="play-circle" size={16} color={theme.accent} />
+                        <Text style={{ color: theme.accent, fontSize: 12, fontWeight: '600' }}>Watch now</Text>
+                      </View>
+                    </View>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </>
+          )}
         </View>
       </ScrollView>
     </View>
@@ -109,7 +162,14 @@ const styles = StyleSheet.create({
   body: { padding: Spacing.xl },
   streak: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: Radius.lg, marginBottom: 24 },
   sectionTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 16 },
+  sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 24, marginBottom: 16 },
   grid: { flexDirection: 'row', gap: 12, marginBottom: 24 },
   gridItem: { flex: 1, padding: 12, borderRadius: Radius.lg, borderWidth: 1, alignItems: 'center', gap: 8 },
   service: { flexDirection: 'row', justifyContent: 'space-between', padding: 16, borderRadius: Radius.lg, borderWidth: 1 },
+  sermonsScroll: { marginHorizontal: -Spacing.xl, paddingHorizontal: Spacing.xl },
+  sermonCard: { width: 220, borderRadius: Radius.lg, borderWidth: 1, overflow: 'hidden' },
+  sermonThumb: { width: '100%', height: 120 },
+  sermonInfo: { padding: 12 },
+  sermonTitle: { fontSize: 13, fontFamily: Typography.sansSemiBold, marginBottom: 8 },
+  playRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
 });

@@ -30,6 +30,8 @@ export type HomeStackParamList = {
   Giving: undefined;
   GroupChat: { groupId: string; groupName: string };
   ManageRequests: { groupId: string; groupName: string };
+  GroupInfo: { groupId: string; groupName: string };
+  PrayerGenerator: undefined;
 };
 
 export type CommunityStackParamList = {

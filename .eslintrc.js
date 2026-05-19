@@ -1,5 +1,8 @@
 module.exports = {
   extends: 'expo',
+  env: {
+    node: true,
+  },
   ignorePatterns: [
     'dist/*',
     'dist-smoke/**',

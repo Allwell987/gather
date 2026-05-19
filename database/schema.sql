@@ -979,3 +979,23 @@ CREATE POLICY "Users can insert own devotional reads"
 
 CREATE INDEX IF NOT EXISTS idx_devotional_reads_user_id ON devotional_reads(user_id);
 CREATE INDEX IF NOT EXISTS idx_devotional_reads_devotional_id ON devotional_reads(devotional_id);
+
+-- ============================================================================
+-- 12. DAILY VERSES
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS public.daily_verses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  publish_date DATE UNIQUE NOT NULL DEFAULT CURRENT_DATE,
+  text TEXT NOT NULL,
+  reference TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.daily_verses ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public read-only access to daily_verses" ON public.daily_verses;
+CREATE POLICY "Allow public read-only access to daily_verses"
+  ON public.daily_verses FOR SELECT
+  USING (true);
+
+CREATE INDEX IF NOT EXISTS idx_daily_verses_publish_date ON daily_verses(publish_date);

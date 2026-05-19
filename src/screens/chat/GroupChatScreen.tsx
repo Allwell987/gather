@@ -238,7 +238,7 @@ export default function GroupChatScreen() {
         subtitle={groupMembersLabel}
         onBackPress={() => navigation.goBack()}
         enableBlur
-        rightAction={() => {}} // Could open members
+        rightAction={() => navigation.navigate('GroupInfo', { groupId, groupName })}
         rightIcon="ellipsis-vertical"
       />
 
