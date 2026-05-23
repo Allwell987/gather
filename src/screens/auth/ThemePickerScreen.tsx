@@ -141,7 +141,7 @@ export default function ThemePickerScreen() {
     <View style={styles.container}>
       <LinearGradient
         colors={[BaseColors.brown900, BaseColors.brown800]}
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
       />
       <HeaderBar
         title={isOnboardingFlow ? "Setup Profile" : "Appearance"}

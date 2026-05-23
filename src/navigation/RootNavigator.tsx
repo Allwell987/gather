@@ -8,7 +8,6 @@ import { useAuthStore } from '../store/authStore';
 import AuthNavigator from './AuthNavigator';
 import MainNavigator from './MainNavigator';
 import type { RootStackParamList } from '../types/navigation';
-import { BaseColors } from '../constants/theme';
 
 export type { RootStackParamList };
 

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, TextInput, TouchableOpacity,
-  KeyboardAvoidingView, Platform, ScrollView, Alert, ActivityIndicator,
+  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,7 +18,7 @@ import {
   supabase,
 } from '../../services/supabase';
 import { signInWithApple, signInWithGoogle } from '../../services/auth';
-import { BaseColors, Typography, Spacing, Radius, CHURCH } from '../../constants/theme';
+import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import type { AuthStackNavigationProp } from '../../types/navigation';
@@ -189,7 +189,7 @@ export default function RegisterScreen() {
     <View style={styles.container}>
       <LinearGradient
         colors={['#1a140e', '#2d1e12', '#17120d']}
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
       />
       <HeaderBar
         title="Create Account"

@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
   playerContainer: { width: '100%', height: VIDEO_HEIGHT, backgroundColor: '#000' },
   webview: { flex: 1, backgroundColor: '#000' },
   nativeVideo: { flex: 1, width: '100%', height: '100%' },
-  videoLoading: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center', backgroundColor: '#000' },
+  videoLoading: { ...StyleSheet.absoluteFill, alignItems: 'center', justifyContent: 'center', backgroundColor: '#000' },
   videoPlaceholder: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8 },
   unsupportedText: { color: 'rgba(255,255,255,0.5)', fontFamily: Typography.sans, fontSize: 12 },
   details: { padding: Spacing.xl },

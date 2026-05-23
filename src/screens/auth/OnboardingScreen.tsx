@@ -100,7 +100,7 @@ export default function OnboardingScreen() {
       <LinearGradient
         colors={[royal.midnight, royal.plum, royal.wine, royal.indigo]}
         locations={[0, 0.36, 0.72, 1]}
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
       />
 
       <LinearGradient

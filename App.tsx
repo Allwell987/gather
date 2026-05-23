@@ -1,6 +1,6 @@
 // App.tsx
 import React, { useEffect, useCallback } from 'react';
-import { Alert, AppState, Button, View, LogBox } from 'react-native';
+import { Alert, AppState, View, LogBox } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Linking from 'expo-linking';

@@ -134,7 +134,7 @@ export default function EmailVerificationScreen() {
     <View style={styles.container}>
       <LinearGradient
         colors={['#1a140e', '#2d1e12', '#17120d']}
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
       />
       <HeaderBar
         title="Verification"

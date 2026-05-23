@@ -3,10 +3,10 @@ import { View, Text, StyleSheet, Image, TouchableOpacity, Animated, Dimensions, 
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BaseColors, Typography, Spacing, CHURCH, Radius } from '../../constants/theme';
+import { BaseColors, Typography, Spacing, Radius, CHURCH } from '../../constants/theme';
 import type { AuthStackNavigationProp } from '../../types/navigation';
 
-const { width, height } = Dimensions.get('window');
+const { height } = Dimensions.get('window');
 
 export default function LandingScreen() {
   const navigation = useNavigation<AuthStackNavigationProp>();
@@ -26,14 +26,14 @@ export default function LandingScreen() {
         useNativeDriver: true,
       }),
     ]).start();
-  }, []);
+  }, [fadeAnim, slideAnim]);
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       <LinearGradient
         colors={['#1a140e', '#2d1e12', '#17120d']}
-        style={StyleSheet.absoluteFillObject}
+        style={StyleSheet.absoluteFill}
       />
 
       {/* Decorative Royal Accents */}
