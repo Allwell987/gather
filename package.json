@@ -79,6 +79,7 @@
   "devDependencies": {
     "@babel/core": "^7.24.0",
     "@babel/plugin-transform-flow-strip-types": "^7.27.1",
+    "@react-native/jest-preset": "^0.85.3",
     "@testing-library/react-native": "^12.4.3",
     "@types/jest": "^30.0.0",
     "@types/react": "~18.2.79",

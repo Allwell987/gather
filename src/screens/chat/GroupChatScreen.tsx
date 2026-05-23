@@ -155,7 +155,7 @@ export default function GroupChatScreen() {
     if (!user?.id || messages.length === 0) return;
     const unread = messages.filter(m => !m.isMine && !m.readBy?.includes(user.id)).map(m => m.id);
     if (unread.length > 0) markAsRead(unread);
-  }, [messages, user?.id]);
+  }, [messages, user?.id, markAsRead]);
 
   const onSendMessage = async () => {
     const trimmed = inputText.trim();

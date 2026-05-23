@@ -19,9 +19,6 @@ jest.mock('react-native/Libraries/BatchedBridge/NativeModules', () => ({
   },
 }));
 
-// Mock react-native components
-jest.mock('react-native/Libraries/Animated/NativeAnimatedHelper');
-
 // Mock expo-secure-store
 jest.mock('expo-secure-store', () => ({
   getItemAsync: jest.fn(() => Promise.resolve(null)),
@@ -74,6 +71,31 @@ jest.mock('expo-notifications', () => ({
   requestPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
   addNotificationReceivedListener: jest.fn(),
   addNotificationResponseReceivedListener: jest.fn(),
+}));
+
+// Mock expo-constants
+jest.mock('expo-constants', () => ({
+  __esModule: true,
+  default: {
+    expoConfig: {
+      extra: {
+        eas: {},
+      },
+    },
+    manifest: {},
+  },
+  ExecutionEnvironment: {
+    Standalone: 'standalone',
+    StoreClient: 'storeClient',
+    Web: 'web',
+  },
+}));
+
+// Mock expo-linking
+jest.mock('expo-linking', () => ({
+  __esModule: true,
+  getInitialURL: jest.fn(() => Promise.resolve(null)),
+  addEventListener: jest.fn(() => ({ remove: jest.fn() })),
 }));
 
 // Silence console warnings during tests

@@ -42,51 +42,6 @@ export default function LoginScreen() {
   const [appleLoading, setAppleLoading] = useState(false);
   const [appleAvailable, setAppleAvailable] = useState(false);
 
-  const [forgotVisible, setForgotVisible] = useState(false);
-  const [resetEmail, setResetEmail] = useState('');
-  const [resetLoading, setResetLoading] = useState(false);
-  const [resetSent, setResetSent] = useState(false);
-
-  const handleForgotPassword = async () => {
-    const trimmed = resetEmail.trim().toLowerCase();
-    if (!trimmed || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
-      setAuthError('Enter a valid email address to reset your password.');
-      return;
-    }
-
-    const configMessage = getSupabaseConfigMessage();
-    if (configMessage) {
-      setAuthError(configMessage);
-      return;
-    }
-
-    setResetLoading(true);
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(trimmed);
-      if (error) {
-        const message = getSupabaseAuthErrorMessage(error.message);
-        setAuthError(message);
-        showToast({ title: 'Reset failed', message, variant: 'error' });
-      } else {
-        setAuthError(null);
-        setResetSent(true);
-      }
-    } catch (err) {
-      console.error('Password reset error:', err);
-      const message = 'An unexpected error occurred. Please try again.';
-      setAuthError(message);
-      showToast({ title: 'Reset failed', message, variant: 'error' });
-    } finally {
-      setResetLoading(false);
-    }
-  };
-
-  const closeForgotModal = () => {
-    setForgotVisible(false);
-    setResetEmail('');
-    setResetSent(false);
-  };
-
   useEffect(() => {
     if (Platform.OS !== 'ios') return;
     AppleAuthentication.isAvailableAsync()
@@ -299,15 +254,6 @@ export default function LoginScreen() {
               </View>
               {renderInputError(errors.password)}
             </View>
-
-            <TouchableOpacity
-              style={styles.forgotBtn}
-              onPress={() => { setResetEmail(email); setForgotVisible(true); }}
-              accessibilityRole="button"
-              accessibilityLabel="Forgot password"
-            >
-              <Text style={styles.forgotText}>Forgot password?</Text>
-            </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.submitBtn}

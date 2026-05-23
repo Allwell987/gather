@@ -65,7 +65,7 @@ export default function BibleScreen() {
         <Text style={[styles.verseText, { color: colors.text }]}>{verse.text}</Text>
       </TouchableOpacity>
     );
-  }, [highlights, selectedVerse, theme, colors]);
+  }, [highlights, selectedVerse, theme, colors, getHighlight]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
