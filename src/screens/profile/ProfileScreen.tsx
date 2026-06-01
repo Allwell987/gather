@@ -1,15 +1,17 @@
 // src/screens/profile/ProfileScreen.tsx
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import HeaderBar from '../../components/common/HeaderBar';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { BaseColors, Spacing, Radius, CHURCH } from '../../constants/theme';
+import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL, HELP_CENTER_URL } from '../../constants/links';
 import { useProfile } from './hooks/useProfile';
 import { useAdminVerification } from './hooks/useAdminVerification';
-import { SettingRow, GuestProfilePrompt } from './components/ProfileComponents';
+import { SettingRow, GuestProfilePrompt, EditableAvatar, VerificationBadge } from './components/ProfileComponents';
+import PolicyWebModal from '../../components/common/PolicyWebModal';
 import { ProfileEditor } from './components/ProfileModals';
 import type { ProfileScreenNavigationProp } from '../../types/navigation';
 
@@ -17,51 +19,108 @@ export default function ProfileScreen() {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
   const { theme, colors, themeMode } = useThemeStore();
   const { setIsGuest } = useAuthStore();
-  const { user, isSaving, hasPendingVerification, updatePersonalInfo, handleSignOut } = useProfile();
-  const { requests, reviewRequest, openCertificate } = useAdminVerification(user?.role === 'admin');
+  const { user, isSaving, hasPendingVerification, handlePickAvatar, updatePersonalInfo, handleSignOut } = useProfile();
+  const { requests, isLoading, fetchRequests, refresh, reviewRequest, openCertificate } = useAdminVerification(user?.role === 'admin');
+
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   const [activeEditor, setEditor] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (user?.role === 'admin') {
+      fetchRequests();
+    }
+  }, [user?.role, fetchRequests]);
+
   if (!user) return <GuestProfilePrompt theme={theme} colors={colors} onAuth={() => setIsGuest(false)} />;
+
+  const onRefresh = async () => {
+    if (user.role === 'admin') {
+      await refresh();
+    }
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <HeaderBar title="My Profile" showBack={false} rightIcon="pencil" rightAction={() => setEditor('profile')} enableBlur />
+      <HeaderBar title="My Profile" showBack={false} enableBlur />
 
-      <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
-        <View style={styles.hero}>
-          <View style={[styles.avatar, { backgroundColor: theme.accent }]}>
-            <Text style={styles.avatarText}>{(user.full_name || 'G')[0]}</Text>
-          </View>
-          <View>
-            <Text style={styles.heroName}>{user.full_name}</Text>
-            <Text style={{ color: theme.accentBorder }}>{CHURCH.name}</Text>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 40 }}
+        refreshControl={user.role === 'admin' ? <RefreshControl refreshing={isLoading} onRefresh={onRefresh} tintColor={theme.accent} /> : undefined}
+      >
+        <View style={[styles.hero, { backgroundColor: themeMode === 'dark' ? colors.card : BaseColors.brown900 }]}>
+          <EditableAvatar
+            uri={user.avatar_url}
+            name={user.full_name}
+            onEdit={handlePickAvatar}
+            isUploading={isSaving}
+            theme={theme}
+            colors={colors}
+          />
+          <View style={styles.heroInfo}>
+            <View style={styles.nameRow}>
+              <Text style={styles.heroName}>{user.full_name}</Text>
+              <VerificationBadge verified={user.is_verified} pending={hasPendingVerification} colors={colors} />
+            </View>
+            <Text style={{ color: themeMode === 'dark' ? colors.textSecondary : 'rgba(255,255,255,0.7)' }}>{CHURCH.name}</Text>
+            <TouchableOpacity onPress={() => setEditor('profile')} style={styles.editBtn}>
+              <Text style={{ color: theme.accent, fontSize: 12, fontWeight: '600' }}>Edit Profile</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
-        <Text style={[styles.groupHeader, { color: colors.text }]}>Account</Text>
+        <Text style={[styles.groupHeader, { color: colors.textSecondary }]}>Account</Text>
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <SettingRow icon="person-outline" label="Personal details" value={user.full_name} onPress={() => setEditor('profile')} colors={colors} />
-          <SettingRow icon="color-palette-outline" label="Theme" value={theme.name} onPress={() => navigation.navigate('ThemePicker', { fromOnboarding: false })} colors={colors} iconColor={theme.accent} />
-          <SettingRow icon="moon-outline" label="Appearance" value={themeMode} onPress={() => {}} colors={colors} />
-          <SettingRow icon="log-out-outline" label="Sign out" danger onPress={handleSignOut} colors={colors} />
+          <SettingRow icon="mail-outline" label="Email" value={user.email} onPress={() => {}} colors={colors} />
         </View>
 
-        {requests.length > 0 && (
+        <Text style={[styles.groupHeader, { color: colors.textSecondary }]}>App Settings</Text>
+        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <SettingRow icon="color-palette-outline" label="Theme" value={theme.name} onPress={() => navigation.navigate('ThemePicker', { fromOnboarding: false })} colors={colors} iconColor={theme.accent} />
+          <SettingRow icon="moon-outline" label="Appearance" value={themeMode === 'system' ? 'System default' : themeMode === 'dark' ? 'Dark' : 'Light'} onPress={() => navigation.navigate('ThemePicker', { fromOnboarding: false, activeTab: 'appearance' })} colors={colors} iconColor={theme.accent} />
+          <SettingRow icon="notifications-outline" label="Daily Verse Reminder" value={user.reminder_time} onPress={() => {}} colors={colors} />
+        </View>
+
+        <Text style={[styles.groupHeader, { color: colors.textSecondary }]}>Support & Legal</Text>
+        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <SettingRow icon="help-circle-outline" label="Help Center" onPress={() => Linking.openURL(HELP_CENTER_URL)} colors={colors} />
+          <SettingRow icon="shield-checkmark-outline" label="Privacy Policy" onPress={() => setShowPrivacyModal(true)} colors={colors} />
+          <SettingRow icon="document-text-outline" label="Terms of Service" onPress={() => Linking.openURL(TERMS_OF_SERVICE_URL)} colors={colors} />
+        </View>
+
+        {user.role === 'admin' && requests.length > 0 && (
           <View style={styles.adminSection}>
             <Text style={[styles.groupHeader, { color: colors.text }]}>Admin: Pending Verification</Text>
             {requests.map(r => (
-              <View key={r.id} style={[styles.card, { padding: 16, backgroundColor: colors.card, borderColor: colors.border }]}>
-                <Text style={{ color: colors.text, fontWeight: 'bold' }}>{r.profile.full_name}</Text>
-                <View style={{ flexDirection: 'row', gap: 12, marginTop: 12 }}>
-                  <TouchableOpacity onPress={() => openCertificate(r)}><Text style={{ color: theme.accent }}>View Proof</Text></TouchableOpacity>
-                  <TouchableOpacity onPress={() => reviewRequest(r, 'approved')}><Text style={{ color: 'green' }}>Approve</Text></TouchableOpacity>
-                  <TouchableOpacity onPress={() => reviewRequest(r, 'rejected')}><Text style={{ color: 'red' }}>Reject</Text></TouchableOpacity>
+              <View key={r.id} style={[styles.card, styles.adminCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <View style={styles.adminCardHeader}>
+                  <View>
+                    <Text style={{ color: colors.text, fontWeight: 'bold', fontSize: 16 }}>{r.profile.full_name}</Text>
+                    <Text style={{ color: colors.textSecondary, fontSize: 12 }}>{r.profile.email}</Text>
+                  </View>
+                  <TouchableOpacity style={styles.viewProofBtn} onPress={() => openCertificate(r)}>
+                    <Ionicons name="eye-outline" size={16} color={theme.accent} />
+                    <Text style={{ color: theme.accent, fontWeight: '600' }}>Proof</Text>
+                  </TouchableOpacity>
+                </View>
+                <View style={styles.adminActions}>
+                  <TouchableOpacity style={[styles.adminBtn, { backgroundColor: BaseColors.green500 }]} onPress={() => reviewRequest(r, 'approved')}>
+                    <Text style={styles.adminBtnText}>Approve</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={[styles.adminBtn, { backgroundColor: BaseColors.red500 }]} onPress={() => reviewRequest(r, 'rejected')}>
+                    <Text style={styles.adminBtnText}>Reject</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
             ))}
           </View>
         )}
+
+        <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>
+          <Ionicons name="log-out-outline" size={20} color={BaseColors.red500} />
+          <Text style={styles.signOutText}>Sign Out</Text>
+        </TouchableOpacity>
       </ScrollView>
 
       <ProfileEditor
@@ -79,11 +138,20 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  hero: { flexDirection: 'row', alignItems: 'center', gap: 20, padding: Spacing.xl, backgroundColor: BaseColors.brown900 },
-  avatar: { width: 64, height: 64, borderRadius: 32, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#fff' },
-  avatarText: { color: '#fff', fontSize: 24, fontWeight: 'bold' },
+  hero: { flexDirection: 'row', alignItems: 'center', gap: 20, padding: Spacing.xl },
+  heroInfo: { flex: 1 },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 2 },
   heroName: { color: '#fff', fontSize: 20, fontWeight: 'bold' },
-  groupHeader: { fontSize: 12, textTransform: 'uppercase', letterSpacing: 1, marginHorizontal: Spacing.xl, marginTop: 24, marginBottom: 8 },
+  editBtn: { marginTop: 8 },
+  groupHeader: { fontSize: 12, textTransform: 'uppercase', fontWeight: '700', letterSpacing: 1.2, marginHorizontal: Spacing.xl, marginTop: 32, marginBottom: 12 },
   card: { marginHorizontal: Spacing.xl, borderRadius: Radius.xl, borderWidth: 1, overflow: 'hidden' },
   adminSection: { marginTop: 12 },
+  adminCard: { padding: 16, marginBottom: 12 },
+  adminCardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
+  viewProofBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, padding: 8, borderRadius: Radius.md, backgroundColor: 'rgba(0,0,0,0.05)' },
+  adminActions: { flexDirection: 'row', gap: 12 },
+  adminBtn: { flex: 1, paddingVertical: 10, borderRadius: Radius.md, alignItems: 'center' },
+  adminBtnText: { color: '#fff', fontWeight: 'bold' },
+  signOutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 40, paddingVertical: 16 },
+  signOutText: { color: BaseColors.red500, fontSize: 16, fontWeight: 'bold' },
 });
