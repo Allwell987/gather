@@ -1,7 +1,7 @@
 // src/navigation/MainNavigator.tsx
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming, Easing } from 'react-native-reanimated';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator, CardStyleInterpolators } from '@react-navigation/stack';
 
@@ -148,7 +148,9 @@ function TabBarItem({
     <Animated.View style={[styles.tabItem, animatedStyle]}>
       <TouchableOpacity
         onPress={() => {
+          // eslint-disable-next-line react-hooks/immutability
           scale.value = withSpring(0.85, { stiffness: 200 }, () => {
+            // eslint-disable-next-line react-hooks/immutability
             scale.value = withSpring(1, { stiffness: 180 });
           });
           navigate(route.name);
@@ -198,6 +200,14 @@ function CustomTabBar({ state, navigation }: {
   const { user } = useAuthStore();
   const { syncSummary } = useOfflineSyncStatus(user?.id);
 
+  const indicatorStyle = useAnimatedStyle(() => {
+    const tabWidth = 100 / state.routes.length;
+    return {
+      left: withSpring(`${tabWidth * state.index}%`, { stiffness: 150, damping: 20 }),
+      width: `${tabWidth}%`,
+    };
+  });
+
   return (
     <View style={[styles.tabShell, { backgroundColor: colors.background }]}>
       <View
@@ -215,11 +225,8 @@ function CustomTabBar({ state, navigation }: {
         <Animated.View
           style={[
             styles.tabIndicator,
-            {
-              left: `${(100 / state.routes.length) * state.index}%`,
-              width: `${100 / state.routes.length}%`,
-              backgroundColor: theme.accent,
-            },
+            indicatorStyle,
+            { backgroundColor: theme.accent },
           ]}
         />
         {state.routes.map((route, index) => (

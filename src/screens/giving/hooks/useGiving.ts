@@ -2,13 +2,11 @@ import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../../services/supabase';
 import { useAuthStore } from '../../../store/authStore';
-import { useToastStore } from '../../../store/toastStore';
 import type { Campaign, Giving } from '../../../types/database';
 
 export function useGiving() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
-  const { showToast } = useToastStore();
 
   const { data: history = [] } = useQuery<Giving[]>({
     queryKey: ['giving-history', user?.id],
@@ -37,8 +35,9 @@ export function useGiving() {
         user_id: user.id,
         amount: donation.amount,
         currency: 'NGN',
-        category: donation.category.toLowerCase().replace(/\s+/g, '_'),
+        category: 'app_maintenance',
         payment_reference: donation.reference,
+        transaction_id: donation.transaction_id ?? null,
         status: 'success',
       } as never);
     },

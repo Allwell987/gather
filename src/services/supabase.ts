@@ -74,7 +74,9 @@ const decodeJwtPayload = (token: string) => {
       ref?: string;
     };
   } catch (err) {
-    console.error('JWT decode error:', err);
+    if (__DEV__) {
+      console.error('JWT decode error:', err);
+    }
     return null;
   }
 };

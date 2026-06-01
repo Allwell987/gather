@@ -26,7 +26,9 @@ export function useAdminVerification(canReview: boolean) {
     } finally {
       setIsLoading(false);
     }
-  }, [canReview]);
+  }, [canReview, showToast]);
+
+  const refresh = useCallback(() => fetchRequests(), [fetchRequests]);
 
   const reviewRequest = async (request: any, decision: 'approved' | 'rejected') => {
     setIsReviewing(true);
@@ -59,6 +61,7 @@ export function useAdminVerification(canReview: boolean) {
     isLoading,
     isProcessing,
     fetchRequests,
+    refresh,
     reviewRequest,
     openCertificate,
   };

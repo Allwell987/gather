@@ -10,12 +10,13 @@ import {
   Easing,
 } from 'react-native';
 import * as Haptics from 'expo-haptics';
-import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
+import { useThemeStore } from '../../store/themeStore';
+import { BaseColors, Spacing, Radius } from '../../constants/theme';
 
 export interface ButtonProps {
   label: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'outline' | 'danger';
+  variant?: 'primary' | 'secondary' | 'outline' | 'danger' | 'ghost';
   size?: 'small' | 'medium' | 'large';
   loading?: boolean;
   disabled?: boolean;
@@ -30,16 +31,19 @@ export default function Button({
   size = 'medium',
   loading = false,
   disabled = false,
-  accentColor = BaseColors.sapphire,
+  accentColor,
   style,
 }: ButtonProps) {
-  const pressAnim = React.useRef(new Animated.Value(0)).current;
+  const { colors, typography } = useThemeStore();
+  const [pressAnim] = React.useState(() => new Animated.Value(0));
+
+  const finalAccentColor = accentColor || colors.accent;
 
   const animatePress = (toValue: number) => {
     Animated.timing(pressAnim, {
       toValue,
-      duration: toValue === 1 ? 110 : 150,
-      easing: toValue === 1 ? Easing.out(Easing.quad) : Easing.out(Easing.cubic),
+      duration: toValue === 1 ? 80 : 120,
+      easing: Easing.bezier(0.4, 0, 0.2, 1),
       useNativeDriver: true,
     }).start();
   };
@@ -61,9 +65,9 @@ export default function Button({
   };
 
   const textSizes: Record<string, TextStyle> = {
-    small: Typography.body2 as TextStyle,
-    medium: Typography.body1 as TextStyle,
-    large: Typography.heading3 as TextStyle,
+    small: typography.body2 as TextStyle,
+    medium: typography.body1 as TextStyle,
+    large: typography.heading3 as TextStyle,
   };
 
   // Variant styles
@@ -71,24 +75,25 @@ export default function Button({
     borderRadius: Radius.md,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: BaseColors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
-    elevation: 2,
     ...sizeStyles[size],
   };
 
   let textStyle: TextStyle = {
     fontWeight: '600',
     ...textSizes[size],
+    letterSpacing: 0.5,
   };
 
   switch (variant) {
     case 'primary':
       containerStyle = {
         ...containerStyle,
-        backgroundColor: isDisabled ? BaseColors.gray400 : accentColor,
+        backgroundColor: isDisabled ? colors.textMuted : finalAccentColor,
+        shadowColor: finalAccentColor,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
       };
       textStyle = { ...textStyle, color: BaseColors.white };
       break;
@@ -96,27 +101,37 @@ export default function Button({
     case 'secondary':
       containerStyle = {
         ...containerStyle,
-        backgroundColor: isDisabled ? BaseColors.gray100 : BaseColors.gray200,
+        backgroundColor: isDisabled ? colors.background : colors.surface,
+        borderWidth: 1,
+        borderColor: colors.border,
       };
-      textStyle = { ...textStyle, color: BaseColors.gray800 };
+      textStyle = { ...textStyle, color: colors.text };
       break;
 
     case 'outline':
       containerStyle = {
         ...containerStyle,
         backgroundColor: 'transparent',
-        borderWidth: 2,
-        borderColor: isDisabled ? BaseColors.gray300 : accentColor,
+        borderWidth: 1.5,
+        borderColor: isDisabled ? colors.textMuted : finalAccentColor,
       };
-      textStyle = { ...textStyle, color: isDisabled ? BaseColors.gray500 : accentColor };
+      textStyle = { ...textStyle, color: isDisabled ? colors.textMuted : finalAccentColor };
       break;
 
     case 'danger':
       containerStyle = {
         ...containerStyle,
-        backgroundColor: isDisabled ? BaseColors.gray400 : BaseColors.red500,
+        backgroundColor: isDisabled ? colors.textMuted : colors.error,
       };
       textStyle = { ...textStyle, color: BaseColors.white };
+      break;
+
+    case 'ghost':
+      containerStyle = {
+        ...containerStyle,
+        backgroundColor: 'transparent',
+      };
+      textStyle = { ...textStyle, color: colors.textSecondary };
       break;
   }
 
@@ -127,10 +142,14 @@ export default function Button({
           {
             scale: pressAnim.interpolate({
               inputRange: [0, 1],
-              outputRange: [1, 0.975],
+              outputRange: [1, 0.96],
             }),
           },
         ],
+        opacity: pressAnim.interpolate({
+          inputRange: [0, 1],
+          outputRange: [1, 0.9],
+        }),
       }}
     >
       <TouchableOpacity

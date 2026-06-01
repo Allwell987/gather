@@ -8,9 +8,13 @@ export const initSentry = () => {
 
   if (!dsn) {
     if (process.env.NODE_ENV === 'production') {
-      console.error('Sentry DSN not configured in production. Set EXPO_PUBLIC_SENTRY_DSN in .env');
+      if (__DEV__) {
+        console.error('Sentry DSN not configured in production. Set EXPO_PUBLIC_SENTRY_DSN in .env');
+      }
     } else {
-      console.warn('Sentry DSN not configured. Set EXPO_PUBLIC_SENTRY_DSN in .env');
+      if (__DEV__) {
+        console.warn('Sentry DSN not configured. Set EXPO_PUBLIC_SENTRY_DSN in .env');
+      }
     }
     return;
   }

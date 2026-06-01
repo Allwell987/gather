@@ -8,6 +8,9 @@ import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import HeaderBar from '../../components/common/HeaderBar';
+import AnimatedEntrance from '../../components/common/AnimatedEntrance';
+import Pulse from '../../components/common/Pulse';
+import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
 import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
@@ -19,7 +22,7 @@ import type { HomeScreenNavigationProp } from '../../types/navigation';
 const QUICK_ACCESS = [
   { id: 'bible', label: 'Bible', icon: 'book-outline', tab: 'BibleTab', color: '#4A90A4' },
   { id: 'prayer', label: 'AI Prayer', icon: 'sparkles-outline', screen: 'PrayerGenerator', color: '#8E44AD' },
-  { id: 'give', label: 'Give', icon: 'card-outline', screen: 'Giving', color: '#27AE60' },
+  { id: 'give', label: 'Support App', icon: 'card-outline', screen: 'Giving', color: '#27AE60' },
   { id: 'today', label: 'Today', icon: 'calendar-outline', tab: 'TodayTab', color: '#E67E22' },
 ];
 
@@ -27,18 +30,15 @@ export default function HomeScreen() {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { user } = useAuthStore();
   const { theme, colors } = useThemeStore();
-  const { greeting, nextService, events, isLoading, streak, refetch } = useHome(user);
+  const { greeting, nextService, isLoading, streak, refetch } = useHome(user);
 
   const [dailyVerse, setDailyVerse] = useState<DailyVerse | null>(null);
   const [latestVideos, setLatestVideos] = useState<YoutubeVideo[]>([]);
-  const [isVideosLoading, setIsVideosLoading] = useState(false);
 
   useEffect(() => {
     fetchDailyVerse().then(setDailyVerse);
-    setIsVideosLoading(true);
     fetchYoutubeVideos(4)
-      .then(setLatestVideos)
-      .finally(() => setIsVideosLoading(false));
+      .then(setLatestVideos);
   }, []);
 
   const handleShare = () => {
@@ -72,55 +72,87 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={isLoading} onRefresh={refetch} tintColor={theme.accent} />}
       >
-        <View style={styles.hero}>
-          <LinearGradient colors={[BaseColors.brown900, BaseColors.brown900]} style={StyleSheet.absoluteFill} />
-          <View style={styles.verseCard}>
-            <Text style={styles.verseEye}>✦ Verse of the day</Text>
-            {dailyVerse ? (
-              <>
-                <Text style={styles.verseText}>{dailyVerse.text}</Text>
-                <Text style={{ color: theme.accentBorder }}>{dailyVerse.reference}</Text>
-                <TouchableOpacity style={styles.shareBtn} onPress={handleShare}>
-                  <Ionicons name="share-social-outline" size={14} color="#fff" />
-                  <Text style={{ color: '#fff' }}>Share</Text>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <ActivityIndicator color="#fff" style={{ marginVertical: 20 }} />
-            )}
+        <AnimatedEntrance delay={100}>
+          <View style={styles.hero}>
+            <LinearGradient colors={[BaseColors.brown900, BaseColors.brown900]} style={StyleSheet.absoluteFill} />
+            <View style={styles.verseCard}>
+              <Text style={styles.verseEye}>✦ Verse of the day</Text>
+              {dailyVerse ? (
+                <>
+                  <Text style={styles.verseText}>{dailyVerse.text}</Text>
+                  <Text style={{ color: theme.accentBorder }}>{dailyVerse.reference}</Text>
+                  <TouchableOpacity style={styles.shareBtn} onPress={handleShare}>
+                    <Ionicons name="share-social-outline" size={14} color="#fff" />
+                    <Text style={{ color: '#fff' }}>Share</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <ActivityIndicator color="#fff" style={{ marginVertical: 20 }} />
+              )}
+            </View>
           </View>
-        </View>
+        </AnimatedEntrance>
 
         <View style={styles.body}>
-          <View style={[styles.streak, { backgroundColor: colors.card }]}>
-            <Text style={{ fontSize: 24 }}>{streak.count > 0 ? '🔥' : '🌱'}</Text>
-            <View>
-              <Text style={{ fontWeight: 'bold', color: colors.text }}>{streak.count}-day streak</Text>
-              <Text style={{ color: colors.textSecondary, fontSize: 12 }}>{streak.status}</Text>
+          <AnimatedEntrance delay={200}>
+            <View style={[styles.streak, { backgroundColor: colors.card }]}>
+              <Pulse>
+                <Text style={{ fontSize: 24 }}>{streak.count > 0 ? '🔥' : '🌱'}</Text>
+              </Pulse>
+              <View>
+                <Text style={{ fontWeight: 'bold', color: colors.text }}>{streak.count}-day streak</Text>
+                <Text style={{ color: colors.textSecondary, fontSize: 12 }}>{streak.status}</Text>
+              </View>
             </View>
-          </View>
+          </AnimatedEntrance>
 
-          <Text style={styles.sectionTitle}>Quick access</Text>
-          <View style={styles.grid}>
-            {QUICK_ACCESS.map(item => (
-              <TouchableOpacity key={item.id} style={[styles.gridItem, { backgroundColor: colors.card, borderColor: colors.border }]} onPress={() => item.tab ? navigation.navigate(item.tab as any) : navigation.navigate(item.screen as any)}>
-                <Ionicons name={item.icon as any} size={20} color={item.color} />
-                <Text style={{ color: item.color, fontSize: 11, fontWeight: '600' }}>{item.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          <AnimatedEntrance delay={300}>
+            <Text style={styles.sectionTitle}>Quick access</Text>
+            <View style={styles.grid}>
+              {QUICK_ACCESS.map((item, index) => {
+                const scale = useSharedValue(1);
+                const animatedStyle = useAnimatedStyle(() => ({
+                  transform: [{ scale: scale.value }],
+                }));
 
-          <Text style={styles.sectionTitle}>Next Service</Text>
-          <View style={[styles.service, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <View>
-              <Text style={{ color: theme.accent, fontWeight: 'bold' }}>{nextService?.day}</Text>
-              <Text style={{ color: colors.text }}>{nextService?.service}</Text>
+                const onPressIn = () => {
+                  scale.value = withSpring(0.9, { stiffness: 300, damping: 15 });
+                };
+                const onPressOut = () => {
+                  scale.value = withSpring(1, { stiffness: 300, damping: 15 });
+                };
+
+                return (
+                  <Animated.View key={item.id} style={[{ flex: 1 }, animatedStyle]}>
+                    <TouchableOpacity
+                      activeOpacity={1}
+                      onPressIn={onPressIn}
+                      onPressOut={onPressOut}
+                      style={[styles.gridItem, { backgroundColor: colors.card, borderColor: colors.border }]}
+                      onPress={() => item.tab ? navigation.navigate(item.tab as any) : navigation.navigate(item.screen as any)}
+                    >
+                      <Ionicons name={item.icon as any} size={20} color={item.color} />
+                      <Text style={{ color: item.color, fontSize: 11, fontWeight: '600' }}>{item.label}</Text>
+                    </TouchableOpacity>
+                  </Animated.View>
+                );
+              })}
             </View>
-            <Text style={{ color: colors.text }}>{nextService?.time}</Text>
-          </View>
+          </AnimatedEntrance>
+
+          <AnimatedEntrance delay={400}>
+            <Text style={styles.sectionTitle}>Next Service</Text>
+            <View style={[styles.service, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <View>
+                <Text style={{ color: theme.accent, fontWeight: 'bold' }}>{nextService?.day}</Text>
+                <Text style={{ color: colors.text }}>{nextService?.service}</Text>
+              </View>
+              <Text style={{ color: colors.text }}>{nextService?.time}</Text>
+            </View>
+          </AnimatedEntrance>
 
           {latestVideos.length > 0 && (
-            <>
+            <AnimatedEntrance delay={500}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Latest Sermons</Text>
                 <TouchableOpacity onPress={() => Linking.openURL('https://youtube.com')}>
@@ -141,7 +173,7 @@ export default function HomeScreen() {
                   </TouchableOpacity>
                 ))}
               </ScrollView>
-            </>
+            </AnimatedEntrance>
           )}
         </View>
       </ScrollView>

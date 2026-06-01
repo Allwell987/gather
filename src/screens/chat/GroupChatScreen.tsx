@@ -1,19 +1,13 @@
 // src/screens/chat/GroupChatScreen.tsx
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  ActivityIndicator,
   Animated,
   FlatList,
-  Image,
   Keyboard,
   KeyboardAvoidingView,
-  Modal,
   Platform,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from 'react-native';
@@ -29,8 +23,8 @@ import { useThemeStore } from '../../store/themeStore';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import { HeaderBar } from '../../components/common';
-import { BaseColors, Typography } from '../../constants/theme';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Typography } from '../../constants/theme';
+import { useQuery } from '@tanstack/react-query';
 import { serializeChatImageMessage, uploadChatImage } from '../../services/chatMedia';
 import { MessageBubble, type ChatMessage as Message } from './components/MessageBubble';
 import { ChatComposer } from './components/ChatComposer';
@@ -104,33 +98,29 @@ export default function GroupChatScreen() {
   const { theme, colors } = useThemeStore();
   const { user } = useAuthStore();
   const { showToast } = useToastStore();
-  const queryClient = useQueryClient();
   const insets = useSafeAreaInsets();
 
   const groupId = route.params?.groupId ?? 'young-adults';
   const defaultGroupName = route.params?.groupName ?? 'Young Adults Fellowship';
-  const groupMeta = GROUP_META[groupId] ?? { emoji: '👥', membersLabel: 'Members' };
 
   const {
     messages, sendMessage, isSending, toggleReaction,
-    typingPeople, setTyping, markAsRead, deleteMsg, updateMsg
+    setTyping, markAsRead, deleteMsg, updateMsg
   } = useGroupChat(groupId, theme.accent);
 
-  const { members: groupMembers, isAdmin: isGroupAdmin } = useGroupMembers(groupId, theme.accent);
+  const { members: groupMembers } = useGroupMembers(groupId, theme.accent);
 
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
   const [inputText, setInputText] = useState('');
   const [pendingAttachment, setPendingAttachment] = useState<any | null>(null);
   const [isUploadingAttachment, setIsUploadingAttachment] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [selectedImageViewer, setSelectedImageViewer] = useState<any | null>(null);
   const [replyTarget, setReplyTarget] = useState<any | null>(null);
   const [selectedMessageAction, setSelectedMessageAction] = useState<any | null>(null);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const [showScrollToBottom, setShowScrollToBottom] = useState(false);
 
   const flatListRef = useRef<FlatList>(null);
-  const typingAnim = useRef(new Animated.Value(0)).current;
 
   const { data: groupDetails } = useQuery<{ name: string; description: string } | null>({
     queryKey: ['chat-group-details', groupId],
@@ -142,7 +132,6 @@ export default function GroupChatScreen() {
   });
 
   const groupName = groupDetails?.name ?? defaultGroupName;
-  const groupAbout = groupDetails?.description ?? 'Welcome to our fellowship!';
   const groupMembersLabel = `${groupMembers.length} member${groupMembers.length === 1 ? '' : 's'}`;
 
   useEffect(() => {
@@ -223,7 +212,7 @@ export default function GroupChatScreen() {
             showSenderMeta={!item.isMine && (!prevMsg || prevMsg.user_id !== item.user_id)}
             isSameSender={prevMsg?.user_id === item.user_id}
             onLongPress={(m) => setSelectedMessageAction({ id: m.id, senderName: m.senderName, preview: m.content.slice(0, 100), copyValue: m.content, isMine: m.isMine })}
-            onImagePress={(uri, caption) => setSelectedImageViewer({ uri, caption })}
+            onImagePress={() => {}}
             onReactionPress={toggleReaction}
           />
         </SwipeableMessage>

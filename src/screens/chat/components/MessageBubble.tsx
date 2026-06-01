@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { format } from 'date-fns';
+import Animated, { ZoomIn } from 'react-native-reanimated';
 import { Typography } from '../../../constants/theme';
 
 export interface MessageReaction {
@@ -62,7 +63,7 @@ const MessageBubbleComponent = ({
   const { isMine, senderColor, senderName, verificationLevel, messageType, imageUrl, imageCaption, created_at, syncStatus, readBy, reactions, replySenderName, replyPreview } = message;
 
   return (
-    <View style={[styles.msgRow, isMine && styles.msgRowOut, isSameSender && { marginTop: 2 }]}>
+    <Animated.View entering={ZoomIn.duration(300)} style={[styles.msgRow, isMine && styles.msgRowOut, isSameSender && { marginTop: 2 }]}>
       {showSenderMeta ? (
         <View style={[styles.msgAvatar, { backgroundColor: senderColor }]}>
           <Text style={styles.msgAvatarText}>{message.senderInitials}</Text>
@@ -91,7 +92,7 @@ const MessageBubbleComponent = ({
                 <Ionicons name="checkmark-circle" size={12} color="#D4AF37" style={styles.verifyBadge} />
               )}
               {verificationLevel === 'black' && (
-                <Ionicons name="checkmark-circle" size={12} color="#000000" style={styles.verifyBadge} />
+                <Ionicons name="checkmark-circle" size={12} color={isMine ? '#122116' : '#111b21'} style={styles.verifyBadge} />
               )}
             </View>
           )}
@@ -185,7 +186,7 @@ const MessageBubbleComponent = ({
           </View>
         ) : null}
       </TouchableOpacity>
-    </View>
+    </Animated.View>
   );
 };
 

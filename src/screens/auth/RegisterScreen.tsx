@@ -138,7 +138,9 @@ export default function RegisterScreen() {
         setIsOnboarded(true);
       }
     } catch (err) {
-      console.error('Registration error:', err);
+      if (__DEV__) {
+        console.error('Registration error:', err);
+      }
       setPendingVerificationEmail(null);
       setLoading(false);
       const message = 'An unexpected error occurred. Please try again.';

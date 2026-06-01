@@ -91,7 +91,9 @@ export default function LoginScreen() {
         setIsOnboarded(true);
       }
     } catch (err) {
-      console.error('Login error:', err);
+      if (__DEV__) {
+        console.error('Login error:', err);
+      }
       const message = 'An unexpected error occurred. Please try again.';
       setAuthError(message);
       showToast({ title: 'Login failed', message, variant: 'error' });

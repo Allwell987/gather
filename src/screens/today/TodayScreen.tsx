@@ -6,11 +6,14 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import HeaderBar from '../../components/common/HeaderBar';
+import AnimatedEntrance from '../../components/common/AnimatedEntrance';
+import Pulse from '../../components/common/Pulse';
 import { useThemeStore } from '../../store/themeStore';
 import { useAuthStore } from '../../store/authStore';
 import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
 import { useLiveStatus } from '../../hooks/useLiveStatus';
 import { useDevotional } from './hooks/useDevotional';
+import DevotionalCard from '../../components/devotional/DevotionalCard';
 import { formatAppDate, getDeviceLocale, t } from '../../services/locale';
 
 export default function TodayScreen() {
@@ -36,37 +39,32 @@ export default function TodayScreen() {
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {isLive && activeLive && (
           <TouchableOpacity style={[styles.live, { backgroundColor: theme.accent }]} onPress={() => activeLive.live_url && Linking.openURL(activeLive.live_url)}>
-            <Ionicons name="radio" size={18} color="#fff" />
+            <Pulse scale={1.05} duration={800}>
+              <Ionicons name="radio" size={18} color="#fff" />
+            </Pulse>
             <Text style={styles.liveText}>{t('liveLabel', locale)} {activeLive.title}</Text>
           </TouchableOpacity>
         )}
 
         <View style={styles.content}>
-          <Text style={styles.sectionTitle}>{t('dailyDevotional', locale)}</Text>
-          <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            {isLoading ? (
-              <ActivityIndicator size="large" color={theme.accent} style={{ padding: 40 }} />
-            ) : devotional ? (
-              <>
-                <Text style={[styles.devoTitle, { color: theme.accent }]}>{devotional.title}</Text>
-                <Text style={styles.devoRef}>{devotional.anchor_scripture}</Text>
-                <Text style={[styles.devoBody, { color: colors.text }]}>{devotional.core_teaching}</Text>
-
-                <View style={styles.footer}>
-                  <TouchableOpacity onPress={handleShare}><Ionicons name="share-social-outline" size={20} color={theme.accent} /></TouchableOpacity>
-                  <TouchableOpacity
-                    style={[styles.readBtn, { backgroundColor: hasReadToday ? theme.accent + '20' : theme.accent }]}
-                    onPress={() => markAsRead()}
-                    disabled={hasReadToday || isMarking}
-                  >
-                    <Text style={{ color: hasReadToday ? theme.accent : '#fff', fontWeight: 'bold' }}>
-                      {isMarking ? '...' : hasReadToday ? t('readDone', locale) : t('markAsRead', locale)}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </>
-            ) : <Text>{t('noDevotionalToday', locale)}</Text>}
-          </View>
+          <AnimatedEntrance delay={100}>
+            <Text style={styles.sectionTitle}>{t('dailyDevotional', locale)}</Text>
+            <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              {isLoading ? (
+                <ActivityIndicator size="large" color={theme.accent} style={{ padding: 40 }} />
+              ) : devotional ? (
+                <DevotionalCard
+                  devotional={devotional}
+                  onShare={handleShare}
+                  onMarkRead={() => markAsRead()}
+                  hasReadToday={hasReadToday}
+                  isMarking={isMarking}
+                  colors={colors}
+                  accent={theme.accent}
+                />
+              ) : <Text>{t('noDevotionalToday', locale)}</Text>}
+            </View>
+          </AnimatedEntrance>
         </View>
       </ScrollView>
     </View>
@@ -86,4 +84,8 @@ const styles = StyleSheet.create({
   devoBody: { fontSize: 16, lineHeight: 26 },
   footer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 24 },
   readBtn: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: Radius.full },
+  section: { marginTop: 12 },
+  sectionHeading: { fontSize: 13, fontWeight: '700', marginBottom: 6, color: BaseColors.grayDark },
+  sectionText: { fontSize: 15, lineHeight: 22 },
+  scriptureItem: { fontSize: 14, lineHeight: 20, marginBottom: 4 },
 });

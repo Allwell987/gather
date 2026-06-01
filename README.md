@@ -84,7 +84,13 @@ Copy `.env.example` to `.env` and fill in all `EXPO_PUBLIC_*` values.
 3. Run **`database/storage_avatars.sql`** — avatar storage bucket + policies
 4. Run **`database/storage_chat_images.sql`** — chat image storage bucket + policies
 5. Enable Realtime on tables: `messages`, `message_reactions`, `message_reads`, `prayer_requests`
+6. Deploy Supabase Edge Functions from `supabase/functions`.
 
+> For example, install the Supabase CLI and run:
+> ```bash
+> supabase functions deploy generate-prayer --project-ref <your-project-ref>
+> ```
+>
 > **Existing environments only**: If you already have the base schema deployed, run `database/fix_chat_group_admins.sql` to apply the group admin migration without touching existing data.
 
 ### Add Logo

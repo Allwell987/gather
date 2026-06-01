@@ -7,7 +7,8 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
+import { useThemeStore } from '../../store/themeStore';
+import { Spacing, Radius } from '../../constants/theme';
 
 export interface BadgeProps {
   label: string;
@@ -21,54 +22,61 @@ export default function Badge({
   label,
   variant = 'primary',
   size = 'small',
-  accentColor = BaseColors.sapphire,
+  accentColor,
   style,
 }: BadgeProps) {
+  const { colors, typography } = useThemeStore();
   const isSmall = size === 'small';
 
-  let backgroundColor = BaseColors.gray200;
-  let textColor = BaseColors.gray800;
+  const finalAccentColor = accentColor || colors.accent;
+
+  let backgroundColor = colors.border;
+  let textColor = colors.textSecondary;
 
   switch (variant) {
     case 'primary':
-      backgroundColor = accentColor;
-      textColor = BaseColors.white;
+      backgroundColor = finalAccentColor;
+      textColor = '#fff';
       break;
     case 'secondary':
-      backgroundColor = BaseColors.gray100;
-      textColor = BaseColors.gray700;
+      backgroundColor = colors.background;
+      textColor = colors.textSecondary;
       break;
     case 'success':
-      backgroundColor = BaseColors.green100;
-      textColor = BaseColors.green700;
+      backgroundColor = colors.success + '20'; // 12% opacity
+      textColor = colors.success;
       break;
     case 'warning':
-      backgroundColor = BaseColors.yellow100;
-      textColor = BaseColors.yellow700;
+      backgroundColor = '#f59e0b20';
+      textColor = '#d97706';
       break;
     case 'danger':
-      backgroundColor = BaseColors.red100;
-      textColor = BaseColors.red700;
+      backgroundColor = colors.error + '20';
+      textColor = colors.error;
       break;
   }
 
   const containerStyle: ViewStyle = {
     backgroundColor,
-    borderRadius: Radius.md,
-    paddingVertical: isSmall ? Spacing.xs : Spacing.sm,
+    borderRadius: Radius.sm,
+    paddingVertical: isSmall ? 2 : Spacing.xs,
     paddingHorizontal: isSmall ? Spacing.sm : Spacing.md,
     alignSelf: 'flex-start',
+    borderWidth: variant === 'secondary' ? 1 : 0,
+    borderColor: colors.border,
   };
 
   const textStyle: TextStyle = {
-    ...(isSmall ? Typography.caption : Typography.body2),
+    ...(isSmall ? typography.caption : typography.body2),
     color: textColor,
-    fontWeight: '600',
+    fontWeight: '700',
+    letterSpacing: 0.5,
+    fontSize: isSmall ? 10 : 12,
   };
 
   return (
     <View style={[containerStyle, style]}>
-      <Text style={textStyle}>{label}</Text>
+      <Text style={textStyle}>{label.toUpperCase()}</Text>
     </View>
   );
 }

@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { parseISO, format, subHours, isBefore } from 'date-fns';
+import * as Notifications from 'expo-notifications';
 import { supabase } from '../services/supabase';
 import { useAuthStore } from '../store/authStore';
 import { useToastStore } from '../store/toastStore';
@@ -66,6 +67,7 @@ export const useEventDetail = (eventId: string) => {
         .from('events')
         .select('*, event_rsvps(user_id)')
         .eq('id', eventId)
+        .returns<(Database['public']['Tables']['events']['Row'] & { event_rsvps: { user_id: string }[] })[]>()
         .maybeSingle();
 
       if (error) throw error;
@@ -158,7 +160,10 @@ export const useEventDetail = (eventId: string) => {
       return;
     }
 
-    const result = await scheduleNotification('Upcoming Event', `${event.title} starts in 1 hour`, reminderTime, { type: 'event', eventId: event.id });
+    const result = await scheduleNotification('Upcoming Event', `${event.title} starts in 1 hour`, {
+      type: Notifications.SchedulableTriggerInputTypes.DATE,
+      date: reminderTime
+    }, { type: 'event', eventId: event.id });
     if (result) {
       setReminderScheduled(true);
       showToast({ title: 'Reminder set', message: 'You will get a reminder one hour before the event starts.', variant: 'success' });

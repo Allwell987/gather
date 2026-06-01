@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Animated,
   Pressable,
@@ -49,8 +49,8 @@ export default function ToastHost() {
   const insets = useSafeAreaInsets();
   const { theme } = useThemeStore();
   const { currentToast, hideToast } = useToastStore();
-  const translateY = useRef(new Animated.Value(-28)).current;
-  const opacity = useRef(new Animated.Value(0)).current;
+  const [translateY] = useState(() => new Animated.Value(-28));
+  const [opacity] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
     Animated.parallel([

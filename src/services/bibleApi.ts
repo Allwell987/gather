@@ -47,35 +47,47 @@ export async function fetchChapter(
     const bookSlug = encodeURIComponent(formatBookForUrl(book));
     const url = `${API_BASE}/${bookSlug}%20${chapter}?translation=${apiTranslation}`;
 
-    console.log(`Fetching Bible: ${url}`);
+    if (__DEV__) {
+      console.log(`Fetching Bible: ${url}`);
+    }
     const response = await fetch(url);
     
     if (response.status === 429 && retries > 0) {
       const waitTime = (4 - retries) * 2000;
-      console.warn(`Bible API rate limited (429). Retrying in ${waitTime}ms...`);
+      if (__DEV__) {
+        console.warn(`Bible API rate limited (429). Retrying in ${waitTime}ms...`);
+      }
       await delay(waitTime);
       return fetchChapter(book, chapter, translation, retries - 1);
     }
 
     if (response.status === 404) {
-      console.error(`Bible API 404: Book "${book}" or Chapter ${chapter} not found.`);
+      if (__DEV__) {
+        console.error(`Bible API 404: Book "${book}" or Chapter ${chapter} not found.`);
+      }
       return null;
     }
 
     if (!response.ok) {
-      console.error('Bible API error:', response.status);
+      if (__DEV__) {
+        console.error('Bible API error:', response.status);
+      }
       return null;
     }
 
     const data: APIResponse = await response.json();
     
     if (data.error) {
-      console.error('Bible API error message:', data.error);
+      if (__DEV__) {
+        console.error('Bible API error message:', data.error);
+      }
       return null;
     }
 
     if (!data.verses || data.verses.length === 0) {
-      console.error('Bible API error: No verses returned');
+      if (__DEV__) {
+        console.error('Bible API error: No verses returned');
+      }
       return null;
     }
 
@@ -91,10 +103,44 @@ export async function fetchChapter(
       translation: data.translation_id as BibleTranslation,
     };
   } catch (err) {
-    console.error('Failed to fetch Bible chapter:', err);
+    if (__DEV__) {
+      console.error('Failed to fetch Bible chapter:', err);
+    }
     if (retries > 0) {
       await delay(1000);
       return fetchChapter(book, chapter, translation, retries - 1);
+    }
+    return null;
+  }
+}
+
+/**
+ * Fetches the full text of a scripture reference (e.g., "John 3:16" or "Psalm 23:1-3").
+ */
+export async function fetchVerseText(
+  reference: string,
+  translation: BibleTranslation = 'kjv'
+): Promise<string | null> {
+  try {
+    const supportedTranslations = ['kjv', 'bbe', 'web', 'webbe', 'oeb-cw', 'oeb-us', 'almeida', 'rvr09'];
+    const apiTranslation = supportedTranslations.includes(translation) ? translation : 'kjv';
+
+    const url = `${API_BASE}/${encodeURIComponent(reference)}?translation=${apiTranslation}`;
+
+    if (__DEV__) {
+      console.log(`Fetching Verse: ${url}`);
+    }
+    const response = await fetch(url);
+
+    if (!response.ok) return null;
+
+    const data: APIResponse = await response.json();
+    if (data.error || !data.verses || data.verses.length === 0) return null;
+
+    return data.verses.map(v => v.text.trim()).join(' ');
+  } catch (err) {
+    if (__DEV__) {
+      console.error('Failed to fetch verse text:', err);
     }
     return null;
   }

@@ -34,7 +34,9 @@ export const readOfflineCache = async <T>(key: string): Promise<OfflineCacheEntr
 
     return parsed;
   } catch (error) {
-    console.error(`Failed to read offline cache for ${key}:`, error);
+    if (__DEV__) {
+      console.error(`Failed to read offline cache for ${key}:`, error);
+    }
     return null;
   }
 };
@@ -54,7 +56,9 @@ export const writeOfflineCache = async <T>(
 
     await AsyncStorage.setItem(getCacheKey(key), JSON.stringify(payload));
   } catch (error) {
-    console.error(`Failed to write offline cache for ${key}:`, error);
+    if (__DEV__) {
+      console.error(`Failed to write offline cache for ${key}:`, error);
+    }
   }
 };
 

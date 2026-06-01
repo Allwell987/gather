@@ -40,9 +40,11 @@ export const registerForPushNotificationsAsync = async (): Promise<string | null
     const projectId = getConfiguredProjectId();
 
     if (!projectId) {
-      console.warn(
-        'Skipping Expo push token registration because no valid EAS project ID is configured.'
-      );
+      if (__DEV__) {
+        console.warn(
+          'Skipping Expo push token registration because no valid EAS project ID is configured.'
+        );
+      }
       return null;
     }
 
@@ -55,7 +57,9 @@ export const registerForPushNotificationsAsync = async (): Promise<string | null
     }
 
     if (finalStatus !== 'granted') {
-      console.log('Failed to get push token for push notification!');
+      if (__DEV__) {
+        console.log('Failed to get push token for push notification!');
+      }
       return null;
     }
 
@@ -87,9 +91,13 @@ export const registerForPushNotificationsAsync = async (): Promise<string | null
   } catch (error) {
     // Check if it's a network error to provide a more helpful message
     if (error instanceof Error && error.message.includes('Network request failed')) {
-      console.warn('Push registration failed: Network unreachable. Will retry on next app start.');
+      if (__DEV__) {
+        console.warn('Push registration failed: Network unreachable. Will retry on next app start.');
+      }
     } else {
-      console.error('Error registering for push notifications:', error);
+      if (__DEV__) {
+        console.error('Error registering for push notifications:', error);
+      }
     }
     return null;
   }
@@ -104,22 +112,30 @@ export const savePushToken = async (userId: string, token: string) => {
       .eq('id', userId);
 
     if (error) {
-      console.error('Error saving push token:', error);
+      if (__DEV__) {
+        console.error('Error saving push token:', error);
+      }
     } else {
-      console.log('Push token saved successfully');
+      if (__DEV__) {
+        console.log('Push token saved successfully');
+      }
     }
   } catch (error) {
-    console.error('Error saving push token:', error);
+    if (__DEV__) {
+      console.error('Error saving push token:', error);
+    }
   }
 };
 
 // Broadcast fan-out should happen from a trusted backend so clients never enumerate push tokens.
 export const sendNotificationToAll = async (title: string, body: string, data?: any) => {
-  console.warn(BROADCAST_NOTIFICATIONS_ERROR, {
-    title,
-    body,
-    hasData: Boolean(data),
-  });
+  if (__DEV__) {
+    console.warn(BROADCAST_NOTIFICATIONS_ERROR, {
+      title,
+      body,
+      hasData: Boolean(data),
+    });
+  }
   return { queued: false, error: BROADCAST_NOTIFICATIONS_ERROR };
 };
 
@@ -142,7 +158,9 @@ export const scheduleNotification = async (
     });
     return identifier;
   } catch (error) {
-    console.error('Error scheduling notification:', error);
+    if (__DEV__) {
+      console.error('Error scheduling notification:', error);
+    }
     return null;
   }
 };
@@ -162,9 +180,9 @@ export const scheduleDailyVerseNotification = async (
     ? parsedMinute
     : 0;
   const trigger: Notifications.DailyTriggerInput = {
+    type: Notifications.SchedulableTriggerInputTypes.DAILY,
     hour,
     minute,
-    repeats: true,
   };
 
   return scheduleNotification(
@@ -187,6 +205,8 @@ export const cancelDailyVerseNotifications = async () => {
       await Notifications.cancelScheduledNotificationAsync(notification.identifier);
     }
   } catch (error) {
-    console.error('Error canceling daily verse notifications:', error);
+    if (__DEV__) {
+      console.error('Error canceling daily verse notifications:', error);
+    }
   }
 };

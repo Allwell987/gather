@@ -164,8 +164,11 @@ export const usePrayers = () => {
       setShowingCachedData(true);
       setOfflineTimestamp(cached.updatedAt);
     };
-    void restoreCachedPrayers();
-    void loadPrayers();
+
+    const timeout = setTimeout(() => {
+      void restoreCachedPrayers();
+      void loadPrayers();
+    }, 0);
 
     const subscription = supabase
       .channel('public:prayer_requests')
@@ -176,6 +179,7 @@ export const usePrayers = () => {
 
     return () => {
       isActive = false;
+      clearTimeout(timeout);
       supabase.removeChannel(subscription);
     };
   }, [loadPrayers]);

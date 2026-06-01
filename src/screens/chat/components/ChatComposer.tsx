@@ -72,7 +72,7 @@ export const ChatComposer = ({
         <View style={styles.pendingAttachmentBar}>
           <View style={[styles.pendingAttachmentChip, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Image source={{ uri: pendingAttachment.uri }} style={styles.pendingAttachmentPreview} />
-            <Text style={styles.pendingAttachmentText} numberOfLines={1}>{pendingAttachment.sourceLabel}</Text>
+            <Text style={[styles.pendingAttachmentText, { color: colors.text }]} numberOfLines={1}>{pendingAttachment.sourceLabel}</Text>
             <TouchableOpacity onPress={onRemoveAttachment}>
               <Ionicons name="close-circle" size={18} color="#667781" />
             </TouchableOpacity>
@@ -99,7 +99,7 @@ export const ChatComposer = ({
             <Ionicons name="happy-outline" size={24} color="#85959f" />
           </TouchableOpacity>
           <TextInput
-            style={styles.textInput}
+            style={[styles.textInput, { color: colors.text }]}
             value={inputText}
             onChangeText={setInputText}
             placeholder="Message"
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   pendingAttachmentPreview: { width: 36, height: 36, borderRadius: 10 },
-  pendingAttachmentText: { flex: 1, fontSize: 12, color: '#111b21' },
+  pendingAttachmentText: { flex: 1, fontSize: 12 },
   replyPreviewBar: {
     marginHorizontal: 12,
     marginTop: 8,
@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
   },
   emojiBtn: { padding: 5 },
-  textInput: { flex: 1, fontSize: 16, color: '#111b21', paddingHorizontal: 8, paddingTop: 10, maxHeight: 100 },
+  textInput: { flex: 1, fontSize: 16, paddingHorizontal: 8, paddingTop: 10, maxHeight: 100 },
   attachBtn: { padding: 5 },
   cameraBtn: { padding: 5 },
   sendBtn: {

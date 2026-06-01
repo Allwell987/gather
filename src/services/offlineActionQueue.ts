@@ -95,7 +95,9 @@ const readOfflineActionQueue = async (): Promise<OfflineAction[]> => {
 
     return JSON.parse(rawValue) as OfflineAction[];
   } catch (error) {
-    console.error('Failed to read offline action queue:', error);
+    if (__DEV__) {
+      console.error('Failed to read offline action queue:', error);
+    }
     return [];
   }
 };
@@ -107,7 +109,9 @@ const writeOfflineActionQueue = async (actions: OfflineAction[]) => {
     try {
       await AsyncStorage.setItem(OFFLINE_ACTION_QUEUE_KEY, JSON.stringify(actions));
     } catch (error) {
-      console.error('Failed to write offline action queue:', error);
+      if (__DEV__) {
+        console.error('Failed to write offline action queue:', error);
+      }
     }
   })();
   writeLock = resolveLock;
@@ -118,7 +122,9 @@ const readLastOfflineSyncAt = async (userId: string) => {
   try {
     return await AsyncStorage.getItem(getLastSyncKey(userId));
   } catch (error) {
-    console.error('Failed to read offline sync timestamp:', error);
+    if (__DEV__) {
+      console.error('Failed to read offline sync timestamp:', error);
+    }
     return null;
   }
 };
@@ -127,7 +133,9 @@ const writeLastOfflineSyncAt = async (userId: string) => {
   try {
     await AsyncStorage.setItem(getLastSyncKey(userId), new Date().toISOString());
   } catch (error) {
-    console.error('Failed to write offline sync timestamp:', error);
+    if (__DEV__) {
+      console.error('Failed to write offline sync timestamp:', error);
+    }
   }
 };
 
@@ -353,7 +361,9 @@ export const flushOfflineActions = async (
         await performOfflineAction(action);
         processedCount += 1;
       } catch (error) {
-        console.error(`Failed to flush offline action ${action.id}:`, error);
+        if (__DEV__) {
+          console.error(`Failed to flush offline action ${action.id}:`, error);
+        }
         remaining.push(action);
 
         if (isNetworkErrorMessage(getErrorMessage(error))) {

@@ -84,7 +84,7 @@ export const useCreateGroup = () => {
       });
       setGroupPictureUrl(imageUrl);
     } catch (error) {
-      showToast({ title: 'Upload failed', message: getChatImageUploadErrorMessage(error), variant: 'error' });
+      showToast({ title: 'Upload failed', message: getChatImageUploadErrorMessage(error instanceof Error ? error.message : String(error)), variant: 'error' });
     } finally {
       setIsUploadingImage(false);
     }
@@ -99,9 +99,9 @@ export const useCreateGroup = () => {
       await createChatGroup({
         id: groupId,
         name: trimmedGroupName,
-        about: groupAbout.trim() || null,
+        description: groupAbout.trim() || null,
         emoji: groupEmoji,
-        pictureUrl: groupPictureUrl,
+        displayPictureUrl: groupPictureUrl,
         isPrivate,
         createdBy: user.id,
       });

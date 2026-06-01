@@ -9,14 +9,8 @@ import { useNavigation } from '@react-navigation/native';
 import HeaderBar from '../../components/common/HeaderBar';
 import { useThemeStore } from '../../store/themeStore';
 import { useToastStore } from '../../store/toastStore';
-import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
-import OpenAI from 'openai';
-
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.EXPO_PUBLIC_OPENAI_API_KEY ?? '',
-  dangerouslyAllowBrowser: true, // Required for client-side usage
-});
+import { Typography, Spacing, Radius } from '../../constants/theme';
+import { generatePrayer as generatePrayerRequest } from '../../services/prayer';
 
 export default function PrayerGeneratorScreen() {
   const navigation = useNavigation();
@@ -26,40 +20,22 @@ export default function PrayerGeneratorScreen() {
   const [generatedPrayer, setGeneratedPrayer] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  const generatePrayer = async () => {
+  const handleGeneratePrayer = async () => {
     if (!input.trim()) {
       showToast({ title: 'Input required', message: 'Please share what you are feeling.', variant: 'warning' });
       return;
     }
 
-    if (!process.env.EXPO_PUBLIC_OPENAI_API_KEY) {
-      showToast({ title: 'Missing API Key', message: 'OpenAI API key is not configured.', variant: 'error' });
-      return;
-    }
-
     setIsLoading(true);
     try {
-      const completion = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a compassionate Christian prayer assistant. Your goal is to write a warm, biblically-grounded, and personalized prayer based on the user\'s current feelings or situation. Keep it concise, encouraging, and end with "In Jesus\' name, Amen."'
-          },
-          {
-            role: 'user',
-            content: `Write a prayer for someone who says: "${input}"`
-          }
-        ],
-        max_tokens: 300,
-        temperature: 0.7,
-      });
-
-      const response = completion.choices[0]?.message?.content || 'Could not generate prayer. Please try again.';
-      setGeneratedPrayer(response);
-    } catch (error) {
-      console.error('Error generating prayer:', error);
-      showToast({ title: 'Error', message: 'Failed to generate prayer.', variant: 'error' });
+      const prayer = await generatePrayerRequest(input);
+      setGeneratedPrayer(prayer || 'Could not generate prayer. Please try again.');
+    } catch (error: any) {
+      if (__DEV__) {
+        console.error('Error generating prayer:', error);
+      }
+      const message = error.message || 'Failed to generate prayer.';
+      showToast({ title: 'Error', message, variant: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -67,11 +43,6 @@ export default function PrayerGeneratorScreen() {
 
   const handleShare = () => {
     Share.share({ message: generatedPrayer });
-  };
-
-  const handleCopy = () => {
-    // Clipboard handled by expo-clipboard if needed, for now just share
-    handleShare();
   };
 
   return (
@@ -102,7 +73,7 @@ export default function PrayerGeneratorScreen() {
             />
             <TouchableOpacity
               style={[styles.generateBtn, { backgroundColor: theme.accent }]}
-              onPress={generatePrayer}
+              onPress={handleGeneratePrayer}
               disabled={isLoading}
             >
               {isLoading ? (

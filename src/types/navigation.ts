@@ -14,7 +14,7 @@ export type AuthStackParamList = {
   Login: undefined;
   Register: undefined;
   EmailVerification: { email?: string } | undefined;
-  ThemePicker: { fromOnboarding: boolean };
+  ThemePicker: { fromOnboarding: boolean; activeTab?: 'theme' | 'font' | 'appearance' };
 };
 
 export type MainTabParamList = {
@@ -43,7 +43,7 @@ export type CommunityStackParamList = {
 
 export type ProfileStackParamList = {
   Profile: undefined;
-  ThemePicker: { fromOnboarding: boolean };
+  ThemePicker: { fromOnboarding: boolean; activeTab?: 'theme' | 'font' | 'appearance' };
 };
 
 export type RootStackNavigationProp = StackNavigationProp<RootStackParamList>;

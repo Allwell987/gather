@@ -49,7 +49,7 @@ const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {
 };
 
 export const getDeviceLocale = (): AppLocale => {
-  const rawLocale = Localization.locale?.split(/[-_]/)[0]?.toLowerCase() ?? 'en';
+  const rawLocale = Localization.getLocales()?.[0]?.languageCode ?? 'en';
   return rawLocale === 'fr' ? 'fr' : 'en';
 };
 

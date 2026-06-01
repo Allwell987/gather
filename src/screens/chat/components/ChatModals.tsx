@@ -6,6 +6,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { BaseColors, Typography } from '../../../constants/theme';
 import { GroupMember } from '../hooks/useGroupMembers';
+import { useThemeStore } from '../../../store/themeStore';
 
 interface EmojiPickerProps {
   visible: boolean;
@@ -14,23 +15,26 @@ interface EmojiPickerProps {
   options: string[];
 }
 
-export const EmojiPicker = ({ visible, onClose, onSelect, options }: EmojiPickerProps) => (
-  <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-    <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={onClose}>
-      <TouchableOpacity activeOpacity={1} style={styles.bottomSheet}>
-        <View style={styles.sheetHandle} />
-        <Text style={styles.sheetTitle}>Choose an emoji</Text>
-        <View style={styles.emojiGrid}>
-          {options.map((emoji) => (
-            <TouchableOpacity key={emoji} style={styles.emojiItem} onPress={() => onSelect(emoji)}>
-              <Text style={styles.emojiText}>{emoji}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+export const EmojiPicker = ({ visible, onClose, onSelect, options }: EmojiPickerProps) => {
+  const { colors } = useThemeStore();
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={onClose}>
+        <TouchableOpacity activeOpacity={1} style={[styles.bottomSheet, { backgroundColor: colors.surface }]}>
+          <View style={[styles.sheetHandle, { backgroundColor: colors.border }]} />
+          <Text style={[styles.sheetTitle, { color: colors.text }]}>Choose an emoji</Text>
+          <View style={styles.emojiGrid}>
+            {options.map((emoji) => (
+              <TouchableOpacity key={emoji} style={[styles.emojiItem, { backgroundColor: colors.card }]} onPress={() => onSelect(emoji)}>
+                <Text style={styles.emojiText}>{emoji}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </TouchableOpacity>
       </TouchableOpacity>
-    </TouchableOpacity>
-  </Modal>
-);
+    </Modal>
+  );
+};
 
 interface MessageActionTarget {
   id: string;
@@ -61,53 +65,60 @@ export const MessageActionSheet = ({
   onEdit,
   onDelete,
   reactionOptions
-}: MessageActionSheetProps) => (
-  <Modal visible={Boolean(target)} transparent animationType="fade" onRequestClose={onClose}>
-    <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={onClose}>
-      <TouchableOpacity activeOpacity={1} style={styles.messageActionSheet}>
-        <View style={styles.sheetHandle} />
-        <Text style={styles.sheetTitle}>Message actions</Text>
-        <Text style={styles.sheetSubtitle} numberOfLines={2}>{target?.preview}</Text>
+}: MessageActionSheetProps) => {
+  const { colors } = useThemeStore();
+  return (
+    <Modal visible={Boolean(target)} transparent animationType="fade" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.modalBackdrop} activeOpacity={1} onPress={onClose}>
+        <TouchableOpacity activeOpacity={1} style={[styles.messageActionSheet, { backgroundColor: colors.surface }]}>
+          <View style={[styles.sheetHandle, { backgroundColor: colors.border }]} />
+          <Text style={[styles.sheetTitle, { color: colors.text }]}>Message actions</Text>
+          <Text style={[styles.sheetSubtitle, { color: colors.textSecondary }]} numberOfLines={2}>{target?.preview}</Text>
 
-        <View style={styles.quickReactionRow}>
-          {reactionOptions.map((reaction) => (
-            <TouchableOpacity
-              key={reaction}
-              style={[styles.quickReactionChip, target?.currentReaction === reaction && styles.quickReactionChipActive]}
-              onPress={() => onReaction(reaction)}
-            >
-              <Text style={styles.quickReactionEmoji}>{reaction}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+          <View style={styles.quickReactionRow}>
+            {reactionOptions.map((reaction) => (
+              <TouchableOpacity
+                key={reaction}
+                style={[
+                  styles.quickReactionChip,
+                  { backgroundColor: colors.card },
+                  target?.currentReaction === reaction && styles.quickReactionChipActive
+                ]}
+                onPress={() => onReaction(reaction)}
+              >
+                <Text style={styles.quickReactionEmoji}>{reaction}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
 
-        <TouchableOpacity style={styles.messageActionRow} onPress={onReply}>
-          <Ionicons name="return-up-back-outline" size={18} color="#111b21" />
-          <Text style={styles.messageActionText}>Reply</Text>
+          <TouchableOpacity style={styles.messageActionRow} onPress={onReply}>
+            <Ionicons name="return-up-back-outline" size={18} color={colors.text} />
+            <Text style={[styles.messageActionText, { color: colors.text }]}>Reply</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.messageActionRow} onPress={onCopy}>
+            <Ionicons name="copy-outline" size={18} color={colors.text} />
+            <Text style={[styles.messageActionText, { color: colors.text }]}>Copy text</Text>
+          </TouchableOpacity>
+
+          {target?.isMine && (
+            <>
+              <TouchableOpacity style={styles.messageActionRow} onPress={onEdit}>
+                <Ionicons name="create-outline" size={18} color={colors.text} />
+                <Text style={[styles.messageActionText, { color: colors.text }]}>Edit message</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity style={styles.messageActionRow} onPress={onDelete}>
+                <Ionicons name="trash-outline" size={18} color={colors.error} />
+                <Text style={[styles.messageActionText, { color: colors.error }]}>Delete message</Text>
+              </TouchableOpacity>
+            </>
+          )}
         </TouchableOpacity>
-
-        <TouchableOpacity style={styles.messageActionRow} onPress={onCopy}>
-          <Ionicons name="copy-outline" size={18} color="#111b21" />
-          <Text style={styles.messageActionText}>Copy text</Text>
-        </TouchableOpacity>
-
-        {target?.isMine && (
-          <>
-            <TouchableOpacity style={styles.messageActionRow} onPress={onEdit}>
-              <Ionicons name="create-outline" size={18} color="#111b21" />
-              <Text style={styles.messageActionText}>Edit message</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.messageActionRow} onPress={onDelete}>
-              <Ionicons name="trash-outline" size={18} color="#b91c1c" />
-              <Text style={[styles.messageActionText, { color: '#b91c1c' }]}>Delete message</Text>
-            </TouchableOpacity>
-          </>
-        )}
       </TouchableOpacity>
-    </TouchableOpacity>
-  </Modal>
-);
+    </Modal>
+  );
+};
 
 const styles = StyleSheet.create({
   modalBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },
@@ -135,8 +146,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(17,27,33,0.15)',
     marginBottom: 14,
   },
-  sheetTitle: { fontFamily: Typography.sansSemiBold, fontSize: 16, color: '#111b21', marginBottom: 6 },
-  sheetSubtitle: { fontFamily: Typography.sans, fontSize: 12, color: '#667781', marginBottom: 16 },
+  sheetTitle: { fontFamily: Typography.sansSemiBold, fontSize: 16, marginBottom: 6 },
+  sheetSubtitle: { fontFamily: Typography.sans, fontSize: 12, marginBottom: 16 },
   emojiGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   emojiItem: {
     width: 52,
@@ -177,6 +188,5 @@ const styles = StyleSheet.create({
   messageActionText: {
     fontFamily: Typography.sansMedium,
     fontSize: 15,
-    color: '#111b21',
   },
 });

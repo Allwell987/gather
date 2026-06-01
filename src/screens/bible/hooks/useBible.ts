@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../../services/supabase';
 import { useAuthStore } from '../../../store/authStore';
-import { fetchChapter, fetchFullBook } from '../../../services/bibleApi';
+import { fetchChapter, fetchFullBook, getChapterCount } from '../../../services/bibleApi';
 import {
   getCachedChapter,
   cacheChapter,
@@ -51,6 +51,24 @@ export function useBible(book: string, chapter: number, translation: BibleTransl
     queryKey: ['downloaded-versions'],
     queryFn: getDownloadedTranslations,
   });
+
+  useEffect(() => {
+    const prefetchNextChapter = async () => {
+      const nextChapter = chapter + 1;
+      const totalChapters = typeof getChapterCount === 'function'
+        ? getChapterCount(book as any)
+        : 0;
+
+      if (nextChapter <= totalChapters) {
+        await queryClient.prefetchQuery({
+          queryKey: ['bible-chapter', book, nextChapter, translation],
+          queryFn: () => fetchChapter(book, nextChapter, translation),
+        });
+      }
+    };
+
+    void prefetchNextChapter();
+  }, [book, chapter, translation, queryClient]);
 
   const downloadBook = async () => {
     const { isConnected } = await getNetworkState();

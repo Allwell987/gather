@@ -1,5 +1,5 @@
 // src/screens/events/LiveStreamScreen.tsx
-import React, { useRef } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -13,7 +13,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { WebView } from 'react-native-webview';
 import HeaderBar from '../../components/common/HeaderBar';
-import { Video, ResizeMode, Audio } from 'expo-av';
+import { setAudioModeAsync } from 'expo-audio';
+import { VideoView, useVideoPlayer } from 'expo-video';
 import { useThemeStore } from '../../store/themeStore';
 import { supabase } from '../../services/supabase';
 import { BaseColors, Typography, Spacing, Radius, CHURCH } from '../../constants/theme';
@@ -66,18 +67,17 @@ const getEmbedUrl = (url?: string) => {
 export default function LiveStreamScreen() {
   const { theme } = useThemeStore();
   const route = useRoute<LiveStreamRouteProp>();
-  const videoRef = useRef<Video>(null);
 
   const passedVideoId = route.params?.videoId;
 
   // Ensure audio plays even if the phone is on silent mode (iOS)
   React.useEffect(() => {
-    Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-      staysActiveInBackground: true,
-      playsInSilentModeIOS: true,
-      shouldDuckAndroid: true,
-      playThroughEarpieceAndroid: false,
+    setAudioModeAsync({
+      allowsRecording: false,
+      shouldPlayInBackground: true,
+      playsInSilentMode: true,
+      interruptionMode: 'duckOthers',
+      shouldRouteThroughEarpiece: false,
     });
   }, []);
 
@@ -126,14 +126,23 @@ export default function LiveStreamScreen() {
 
   const handleOpenExternal = () => {
     if (activeLiveEvent?.live_url) {
-      Linking.openURL(activeLiveEvent.live_url).catch((err) =>
-        console.error('Failed to open external live URL:', err)
-      );
+      Linking.openURL(activeLiveEvent.live_url).catch((err) => {
+        if (__DEV__) {
+          console.error('Failed to open external live URL:', err);
+        }
+      });
     }
   };
 
   const url = activeLiveEvent?.live_url;
   const useNativePlayer = isDirectStream(url);
+  const directVideoSource = useNativePlayer && url ? { uri: url } : null;
+  const player = useVideoPlayer(directVideoSource, (videoPlayer) => {
+    videoPlayer.loop = false;
+    videoPlayer.staysActiveInBackground = true;
+    videoPlayer.audioMixingMode = 'duckOthers';
+    videoPlayer.play();
+  });
   const embedUrl = getEmbedUrl(url);
   const isYoutubeUrl = Boolean(url && (url.includes('youtube.com') || url.includes('youtu.be')));
 
@@ -162,14 +171,11 @@ export default function LiveStreamScreen() {
             <View style={styles.playerContainer}>
               {useNativePlayer ? (
                 /* Native HLS/Direct Player */
-                <Video
-                  ref={videoRef}
+                <VideoView
                   style={styles.nativeVideo}
-                  source={{ uri: url! }}
-                  useNativeControls
-                  resizeMode={ResizeMode.CONTAIN}
-                  isLooping={false}
-                  shouldPlay
+                  player={player}
+                  nativeControls
+                  contentFit="contain"
                 />
               ) : embedUrl ? (
                 /* Social Embed (YouTube/FB) */

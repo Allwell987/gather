@@ -3,15 +3,33 @@ import { useBible } from '../useBible';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 
-// Wrapper for React Query
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: false } },
+let queryClient: QueryClient;
+let wrapper: ({ children }: { children: React.ReactNode }) => JSX.Element;
+
+beforeEach(() => {
+  queryClient = new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: false,
+        cacheTime: 0,
+        refetchOnWindowFocus: false,
+      },
+    },
+  });
+
+  wrapper = ({ children }: { children: React.ReactNode }) => (
+    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+  );
 });
-const wrapper = ({ children }: { children: React.ReactNode }) => (
-  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-);
+
+afterEach(async () => {
+  await queryClient.cancelQueries();
+  queryClient.clear();
+  jest.clearAllMocks();
+});
 
 jest.mock('../../../../services/bibleApi', () => ({
+  __esModule: true,
   fetchChapter: jest.fn(() => Promise.resolve({
     book: 'John',
     chapter: 3,
@@ -19,6 +37,7 @@ jest.mock('../../../../services/bibleApi', () => ({
     translation: 'kjv'
   })),
   fetchFullBook: jest.fn(),
+  getChapterCount: jest.fn(() => 21),
 }));
 
 jest.mock('../../../../services/offlineBible', () => ({

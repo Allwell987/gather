@@ -4,11 +4,12 @@ import {
   View,
   ViewStyle,
 } from 'react-native';
-import { BaseColors, Spacing, Radius } from '../../constants/theme';
+import { useThemeStore } from '../../store/themeStore';
+import { Spacing, Radius } from '../../constants/theme';
 
 export interface CardProps {
   children: React.ReactNode;
-  variant?: 'elevated' | 'outlined' | 'filled';
+  variant?: 'elevated' | 'outlined' | 'filled' | 'glass';
   accentBorder?: boolean;
   accentColor?: string;
   style?: ViewStyle;
@@ -21,6 +22,8 @@ export default function Card({
   accentColor,
   style,
 }: CardProps) {
+  const { colors } = useThemeStore();
+
   let containerStyle: ViewStyle = {
     borderRadius: Radius.lg,
     padding: Spacing.lg,
@@ -31,34 +34,42 @@ export default function Card({
     case 'elevated':
       containerStyle = {
         ...containerStyle,
-        backgroundColor: '#fffdf9',
+        backgroundColor: colors.surface,
         borderWidth: 1,
-        borderColor: BaseColors.warm100,
+        borderColor: colors.border,
         // iOS shadow
-        shadowColor: BaseColors.black,
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.06,
-        shadowRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
         // Android elevation
-        elevation: 2,
+        elevation: 3,
       };
       break;
 
     case 'outlined':
       containerStyle = {
         ...containerStyle,
-        backgroundColor: BaseColors.white,
+        backgroundColor: 'transparent',
         borderWidth: 1,
-        borderColor: accentBorder && accentColor ? accentColor : BaseColors.gray200,
+        borderColor: accentBorder && accentColor ? accentColor : colors.border,
       };
       break;
 
     case 'filled':
       containerStyle = {
         ...containerStyle,
-        backgroundColor: BaseColors.warm50,
+        backgroundColor: colors.background === '#fcfaf7' ? '#f1f5f9' : '#1e293b',
+        borderWidth: 0,
+      };
+      break;
+
+    case 'glass':
+      containerStyle = {
+        ...containerStyle,
+        backgroundColor: colors.themeMode === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.7)',
         borderWidth: 1,
-        borderColor: BaseColors.warm100,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
       };
       break;
   }

@@ -1,44 +1,74 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Animated, Dimensions, StatusBar, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BaseColors, Typography, Spacing, Radius, CHURCH } from '../../constants/theme';
+import { useThemeStore } from '../../store/themeStore';
+import { BaseColors, Spacing, Radius, CHURCH } from '../../constants/theme';
 import type { AuthStackNavigationProp } from '../../types/navigation';
 
-const { height } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
+
+const GridBackground = () => (
+  <View style={StyleSheet.absoluteFill} pointerEvents="none">
+    <View style={styles.gridContainer}>
+      {[...Array(20)].map((_, i) => (
+        <View key={`v-${i}`} style={[styles.gridLine, { left: `${(i + 1) * 5}%`, width: 1, height: '100%' }]} />
+      ))}
+      {[...Array(40)].map((_, i) => (
+        <View key={`h-${i}`} style={[styles.gridLine, { top: `${(i + 1) * 2.5}%`, height: 1, width: '100%' }]} />
+      ))}
+    </View>
+  </View>
+);
 
 export default function LandingScreen() {
   const navigation = useNavigation<AuthStackNavigationProp>();
-  const fadeAnim = React.useRef(new Animated.Value(0)).current;
-  const slideAnim = React.useRef(new Animated.Value(20)).current;
+  const { colors, typography } = useThemeStore();
+  const [fadeAnim] = useState(() => new Animated.Value(0));
+  const [slideAnim] = useState(() => new Animated.Value(30));
+  const [glowAnim] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
-        duration: 1200,
+        duration: 1000,
         useNativeDriver: true,
       }),
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 1000,
+        duration: 800,
         useNativeDriver: true,
       }),
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(glowAnim, { toValue: 1, duration: 2000, useNativeDriver: true }),
+          Animated.timing(glowAnim, { toValue: 0, duration: 2000, useNativeDriver: true }),
+        ])
+      ).start(),
     ]).start();
-  }, [fadeAnim, slideAnim]);
+  }, [fadeAnim, slideAnim, glowAnim]);
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" />
       <LinearGradient
-        colors={['#1a140e', '#2d1e12', '#17120d']}
+        colors={['#0a0f1d', '#12192b', '#0a0f1d']}
         style={StyleSheet.absoluteFill}
       />
 
-      {/* Decorative Royal Accents */}
-      <View style={styles.topOrnament} />
-      <View style={styles.bottomOrnament} />
+      <GridBackground />
+
+      {/* Modernized Techy Ornaments */}
+      <Animated.View style={[styles.topOrnament, {
+        opacity: glowAnim.interpolate({ inputRange: [0, 1], outputRange: [0.1, 0.3] }),
+        transform: [{ scale: glowAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.1] }) }]
+      }]} />
+      <Animated.View style={[styles.bottomOrnament, {
+        opacity: glowAnim.interpolate({ inputRange: [0, 1], outputRange: [0.05, 0.2] }),
+        transform: [{ scale: glowAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.2] }) }]
+      }]} />
 
       <SafeAreaView style={styles.safe}>
         <ScrollView
@@ -53,6 +83,7 @@ export default function LandingScreen() {
             ]}
           >
             <View style={styles.logoWrapper}>
+              <View style={styles.logoGlow} />
               <Image
                 source={require('../../../assets/icon.png')}
                 style={styles.logo}
@@ -60,16 +91,16 @@ export default function LandingScreen() {
               />
             </View>
 
-            <Text style={styles.brandName} numberOfLines={1} adjustsFontSizeToFit>GATHER</Text>
+            <Text style={[styles.brandName, { fontFamily: typography.serif }]} numberOfLines={1} adjustsFontSizeToFit>GATHER</Text>
 
             <View style={styles.dividerContainer}>
-              <View style={styles.line} />
-              <View style={styles.diamond} />
-              <View style={styles.line} />
+              <View style={[styles.line, { backgroundColor: colors.accent }]} />
+              <View style={[styles.diamond, { backgroundColor: colors.accent }]} />
+              <View style={[styles.line, { backgroundColor: colors.accent }]} />
             </View>
 
-            <Text style={styles.churchTitle}>{CHURCH.name.toUpperCase()}</Text>
-            <Text style={styles.tagline}>A Kingdom Community</Text>
+            <Text style={[styles.churchTitle, { color: colors.accent, fontFamily: typography.sansSemiBold }]}>{CHURCH.name.toUpperCase()}</Text>
+            <Text style={[styles.tagline, { color: colors.textSecondary, fontFamily: typography.serifItalic }]}>A Digital Kingdom Community</Text>
           </Animated.View>
 
           <Animated.View
@@ -81,13 +112,15 @@ export default function LandingScreen() {
             <TouchableOpacity
               style={styles.primaryBtn}
               onPress={() => navigation.navigate('Onboarding')}
-              activeOpacity={0.9}
+              activeOpacity={0.8}
             >
               <LinearGradient
-                colors={[BaseColors.gold, BaseColors.goldDeep]}
+                colors={[colors.accent, colors.accentDeep || colors.accent]}
                 style={styles.btnGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
               >
-                <Text style={styles.btnText}>ENTER GATHER</Text>
+                <Text style={[styles.btnText, { fontFamily: typography.sansSemiBold }]}>INITIALIZE EXPERIENCE</Text>
               </LinearGradient>
             </TouchableOpacity>
 
@@ -95,7 +128,9 @@ export default function LandingScreen() {
               style={styles.loginLink}
               onPress={() => navigation.navigate('Login')}
             >
-              <Text style={styles.loginText}>Already a member? <Text style={styles.loginHighlight}>Sign In</Text></Text>
+              <Text style={[styles.loginText, { color: colors.textSecondary, fontFamily: typography.sans }]}>
+                Already a member? <Text style={[styles.loginHighlight, { color: colors.accent, fontFamily: typography.sansSemiBold }]}>Access Terminal</Text>
+              </Text>
             </TouchableOpacity>
           </Animated.View>
         </ScrollView>
@@ -105,7 +140,9 @@ export default function LandingScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#17120d' },
+  container: { flex: 1, backgroundColor: '#0a0f1d' },
+  gridContainer: { flex: 1, opacity: 0.05 },
+  gridLine: { position: 'absolute', backgroundColor: BaseColors.white },
   safe: { flex: 1 },
   scrollContent: {
     flexGrow: 1,
@@ -114,108 +151,105 @@ const styles = StyleSheet.create({
   },
   content: { alignItems: 'center', marginTop: height * 0.05, paddingHorizontal: Spacing.xl },
   logoWrapper: {
+    width: 140,
+    height: 140,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing['2xl'],
+  },
+  logoGlow: {
+    position: 'absolute',
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(201, 146, 42, 0.3)',
-    marginBottom: Spacing['2xl'],
-    shadowColor: BaseColors.gold,
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.2,
-    shadowRadius: 20,
+    backgroundColor: 'rgba(6, 182, 212, 0.2)',
+    shadowColor: '#06b6d4',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 30,
   },
-  logo: { width: 80, height: 80 },
+  logo: { width: 90, height: 90 },
   brandName: {
-    fontFamily: Typography.serif,
-    fontSize: 42,
+    fontSize: 48,
     color: BaseColors.white,
-    letterSpacing: 8,
+    letterSpacing: 10,
     fontWeight: '700',
   },
   dividerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: Spacing.xl,
-    width: '60%',
+    width: '70%',
   },
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: BaseColors.gold,
-    opacity: 0.4,
+    opacity: 0.3,
   },
   diamond: {
-    width: 6,
-    height: 6,
-    backgroundColor: BaseColors.gold,
+    width: 8,
+    height: 8,
     transform: [{ rotate: '45deg' }],
     marginHorizontal: Spacing.md,
+    shadowColor: '#06b6d4',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.8,
+    shadowRadius: 5,
   },
   churchTitle: {
-    fontFamily: Typography.sansSemiBold,
-    fontSize: 14,
-    color: BaseColors.gold,
-    letterSpacing: 3,
+    fontSize: 12,
+    letterSpacing: 4,
     textAlign: 'center',
     paddingHorizontal: Spacing.xl,
+    opacity: 0.9,
   },
   tagline: {
-    fontFamily: Typography.serifItalic,
-    fontSize: 18,
-    color: BaseColors.brown300,
+    fontSize: 16,
     marginTop: Spacing.md,
-    opacity: 0.8,
+    opacity: 0.7,
   },
   footer: { paddingHorizontal: Spacing['3xl'], gap: Spacing.xl },
   primaryBtn: {
-    borderRadius: Radius.md,
+    borderRadius: Radius.sm,
     overflow: 'hidden',
-    shadowColor: BaseColors.gold,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
+    shadowColor: '#06b6d4',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
     elevation: 8,
   },
   btnGradient: {
-    paddingVertical: 20,
+    paddingVertical: 18,
     alignItems: 'center',
   },
   btnText: {
-    fontFamily: Typography.sansSemiBold,
-    fontSize: 16,
+    fontSize: 14,
     color: BaseColors.white,
-    letterSpacing: 3,
+    letterSpacing: 2,
   },
   loginLink: { alignItems: 'center' },
   loginText: {
-    fontFamily: Typography.sans,
-    fontSize: 14,
-    color: BaseColors.brown300,
+    fontSize: 13,
   },
   loginHighlight: {
-    color: BaseColors.gold,
-    fontFamily: Typography.sansSemiBold,
+    textDecorationLine: 'underline',
   },
   topOrnament: {
     position: 'absolute',
-    top: -50,
+    top: -100,
     left: -50,
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(201, 146, 42, 0.05)',
-  },
-  bottomOrnament: {
-    position: 'absolute',
-    bottom: -100,
-    right: -100,
     width: 300,
     height: 300,
     borderRadius: 150,
-    backgroundColor: 'rgba(26, 86, 219, 0.03)',
+    backgroundColor: 'rgba(6, 182, 212, 0.15)',
+  },
+  bottomOrnament: {
+    position: 'absolute',
+    bottom: -150,
+    right: -100,
+    width: 400,
+    height: 400,
+    borderRadius: 200,
+    backgroundColor: 'rgba(201, 146, 42, 0.1)',
   },
 });

@@ -8,7 +8,9 @@ export type AccentKey =
   | 'crimson'
   | 'orange'
   | 'rose'
-  | 'teal';
+  | 'teal'
+  | 'vibrant'
+  | 'neon';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
 
@@ -102,6 +104,28 @@ export const ACCENT_THEMES: AccentTheme[] = [
     accentSubtle: 'rgba(13,148,136,0.08)',
     emoji: '🩵',
   },
+  {
+    key: 'vibrant',
+    name: 'Vibrant Gold',
+    accent: '#f59e0b',
+    accentDeep: '#d97706',
+    accentMid: '#fbbf24',
+    accentLight: '#fffbeb',
+    accentBorder: '#fcd34d',
+    accentSubtle: 'rgba(245,158,11,0.15)',
+    emoji: '✨',
+  },
+  {
+    key: 'neon',
+    name: 'Neon Cyan',
+    accent: '#06b6d4',
+    accentDeep: '#0891b2',
+    accentMid: '#22d3ee',
+    accentLight: '#ecfeff',
+    accentBorder: '#a5f3fc',
+    accentSubtle: 'rgba(6,182,212,0.12)',
+    emoji: '🌐',
+  },
 ];
 
 export const BaseColors = {
@@ -147,28 +171,34 @@ export const BaseColors = {
   cream: '#fdfaf5',
   warm50: '#fef9ee',
   warm100: '#fdefd0',
+  // Regal Tech additions
+  navy900: '#0a0f1d',
+  navy800: '#12192b',
+  navy700: '#1a243d',
+  cyan500: '#06b6d4',
+  cyan400: '#22d3ee',
 };
 
 export const SemanticColors = {
   light: {
-    background: '#f8f4ee',
+    background: '#fcfaf7',
     surface: '#ffffff',
-    text: '#1a140e',
-    textSecondary: '#5a4632',
-    textMuted: '#7c6a56',
-    border: '#dccab2',
+    text: '#0f172a',
+    textSecondary: '#475569',
+    textMuted: '#94a3b8',
+    border: '#e2e8f0',
     card: '#ffffff',
-    error: '#dc2626',
-    success: '#3d5c42',
+    error: '#ef4444',
+    success: '#10b981',
   },
   dark: {
-    background: '#17120d',
-    surface: '#231b14',
-    text: '#f7f2ea',
-    textSecondary: '#d8c3a8',
-    textMuted: '#a88f75',
-    border: '#3a2e22',
-    card: '#241c15',
+    background: '#0a0f1d',
+    surface: '#12192b',
+    text: '#f8fafc',
+    textSecondary: '#cbd5e1',
+    textMuted: '#64748b',
+    border: '#1e293b',
+    card: '#12192b',
     error: '#f87171',
     success: '#34d399',
   },
@@ -187,7 +217,7 @@ const typographySizes = {
   '5xl': 40,
 } as const;
 
-export type FontStyle = 'modern' | 'classic' | 'elegant';
+export type FontStyle = 'modern' | 'classic' | 'elegant' | 'tech';
 
 export interface FontConfig {
   key: FontStyle;
@@ -201,6 +231,16 @@ export interface FontConfig {
 }
 
 export const FONT_STYLES: FontConfig[] = [
+  {
+    key: 'tech',
+    name: 'Tech',
+    serif: 'PlayfairDisplay_700Bold',
+    serifItalic: 'PlayfairDisplay_400Regular_Italic',
+    sans: 'PlusJakartaSans_400Regular',
+    sansMedium: 'PlusJakartaSans_500Medium',
+    sansSemiBold: 'PlusJakartaSans_600SemiBold',
+    preview: 'Geometric & Precise',
+  },
   {
     key: 'modern',
     name: 'Modern',
@@ -233,7 +273,7 @@ export const FONT_STYLES: FontConfig[] = [
   },
 ];
 
-export const DEFAULT_FONT_STYLE = FONT_STYLES[2];
+export const DEFAULT_FONT_STYLE = FONT_STYLES[0];
 
 export const Typography = {
   serif: DEFAULT_FONT_STYLE.serif,
@@ -295,9 +335,9 @@ export const Spacing = {
 
 export const Radius = {
   sm: 6,
-  md: 10,
-  lg: 14,
-  xl: 20,
+  md: 8,
+  lg: 12,
+  xl: 16,
   full: 999,
 };
 

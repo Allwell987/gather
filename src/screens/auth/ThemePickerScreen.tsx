@@ -16,14 +16,20 @@ import { supabase } from '../../services/supabase';
 import { useThemeStore } from '../../store/themeStore';
 import {
   ACCENT_THEMES, AccentKey, BaseColors,
-  Spacing, Radius, FONT_STYLES, FontStyle, Typography,
+  Spacing, Radius, FONT_STYLES, FontStyle, Typography, ThemeMode,
 } from '../../constants/theme';
 import type { AuthStackNavigationProp, ThemePickerRouteProp } from '../../types/navigation';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = (width - Spacing['2xl'] * 2 - Spacing.lg) / 2;
 
-type Tab = 'theme' | 'font';
+type Tab = 'theme' | 'font' | 'appearance';
+
+const THEME_MODES: { key: ThemeMode; label: string; description: string }[] = [
+  { key: 'system', label: 'System default', description: 'Follow your device appearance settings.' },
+  { key: 'light', label: 'Light mode', description: 'Use a bright, high-contrast color palette.' },
+  { key: 'dark', label: 'Dark mode', description: 'Use a low-light palette that is easy on the eyes.' },
+];
 
 export default function ThemePickerScreen() {
   const navigation = useNavigation<AuthStackNavigationProp>();
@@ -31,8 +37,8 @@ export default function ThemePickerScreen() {
   const fromOnboarding = route.params?.fromOnboarding ?? false;
   const isOnboardingFlow = fromOnboarding || !navigation.canGoBack();
   const { user, setUser, setSession, setIsOnboarded } = useAuthStore();
-  const { theme: currentTheme, setAccent, fontStyle, fontConfig, setFontStyle } = useThemeStore();
-  const [activeTab, setActiveTab] = useState<Tab>('theme');
+  const { theme: currentTheme, setAccent, fontStyle, fontConfig, setFontStyle, themeMode, setThemeMode } = useThemeStore();
+  const [activeTab, setActiveTab] = useState<Tab>(route.params?.activeTab ?? 'theme');
 
   const dynamicStyles = useMemo(() => StyleSheet.create({
     stepLabel: {
@@ -117,7 +123,9 @@ export default function ThemePickerScreen() {
           setUser(profile);
           setSession(session.access_token ?? null);
         } catch (error) {
-          console.error('ThemePicker session recovery error:', error);
+          if (__DEV__) {
+            console.error('ThemePicker session recovery error:', error);
+          }
           Alert.alert('Profile setup issue', 'Please sign in again to continue.');
           navigation.navigate('Login');
           return;
@@ -159,12 +167,18 @@ export default function ThemePickerScreen() {
               {isOnboardingFlow ? 'Step 2 of 2' : 'Appearance'}
             </Text>
             <Text style={dynamicStyles.title}>
-              {activeTab === 'theme' ? 'Choose your theme' : 'Choose your font'}
+              {activeTab === 'theme'
+              ? 'Choose your theme'
+              : activeTab === 'font'
+                ? 'Choose your font'
+                : 'Choose your appearance'}
             </Text>
             <Text style={dynamicStyles.subtitle}>
-              {activeTab === 'theme' 
+              {activeTab === 'theme'
                 ? 'Pick an accent colour. You can change this anytime in settings.'
-                : 'Select a font style. Preview how it looks below.'}
+                : activeTab === 'font'
+                  ? 'Select a font style. Preview how it looks below.'
+                  : 'Switch between light, dark, and system appearance modes.'}
             </Text>
           </View>
         </View>
@@ -187,17 +201,22 @@ export default function ThemePickerScreen() {
               Font
             </Text>
           </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === 'appearance' && { borderBottomColor: currentTheme.accent }]}
+            onPress={() => setActiveTab('appearance')}
+          >
+            <Text style={[styles.tabText, activeTab === 'appearance' && { color: currentTheme.accent }]}> 
+              Appearance
+            </Text>
+          </TouchableOpacity>
         </View>
 
-        {/* Content based on tab */}
         <ScrollView
           style={styles.scroll}
-          contentContainerStyle={activeTab === 'theme' ? styles.grid : styles.fontGrid}
+          contentContainerStyle={activeTab === 'theme' ? styles.grid : activeTab === 'font' ? styles.fontGrid : styles.modeGrid}
           showsVerticalScrollIndicator={false}
-          keyboardDismissMode="on-drag"
         >
           {activeTab === 'theme' ? (
-            // Colour grid
             ACCENT_THEMES.map((t) => {
               const isSelected = currentTheme.key === t.key;
               return (
@@ -213,9 +232,9 @@ export default function ThemePickerScreen() {
                   onPress={() => handleSelect(t.key)}
                   activeOpacity={0.85}
                 >
-                  <View style={[styles.colourSwatch, { backgroundColor: t.accent }]}>
+                  <View style={[styles.colourSwatch, { backgroundColor: t.accent }]}> 
                     <View style={styles.miniPhone}>
-                      <View style={[styles.miniHeader, { backgroundColor: BaseColors.brown900 }]}>
+                      <View style={[styles.miniHeader, { backgroundColor: BaseColors.brown900 }]}> 
                         <View style={[styles.miniDot, { backgroundColor: t.accent }]} />
                       </View>
                       <View style={styles.miniBody}>
@@ -235,14 +254,14 @@ export default function ThemePickerScreen() {
                     )}
                   </View>
                   {isSelected && (
-                    <View style={[styles.tick, { backgroundColor: t.accent }]}>
+                    <View style={[styles.tick, { backgroundColor: t.accent }]}> 
                       <Ionicons name="checkmark" size={14} color={BaseColors.white} />
                     </View>
                   )}
                 </TouchableOpacity>
               );
             })
-          ) : (
+          ) : activeTab === 'font' ? (
             // Font grid
             FONT_STYLES.map((f) => {
               const isSelected = fontStyle === f.key;
@@ -268,7 +287,7 @@ export default function ThemePickerScreen() {
                       <Text style={dynamicStyles.fontPreview}>{f.preview}</Text>
                     </View>
                     {isSelected && (
-                      <View style={[styles.tick, { backgroundColor: currentTheme.accent }]}>
+                      <View style={[styles.tick, { backgroundColor: currentTheme.accent }]}> 
                         <Ionicons name="checkmark" size={14} color={BaseColors.white} />
                       </View>
                     )}
@@ -284,23 +303,41 @@ export default function ThemePickerScreen() {
                 </TouchableOpacity>
               );
             })
+          ) : (
+            THEME_MODES.map((mode) => {
+              const isSelected = themeMode === mode.key;
+              return (
+                <TouchableOpacity
+                  key={mode.key}
+                  style={[
+                    styles.modeCard,
+                    {
+                      borderColor: isSelected ? currentTheme.accent : 'rgba(255,255,255,0.08)',
+                      borderWidth: isSelected ? 2 : 1,
+                      backgroundColor: isSelected ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.04)',
+                    },
+                  ]}
+                  onPress={() => setThemeMode(mode.key)}
+                  activeOpacity={0.85}
+                >
+                  <View style={styles.modeLabelRow}>
+                    <Text style={[styles.modeTitle, { color: BaseColors.white }]}>{mode.label}</Text>
+                    {isSelected && (
+                      <View style={[styles.tick, { backgroundColor: currentTheme.accent }]}> 
+                        <Ionicons name="checkmark" size={14} color={BaseColors.white} />
+                      </View>
+                    )}
+                  </View>
+                  <Text style={[styles.modeDescription, { color: BaseColors.brown300 }]}> 
+                    {mode.description}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })
           )}
         </ScrollView>
 
         {/* Live preview strip */}
-        <View style={[styles.previewStrip, { backgroundColor: currentTheme.accentLight }]}>
-          <View style={[styles.previewDot, { backgroundColor: currentTheme.accent }]} />
-          <Text style={[dynamicStyles.previewText, { color: currentTheme.accentDeep }]}>
-            {activeTab === 'theme' 
-              ? `Preview — ${currentTheme.name}`
-              : `Font — ${fontConfig.name}`}
-          </Text>
-          <View style={[styles.previewPill, { backgroundColor: currentTheme.accent }]}>
-            <Text style={dynamicStyles.previewPillText}>Active</Text>
-          </View>
-        </View>
-
-        {/* Continue button */}
         <View style={styles.footer}>
           <TouchableOpacity
             style={[styles.continueBtn, { backgroundColor: currentTheme.accent }]}
@@ -360,6 +397,11 @@ const styles = StyleSheet.create({
     gap: Spacing.lg,
     paddingBottom: Spacing.xl,
   },
+  modeGrid: {
+    paddingHorizontal: Spacing['2xl'],
+    gap: Spacing.lg,
+    paddingBottom: Spacing.xl,
+  },
   themeCard: {
     width: CARD_WIDTH,
     borderRadius: Radius.lg,
@@ -413,6 +455,25 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.2)',
     borderRadius: Radius.sm,
     padding: Spacing.md,
+  },
+  modeCard: {
+    borderRadius: Radius.lg,
+    padding: Spacing.lg,
+  },
+  modeLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    marginBottom: 8,
+  },
+  modeTitle: {
+    fontFamily: Typography.sansSemiBold,
+    fontSize: 16,
+  },
+  modeDescription: {
+    fontFamily: Typography.sans,
+    fontSize: 13,
+    lineHeight: 18,
   },
   defaultBadge: {
     backgroundColor: BaseColors.gold,

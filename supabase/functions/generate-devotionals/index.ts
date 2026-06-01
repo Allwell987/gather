@@ -86,19 +86,21 @@ Generate a deeply spiritual and biblically grounded daily devotional for ${date 
 
 The devotional must include:
 1. A compelling title (reflecting the daily theme)
-2. An anchor scripture verse
-3. An opening charge/personal challenge to the reader
-4. Core teaching (2-3 paragraphs of rich biblical exposition)
-5. Supporting scriptures (3 Bible verses that reinforce the teaching)
-6. A spiritual insight (personal application for modern Christians)
-7. A biblical example (story from scripture demonstrating the principle)
-8. Warning and correction (gentle but firm admonition against common pitfalls)
-9. A prophetic declaration (powerful statement of faith)
-10. A summary (concise takeaway)
+2. An anchor scripture reference (e.g., "John 3:16")
+3. The full text of the anchor scripture
+4. An opening charge/personal challenge to the reader
+5. Core teaching (2-3 paragraphs of rich biblical exposition)
+6. Supporting scriptures (3 Bible verses that reinforce the teaching)
+7. A spiritual insight (personal application for modern Christians)
+8. A biblical example (story from scripture demonstrating the principle)
+9. Warning and correction (gentle but firm admonition against common pitfalls)
+10. A prophetic declaration (powerful statement of faith)
+11. A summary (concise takeaway)
 
 Return the response as a JSON object with these exact fields:
 - title: string
-- anchor_scripture: string (just the verse reference)
+- anchor_scripture: string (the verse reference)
+- anchor_scripture_text: string (the full text of the verse)
 - opening_charge: string
 - core_teaching: string
 - supporting_scriptures: string[] (array of verse references)
@@ -106,6 +108,7 @@ Return the response as a JSON object with these exact fields:
 - biblical_example: string
 - warning_correction: string
 - declaration: string
+- summary: string
 - theme: string (daily theme based on day of week)
 - month_focus: string (monthly focus based on current month)
 
@@ -138,7 +141,7 @@ Return ONLY valid JSON, no markdown code blocks or extra text.`
     const devotionalData = JSON.parse(content)
     const parsedDate = new Date(date || new Date().toISOString().split('T')[0])
 
-    const devotional = {
+    const devotionalToSave = {
       publish_date: date || new Date().toISOString().split('T')[0],
       title: devotionalData.title,
       anchor_scripture: devotionalData.anchor_scripture,
@@ -154,18 +157,32 @@ Return ONLY valid JSON, no markdown code blocks or extra text.`
       month_focus: devotionalData.month_focus || getMonthFocus(parsedDate.getMonth()),
     }
 
-    const { data, error } = await supabase
+    const { data: devotional, error: devError } = await supabase
       .from('devotionals')
-      .upsert(devotional, { onConflict: 'publish_date' })
+      .upsert(devotionalToSave, { onConflict: 'publish_date' })
       .select()
       .single()
 
-    if (error) {
-      console.error('Database error:', error)
-      throw error
+    if (devError) {
+      console.error('Database error (devotionals):', devError)
+      throw devError
     }
 
-    return new Response(JSON.stringify({ success: true, devotional: data }), {
+    // Also update daily_verses
+    const { error: verseError } = await supabase
+      .from('daily_verses')
+      .upsert({
+        publish_date: devotionalToSave.publish_date,
+        text: devotionalData.anchor_scripture_text || devotionalData.core_teaching.split('.')[0] + '.',
+        reference: devotionalData.anchor_scripture,
+      }, { onConflict: 'publish_date' })
+
+    if (verseError) {
+      console.error('Database error (daily_verses):', verseError)
+      // We don't throw here to ensure the devotional is still returned
+    }
+
+    return new Response(JSON.stringify({ success: true, devotional }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   } catch (error) {

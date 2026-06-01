@@ -70,19 +70,21 @@ Generate a deeply spiritual and biblically grounded daily devotional for ${dateS
 
 The devotional must include:
 1. A compelling title (reflecting the daily theme)
-2. An anchor scripture verse
-3. An opening charge/personal challenge to the reader
-4. Core teaching (2-3 paragraphs of rich biblical exposition)
-5. Supporting scriptures (3 Bible verses that reinforce the teaching)
-6. A spiritual insight (personal application for modern Christians)
-7. A biblical example (story from scripture demonstrating the principle)
-8. Warning and correction (gentle but firm admonition against common pitfalls)
-9. A prophetic declaration (powerful statement of faith)
-10. A summary (concise takeaway)
+2. An anchor scripture reference (e.g., "John 3:16")
+3. The full text of the anchor scripture
+4. An opening charge/personal challenge to the reader
+5. Core teaching (2-3 paragraphs of rich biblical exposition)
+6. Supporting scriptures (3 Bible verses that reinforce the teaching)
+7. A spiritual insight (personal application for modern Christians)
+8. A biblical example (story from scripture demonstrating the principle)
+9. Warning and correction (gentle but firm admonition against common pitfalls)
+10. A prophetic declaration (powerful statement of faith)
+11. A summary (concise takeaway)
 
 Return the response as a JSON object with these exact fields:
 - title: string
-- anchor_scripture: string (just the verse reference)
+- anchor_scripture: string (the verse reference)
+- anchor_scripture_text: string (the full text of the verse)
 - opening_charge: string
 - core_teaching: string
 - supporting_scriptures: string[] (array of verse references)
@@ -139,15 +141,28 @@ Return ONLY valid JSON, no markdown code blocks or extra text.`
           month_focus: devotionalData.month_focus || getMonthFocus(currentDate.getMonth()),
         }
 
-        const { error } = await supabase
+        const { error: devError } = await supabase
           .from('devotionals')
           .upsert(devotional, { onConflict: 'publish_date' })
 
-        if (error) {
-          results.push({ date: dateStr, success: false, error: error.message })
+        if (devError) {
+          results.push({ date: dateStr, success: false, error: devError.message })
         } else {
+          // Also update daily_verses
+          const { error: verseError } = await supabase
+            .from('daily_verses')
+            .upsert({
+              publish_date: dateStr,
+              text: devotionalData.anchor_scripture_text || devotionalData.core_teaching.split('.')[0] + '.',
+              reference: devotionalData.anchor_scripture,
+            }, { onConflict: 'publish_date' })
+
+          if (verseError) {
+            console.error(`Database error for daily_verses (${dateStr}):`, verseError.message)
+          }
+
           results.push({ date: dateStr, success: true, title: devotionalData.title })
-          console.log(`✓ Generated devotional for ${dateStr}: ${devotionalData.title}`)
+          console.log(`✓ Generated devotional and verse for ${dateStr}: ${devotionalData.title}`)
         }
 
         if ((i + 1) % batchSize === 0 && i < totalDays - 1) {

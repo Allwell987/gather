@@ -8,9 +8,13 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
+    "types": [
+      "jest"
+    ],
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
       "src/*": [

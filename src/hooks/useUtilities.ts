@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 /**
  * Hook to track previous value
  */
 export const usePrevious = <T>(value: T): T | undefined => {
-  const ref = useRef<T>();
+  const [state, setState] = useState({ current: value, previous: undefined as T | undefined });
 
-  useEffect(() => {
-    ref.current = value;
-  }, [value]);
+  if (value !== state.current) {
+    setState({ current: value, previous: state.current });
+  }
 
-  return ref.current;
+  return state.previous;
 };
 
 /**
@@ -51,13 +51,16 @@ export const useMemoWithCompare = <T>(
   deps: unknown[],
   compare: (prevDeps: unknown[], newDeps: unknown[]) => boolean
 ): T => {
-  const depsRef = useRef(deps);
-  const valueRef = useRef<T>();
+  const [state, setState] = useState(() => ({
+    deps,
+    value: factory(),
+  }));
 
-  if (!compare(depsRef.current, deps)) {
-    depsRef.current = deps;
-    valueRef.current = factory();
+  let value = state.value;
+  if (!compare(state.deps, deps)) {
+    value = factory();
+    setState({ deps, value });
   }
 
-  return valueRef.current!;
+  return value;
 };

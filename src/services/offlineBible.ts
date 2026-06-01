@@ -37,7 +37,9 @@ async function updateIndex(translation: string, book: string) {
       await AsyncStorage.setItem(INDEX_KEY, JSON.stringify(index));
     }
   } catch (err) {
-    console.error('Failed to update bible index:', err);
+    if (__DEV__) {
+      console.error('Failed to update bible index:', err);
+    }
   }
 }
 
@@ -62,7 +64,9 @@ export async function cacheChapter(chapter: BibleChapter): Promise<void> {
     await AsyncStorage.setItem(key, JSON.stringify(chapter));
     await updateIndex(translation, chapter.book);
   } catch (err) {
-    console.error('Failed to cache chapter:', err);
+    if (__DEV__) {
+      console.error('Failed to cache chapter:', err);
+    }
   }
 }
 
@@ -81,7 +85,9 @@ export async function cacheMultipleChapters(chapters: BibleChapter[]): Promise<v
     await AsyncStorage.multiSet(pairs);
     await updateIndex(translation, book);
   } catch (err) {
-    console.error('Failed to cache multiple chapters:', err);
+    if (__DEV__) {
+      console.error('Failed to cache multiple chapters:', err);
+    }
   }
 }
 
@@ -116,7 +122,9 @@ export async function deleteTranslation(translation: BibleTranslation): Promise<
     delete index.downloaded[translation];
     await AsyncStorage.setItem(INDEX_KEY, JSON.stringify(index));
   } catch (err) {
-    console.error('Failed to delete translation:', err);
+    if (__DEV__) {
+      console.error('Failed to delete translation:', err);
+    }
   }
 }
 

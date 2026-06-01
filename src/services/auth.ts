@@ -127,7 +127,9 @@ export async function signInWithGoogle(): Promise<{ user?: GoogleUser; error?: s
 
     return { error: 'Google sign-in did not return a valid session.' };
   } catch (err) {
-    console.error('Google sign-in error:', err);
+    if (__DEV__) {
+      console.error('Google sign-in error:', err);
+    }
     return { error: 'An unexpected error occurred during sign in' };
   }
 }
@@ -193,13 +195,17 @@ export async function signInWithApple(): Promise<{ error?: string }> {
       });
 
       if (profileUpdateError) {
-        console.error('Apple profile update error:', profileUpdateError);
+        if (__DEV__) {
+          console.error('Apple profile update error:', profileUpdateError);
+        }
       }
     }
 
     return {};
   } catch (err) {
-    console.error('Apple sign-in error:', err);
+    if (__DEV__) {
+      console.error('Apple sign-in error:', err);
+    }
 
     if (typeof err === 'object' && err && 'code' in err) {
       const code = String((err as { code?: string }).code);

@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
+import { usePaystack } from 'react-native-paystack-webview';
 import HeaderBar from '../../components/common/HeaderBar';
 import { useThemeStore } from '../../store/themeStore';
 import { useAuthStore } from '../../store/authStore';
@@ -20,26 +21,64 @@ export default function GivingScreen() {
   const { theme, colors } = useThemeStore();
   const { user } = useAuthStore();
   const { history, campaigns, totalGiving, saveDonation, isSaving } = useGiving();
+  const { popup } = usePaystack();
 
   const [amount, setAmount] = useState(10000);
+
+  const formatCategory = (category: string) => category === 'app_maintenance' ? 'App Maintenance' : 'App Support';
+
+  const onPaymentSuccess = (response: { reference?: string; transaction?: string; trans?: string }) => {
+    const reference = response.reference ?? `APP_${user?.id?.slice(0, 8)}_${Date.now()}`;
+
+    saveDonation({
+      amount,
+      reference,
+      transaction_id: response.transaction ?? response.trans ?? response.reference,
+    } as any);
+
+    Alert.alert('Thank you!', 'Your support for app maintenance has been received.');
+  };
 
   const handleGive = () => {
     if (!user) {
       Alert.alert('Sign in required');
       return;
     }
-    // Logic would normally trigger Paystack here
-    saveDonation({ amount, category: 'App Maintenance', reference: 'manual-' + Date.now() });
-    Alert.alert('Thank you!', 'Your gift has been received.');
+
+    if (!user.email) {
+      Alert.alert('Email required', 'Please add an email to your profile before supporting the app.');
+      return;
+    }
+
+    const reference = `APP_${user.id.slice(0, 8)}_${Date.now()}`;
+
+    popup.checkout({
+      email: user.email,
+      amount,
+      reference,
+      metadata: {
+        custom_fields: [
+          { display_name: 'User ID', variable_name: 'user_id', value: user.id },
+          { display_name: 'Purpose', variable_name: 'purpose', value: 'App Maintenance' },
+        ],
+      },
+      onSuccess: onPaymentSuccess,
+      onCancel: () => {
+        Alert.alert('Payment cancelled', 'Your app maintenance support was not completed.');
+      },
+      onError: (error) => {
+        Alert.alert('Payment error', error?.message ?? 'Something went wrong during payment.');
+      },
+    });
   };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <HeaderBar title="Give" subtitle={CHURCH.name} onBackPress={() => navigation.goBack()} enableBlur />
+      <HeaderBar title="Support App Maintenance" subtitle={CHURCH.name} onBackPress={() => navigation.goBack()} enableBlur />
 
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         <View style={styles.hero}>
-          <Text style={styles.heroLabel}>Total Giving</Text>
+          <Text style={styles.heroLabel}>Total App Support</Text>
           <Text style={styles.heroAmount}>₦{totalGiving.toLocaleString()}</Text>
         </View>
 
@@ -58,14 +97,14 @@ export default function GivingScreen() {
           </View>
 
           <TouchableOpacity style={[styles.giveBtn, { backgroundColor: theme.accent }]} onPress={handleGive} disabled={isSaving}>
-            {isSaving ? <ActivityIndicator color="#fff" /> : <Text style={styles.giveBtnText}>Give ₦{amount.toLocaleString()}</Text>}
+            {isSaving ? <ActivityIndicator color="#fff" /> : <Text style={styles.giveBtnText}>Support ₦{amount.toLocaleString()}</Text>}
           </TouchableOpacity>
 
-          <Text style={styles.sectionTitle}>Recent Gifts</Text>
+          <Text style={styles.sectionTitle}>Recent App Support</Text>
           {history.map(item => (
             <View key={item.id} style={[styles.history, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <View>
-                <Text style={{ color: colors.text, fontWeight: 'bold' }}>{item.category.replace('_', ' ')}</Text>
+                <Text style={{ color: colors.text, fontWeight: 'bold' }}>{formatCategory(item.category)}</Text>
                 <Text style={{ color: colors.textSecondary, fontSize: 10 }}>{format(new Date(item.created_at), 'MMM d, yyyy')}</Text>
               </View>
               <Text style={{ color: theme.accentDeep, fontWeight: 'bold' }}>₦{Number(item.amount).toLocaleString()}</Text>

@@ -7,9 +7,11 @@ import {
   StyleSheet,
   ViewStyle,
   Platform,
+  Appearance,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BaseColors, Typography, Spacing } from '../../constants/theme';
 
@@ -58,7 +60,8 @@ export default function HeaderBar({
   const finalTextColor = textColor || colors.text;
   const finalSubtitleColor = subtitleColor || colors.textSecondary;
   const finalAccentColor = accentColor || theme.accent;
-  const finalBlurTint = blurTint || (themeMode === 'dark' ? 'dark' : 'light');
+  const currentColorScheme = themeMode === 'system' ? Appearance.getColorScheme() : themeMode;
+  const finalBlurTint = blurTint || (currentColorScheme === 'dark' ? 'dark' : 'light');
 
   return (
     <SafeAreaView edges={['top']} style={[
@@ -71,7 +74,7 @@ export default function HeaderBar({
         tint={finalBlurTint}
         style={[
           styles.container,
-          { backgroundColor: enableBlur ? 'transparent' : finalBgColor },
+          { backgroundColor: enableBlur ? 'transparent' : finalBgColor, borderBottomColor: colors.border },
           enableBlur && styles.blurContainer
         ]}
       >
@@ -83,7 +86,7 @@ export default function HeaderBar({
         )}
 
         {/* Center - Title & Subtitle */}
-        <View style={styles.center}>
+        <Animated.View entering={FadeInDown.delay(100).duration(400)} style={styles.center}>
           <Text style={[Typography.heading3 as any, { color: finalTextColor }]} numberOfLines={1}>
             {title}
           </Text>
@@ -92,7 +95,7 @@ export default function HeaderBar({
               {subtitle}
             </Text>
           )}
-        </View>
+        </Animated.View>
 
         {/* Right - Action Button */}
         {rightElement ? (
@@ -116,7 +119,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.lg,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: BaseColors.gray200,
   },
   blurSafeArea: {
     backgroundColor: 'transparent',

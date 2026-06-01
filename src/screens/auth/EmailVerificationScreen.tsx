@@ -86,7 +86,9 @@ export default function EmailVerificationScreen() {
         showToast({ title: 'Email sent', message: 'Check your inbox for the link.', variant: 'success' });
       }
     } catch (err) {
-      console.error('Resend error:', err);
+      if (__DEV__) {
+        console.error('Resend error:', err);
+      }
     } finally {
       setResendLoading(false);
     }
@@ -105,7 +107,9 @@ export default function EmailVerificationScreen() {
         setSession(session.access_token ?? null);
         setIsOnboarded(true);
       } catch (err) {
-        console.error('Skip onboarding error:', err);
+        if (__DEV__) {
+          console.error('Skip onboarding error:', err);
+        }
         // Fall through to ThemePicker so user can still continue
         navigation.navigate('ThemePicker', { fromOnboarding: true });
       }

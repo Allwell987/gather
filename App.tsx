@@ -1,6 +1,6 @@
 // App.tsx
 import React, { useEffect, useCallback } from 'react';
-import { Alert, AppState, View, LogBox } from 'react-native';
+import { Alert, AppState, View, LogBox, Appearance } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Linking from 'expo-linking';
@@ -40,6 +40,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { PaystackProvider } from 'react-native-paystack-webview';
 import RootNavigator from './src/navigation/RootNavigator';
 import ToastHost from './src/components/ToastHost';
 import * as Sentry from '@sentry/react-native';
@@ -64,11 +65,6 @@ import { registerForPushNotificationsAsync } from './src/services/notifications'
 import { flushOfflineActions } from './src/services/offlineActionQueue';
 import { ensureProfileForSession } from './src/services/profile';
 
-// Ignore specific warnings
-LogBox.ignoreLogs([
-  'InteractionManager has been deprecated',
-]);
-
 // Initialize Sentry
 initSentry();
 
@@ -90,6 +86,7 @@ function App() {
     setPendingVerificationEmail,
   } = useAuthStore();
   const { colors, themeMode } = useThemeStore();
+  const colorScheme = themeMode === 'system' ? Appearance.getColorScheme() ?? 'light' : themeMode;
 
   const canOpenMainScreens = Boolean(user && isOnboarded);
 
@@ -109,7 +106,9 @@ function App() {
       setAuthFeedback(null);
       setPendingVerificationEmail(null);
     } catch (err) {
-      console.error('Session sync error:', err);
+      if (__DEV__) {
+        console.error('Session sync error:', err);
+      }
 
       Alert.alert(
         'Profile setup issue',
@@ -140,7 +139,9 @@ function App() {
     };
 
     if (params.error_description) {
-      console.error('Auth callback error:', params.error_description);
+      if (__DEV__) {
+        console.error('Auth callback error:', params.error_description);
+      }
       handleAuthFailure(params.error_code, params.error_description);
       return;
     }
@@ -148,7 +149,9 @@ function App() {
     if (params.code) {
       const { error } = await supabase.auth.exchangeCodeForSession(params.code);
       if (error) {
-        console.error('Code exchange error:', error);
+        if (__DEV__) {
+          console.error('Code exchange error:', error);
+        }
         handleAuthFailure(undefined, error.message);
         return;
       }
@@ -164,7 +167,9 @@ function App() {
       });
 
       if (error) {
-        console.error('Deep link session error:', error);
+        if (__DEV__) {
+          console.error('Deep link session error:', error);
+        }
         handleAuthFailure(undefined, error.message);
         return;
       }
@@ -180,7 +185,9 @@ function App() {
       });
 
       if (error) {
-        console.error('OTP verification error:', error);
+        if (__DEV__) {
+          console.error('OTP verification error:', error);
+        }
         handleAuthFailure(undefined, error.message);
         return;
       }
@@ -213,7 +220,9 @@ function App() {
       Poppins_600SemiBold,
     })
       .catch((err) => {
-        console.error('Font loading error:', err);
+        if (__DEV__) {
+          console.error('Font loading error:', err);
+        }
       })
       .finally(() => {
         setFontsLoaded(true);
@@ -240,7 +249,9 @@ function App() {
         const { data: { session } } = await supabase.auth.getSession();
         await syncUserFromSession(session);
       } catch (err) {
-        console.error('Session bootstrap error:', err);
+        if (__DEV__) {
+          console.error('Session bootstrap error:', err);
+        }
       } finally {
         setIsLoading(false);
       }
@@ -278,7 +289,9 @@ function App() {
         }
       })
       .catch((error) => {
-        console.error('Initial notification response error:', error);
+        if (__DEV__) {
+          console.error('Initial notification response error:', error);
+        }
       });
 
     // Handle notification received while app is foregrounded
@@ -345,27 +358,27 @@ function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <NavigationContainer
-            ref={navigationRef}
-            onReady={() => {
-              flushPendingNotificationNavigation(canOpenMainScreens);
-            }}
-          >
+          <PaystackProvider publicKey={process.env.EXPO_PUBLIC_PAYSTACK_PUBLIC_KEY ?? ''}>
+            <NavigationContainer
+              ref={navigationRef}
+              onReady={() => {
+                flushPendingNotificationNavigation(canOpenMainScreens);
+              }}
+            >
             <ErrorBoundary>
               <View
                 style={{ flex: 1, backgroundColor: colors.background }}
                 onLayout={onLayoutRootView}
               >
                 <StatusBar
-                  style={themeMode === 'dark' ? 'light' : 'dark'}
-                  backgroundColor={colors.background}
-                  translucent={false}
+                  style={colorScheme === 'dark' ? 'light' : 'dark'}
                 />
                 <RootNavigator />
                 <ToastHost />
               </View>
             </ErrorBoundary>
           </NavigationContainer>
+          </PaystackProvider>
         </QueryClientProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>

@@ -1,5 +1,7 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { Alert } from 'react-native';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuthStore } from '../../../store/authStore';
 import { useToastStore } from '../../../store/toastStore';
 import { supabase } from '../../../services/supabase';
@@ -12,48 +14,76 @@ import {
   scheduleDailyVerseNotification,
   cancelDailyVerseNotifications
 } from '../../../services/notifications';
-import { DAILY_VERSE } from '../../../constants/theme';
+import { fetchDailyVerse } from '../../../services/dailyVerse';
 import { getFriendlyErrorMessage } from '../../../services/errorMapping';
 
 export function useProfile() {
   const { user, setUser, signOut } = useAuthStore();
   const { showToast } = useToastStore();
+  const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
-  const [hasPendingVerification, setHasPendingVerification] = useState(false);
 
-  const checkVerificationStatus = useCallback(async () => {
-    if (!user?.id) return;
-    const { data } = await supabase
-      .from('verification_requests')
-      .select('status')
-      .eq('user_id', user.id)
-      .maybeSingle();
-    setHasPendingVerification((data as any)?.status === 'pending');
-  }, [user?.id]);
+  const { data: verificationData } = useQuery({
+    queryKey: ['verificationStatus', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data } = await supabase
+        .from('verification_requests')
+        .select('status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user?.id,
+  });
 
-  useEffect(() => {
-    if (user?.id) checkVerificationStatus();
-  }, [user?.id, checkVerificationStatus]);
+  const hasPendingVerification = (verificationData as any)?.status === 'pending';
 
-  const updatePersonalInfo = async (data: { fullName: string; address: string; birthday: string; avatar?: any }) => {
+  const handlePickAvatar = async () => {
+    if (!user) return;
+
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permissionResult.granted) {
+      showToast({ title: 'Permission required', message: 'Library access needed to change avatar.', variant: 'warning' });
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+      base64: true,
+    });
+
+    if (result.canceled || !result.assets[0].base64) return;
+
+    setIsSaving(true);
+    try {
+      const avatarUrl = await uploadProfileAvatar({
+        userId: user.id,
+        base64: result.assets[0].base64,
+        contentType: result.assets[0].mimeType,
+      });
+
+      const updated = await updateProfileApi(user.id, { avatar_url: avatarUrl });
+      setUser(updated);
+      showToast({ title: 'Success', message: 'Avatar updated.', variant: 'success' });
+    } catch (error) {
+      showToast({ title: 'Error', message: getFriendlyErrorMessage(error), variant: 'error' });
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const updatePersonalInfo = async (data: { fullName: string; address: string; birthday: string }) => {
     if (!user) return;
     setIsSaving(true);
     try {
-      let avatarUrl = user.avatar_url;
-      if (data.avatar) {
-        avatarUrl = await uploadProfileAvatar({
-          userId: user.id,
-          base64: data.avatar.base64,
-          uri: data.avatar.uri,
-          contentType: data.avatar.mimeType,
-        });
-      }
-
       const updated = await updateProfileApi(user.id, {
         full_name: data.fullName,
         address: data.address,
         birthday: data.birthday,
-        avatar_url: avatarUrl,
       });
 
       setUser(updated);
@@ -78,8 +108,9 @@ export function useProfile() {
       setUser(updated);
 
       if (notificationsEnabled) {
+        const verse = await fetchDailyVerse();
         await cancelDailyVerseNotifications();
-        await scheduleDailyVerseNotification(DAILY_VERSE, reminderTime);
+        await scheduleDailyVerseNotification(verse, reminderTime);
       } else {
         await cancelDailyVerseNotifications();
       }
@@ -117,7 +148,7 @@ export function useProfile() {
       } as never);
 
       if (error) throw error;
-      setHasPendingVerification(true);
+      await queryClient.invalidateQueries({ queryKey: ['verificationStatus', user.id] });
       showToast({ title: 'Sent', message: 'Verification request submitted.', variant: 'success' });
       return true;
     } catch (error) {
@@ -139,6 +170,7 @@ export function useProfile() {
     user,
     isSaving,
     hasPendingVerification,
+    handlePickAvatar,
     updatePersonalInfo,
     updatePreferences,
     submitVerification,

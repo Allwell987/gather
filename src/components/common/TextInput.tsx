@@ -11,7 +11,8 @@ import {
   Easing,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
+import { useThemeStore } from '../../store/themeStore';
+import { Spacing, Radius } from '../../constants/theme';
 
 export interface TextInputProps extends RNTextInputProps {
   label?: string;
@@ -26,19 +27,23 @@ export default function TextInput({
   label,
   error,
   icon,
-  iconColor = BaseColors.gray600,
-  accentColor = BaseColors.sapphire,
+  iconColor,
+  accentColor,
   containerStyle,
   ...inputProps
 }: TextInputProps) {
+  const { colors, typography } = useThemeStore();
   const [isFocused, setIsFocused] = React.useState(false);
-  const focusAnim = React.useRef(new Animated.Value(0)).current;
+  const [focusAnim] = React.useState(() => new Animated.Value(0));
+
+  const finalAccentColor = accentColor || colors.accent;
+  const finalIconColor = iconColor || colors.textSecondary;
 
   React.useEffect(() => {
     Animated.timing(focusAnim, {
       toValue: isFocused ? 1 : 0,
-      duration: isFocused ? 170 : 220,
-      easing: isFocused ? Easing.out(Easing.quad) : Easing.out(Easing.cubic),
+      duration: 150,
+      easing: Easing.out(Easing.quad),
       useNativeDriver: false,
     }).start();
   }, [focusAnim, isFocused]);
@@ -46,7 +51,7 @@ export default function TextInput({
   return (
     <View style={containerStyle}>
       {label && (
-        <Text style={[Typography.body2 as any, { color: BaseColors.gray700, marginBottom: Spacing.xs }]}>
+        <Text style={[typography.body2 as any, { color: colors.textSecondary, marginBottom: Spacing.xs, fontWeight: '500' }]}>
           {label}
         </Text>
       )}
@@ -56,21 +61,20 @@ export default function TextInput({
           styles.inputContainer,
           {
             borderColor: error
-              ? BaseColors.red500
+              ? colors.error
               : isFocused
-                ? accentColor
-                : BaseColors.gray300,
-            backgroundColor: BaseColors.white,
-            shadowOpacity: focusAnim.interpolate({ inputRange: [0, 1], outputRange: [0.02, 0.09] }),
-            transform: [
-              {
-                scale: focusAnim.interpolate({ inputRange: [0, 1], outputRange: [1, 1.005] }),
-              },
-            ],
+                ? finalAccentColor
+                : colors.border,
+            backgroundColor: colors.surface,
+            borderWidth: isFocused ? 2 : 1,
+            shadowColor: finalAccentColor,
+            shadowOpacity: focusAnim.interpolate({ inputRange: [0, 1], outputRange: [0, 0.1] }),
+            shadowRadius: 8,
+            shadowOffset: { width: 0, height: 4 },
           },
         ]}
       >
-        {icon && <Ionicons name={icon as any} size={20} color={iconColor} style={{ marginRight: Spacing.sm }} />}
+        {icon && <Ionicons name={icon as any} size={20} color={isFocused ? finalAccentColor : finalIconColor} style={{ marginRight: Spacing.sm }} />}
 
         <RNTextInput
           {...inputProps}
@@ -82,13 +86,13 @@ export default function TextInput({
             setIsFocused(false);
             inputProps.onBlur?.(e);
           }}
-          style={[styles.input, Typography.body2 as any]}
-          placeholderTextColor={BaseColors.gray400}
+          style={[styles.input, typography.body2 as any, { color: colors.text }]}
+          placeholderTextColor={colors.textMuted}
         />
       </Animated.View>
 
       {error && (
-        <Text style={[Typography.caption as any, { color: BaseColors.red500, marginTop: Spacing.xs }]}>
+        <Text style={[typography.caption as any, { color: colors.error, marginTop: Spacing.xs }]}>
           {error}
         </Text>
       )}
@@ -100,17 +104,12 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
     borderRadius: Radius.md,
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.md,
-    shadowColor: BaseColors.black,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    elevation: 1,
+    elevation: 0,
   },
   input: {
     flex: 1,
-    color: BaseColors.gray900,
   },
 });

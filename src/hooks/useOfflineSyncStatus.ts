@@ -45,12 +45,17 @@ export const useOfflineSyncStatus = (userId?: string | null) => {
         networkState.isConnected !== false && networkState.isInternetReachable !== false
       );
     } catch (error) {
-      console.error('Sync status refresh error:', error);
+      if (__DEV__) {
+        console.error('Sync status refresh error:', error);
+      }
     }
   }, [userId]);
 
   useEffect(() => {
-    void refreshSyncStatus();
+    const timeout = setTimeout(() => {
+      void refreshSyncStatus();
+    }, 0);
+    return () => clearTimeout(timeout);
   }, [refreshSyncStatus]);
 
   useEffect(() => {
