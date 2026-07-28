@@ -29,7 +29,8 @@
   "submit": {
     "production": {
       "ios": {
-        "appleId": "developer@wealthrealitychurch.com"
+        "appleId": "developer@wealthrealitychurch.com",
+        "ascAppId": "6795704505"
       }
     }
   }
