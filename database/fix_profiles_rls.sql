@@ -29,7 +29,7 @@ CREATE POLICY "users_can_insert_own_profile" ON public.profiles
 CREATE OR REPLACE FUNCTION public.handle_new_user_profile()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY INVOKER
 SET search_path = public
 AS $$
 BEGIN

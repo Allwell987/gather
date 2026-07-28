@@ -13,11 +13,13 @@ import { useAuthStore } from '../../store/authStore';
 import { BaseColors, Typography, Spacing, Radius, CHURCH } from '../../constants/theme';
 import { useGiving } from './hooks/useGiving';
 import { format } from 'date-fns';
+import { t, getDeviceLocale } from '../../services/locale';
 
 const AMOUNTS = [2000, 5000, 10000, 20000];
 
 export default function GivingScreen() {
   const navigation = useNavigation();
+  const locale = getDeviceLocale();
   const { theme, colors } = useThemeStore();
   const { user } = useAuthStore();
   const { history, campaigns, totalGiving, saveDonation, isSaving } = useGiving();
@@ -25,7 +27,7 @@ export default function GivingScreen() {
 
   const [amount, setAmount] = useState(10000);
 
-  const formatCategory = (category: string) => category === 'app_maintenance' ? 'App Maintenance' : 'App Support';
+  const formatCategory = (category: string) => category === 'app_maintenance' ? t('appMaintenance', locale) : t('appSupport', locale);
 
   const onPaymentSuccess = (response: { reference?: string; transaction?: string; trans?: string }) => {
     const reference = response.reference ?? `APP_${user?.id?.slice(0, 8)}_${Date.now()}`;
@@ -36,17 +38,17 @@ export default function GivingScreen() {
       transaction_id: response.transaction ?? response.trans ?? response.reference,
     } as any);
 
-    Alert.alert('Thank you!', 'Your support for app maintenance has been received.');
+    Alert.alert(t('thankYou', locale), t('supportReceived', locale));
   };
 
   const handleGive = () => {
     if (!user) {
-      Alert.alert('Sign in required');
+      Alert.alert(t('signInRequired', locale));
       return;
     }
 
     if (!user.email) {
-      Alert.alert('Email required', 'Please add an email to your profile before supporting the app.');
+      Alert.alert(t('emailRequired', locale), t('emailRequiredForGiving', locale));
       return;
     }
 
@@ -59,48 +61,52 @@ export default function GivingScreen() {
       metadata: {
         custom_fields: [
           { display_name: 'User ID', variable_name: 'user_id', value: user.id },
-          { display_name: 'Purpose', variable_name: 'purpose', value: 'App Maintenance' },
+          { display_name: 'Purpose', variable_name: 'purpose', value: t('appMaintenance', locale) },
         ],
       },
       onSuccess: onPaymentSuccess,
       onCancel: () => {
-        Alert.alert('Payment cancelled', 'Your app maintenance support was not completed.');
+        Alert.alert(t('paymentCancelled', locale), t('paymentCancelledSub', locale));
       },
       onError: (error) => {
-        Alert.alert('Payment error', error?.message ?? 'Something went wrong during payment.');
+        Alert.alert(t('paymentError', locale), error?.message ?? t('paymentErrorSub', locale));
       },
     });
   };
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <HeaderBar title="Support App Maintenance" subtitle={CHURCH.name} onBackPress={() => navigation.goBack()} enableBlur />
+      <HeaderBar title={t('supportAppMaintenance', locale)} subtitle={CHURCH.name} onBackPress={() => navigation.goBack()} enableBlur />
 
       <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
         <View style={styles.hero}>
-          <Text style={styles.heroLabel}>Total App Support</Text>
+          <Text style={styles.heroLabel}>{t('totalAppSupport', locale)}</Text>
           <Text style={styles.heroAmount}>₦{totalGiving.toLocaleString()}</Text>
         </View>
 
         <View style={styles.body}>
-          <Text style={styles.sectionTitle}>Choose amount</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('chooseAmount', locale)}</Text>
           <View style={styles.grid}>
             {AMOUNTS.map(amt => (
               <TouchableOpacity
                 key={amt}
-                style={[styles.amtBtn, amount === amt && { backgroundColor: theme.accent, borderColor: theme.accent }]}
+                style={[
+                  styles.amtBtn,
+                  { borderColor: colors.border },
+                  amount === amt && { backgroundColor: theme.accent, borderColor: theme.accent }
+                ]}
                 onPress={() => setAmount(amt)}
               >
-                <Text style={[styles.amtText, amount === amt && { color: '#fff' }]}>₦{amt.toLocaleString()}</Text>
+                <Text style={[styles.amtText, { color: colors.text }, amount === amt && { color: '#fff' }]}>₦{amt.toLocaleString()}</Text>
               </TouchableOpacity>
             ))}
           </View>
 
           <TouchableOpacity style={[styles.giveBtn, { backgroundColor: theme.accent }]} onPress={handleGive} disabled={isSaving}>
-            {isSaving ? <ActivityIndicator color="#fff" /> : <Text style={styles.giveBtnText}>Support ₦{amount.toLocaleString()}</Text>}
+            {isSaving ? <ActivityIndicator color="#fff" /> : <Text style={styles.giveBtnText}>{t('supportNaira', locale).replace('{amount}', amount.toLocaleString())}</Text>}
           </TouchableOpacity>
 
-          <Text style={styles.sectionTitle}>Recent App Support</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('recentAppSupport', locale)}</Text>
           {history.map(item => (
             <View key={item.id} style={[styles.history, { backgroundColor: colors.card, borderColor: colors.border }]}>
               <View>

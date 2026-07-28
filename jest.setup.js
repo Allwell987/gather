@@ -98,6 +98,11 @@ jest.mock('expo-linking', () => ({
   addEventListener: jest.fn(() => ({ remove: jest.fn() })),
 }));
 
+// Mock expo-localization
+jest.mock('expo-localization', () => ({
+  getLocales: jest.fn(() => [{ languageCode: 'en', regionCode: 'US' }]),
+}));
+
 // Silence console warnings during tests
 global.console = {
   ...console,

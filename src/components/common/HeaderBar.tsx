@@ -49,11 +49,11 @@ export default function HeaderBar({
   subtitleColor,
   style,
   enableBlur = false,
-  blurIntensity = 80,
+  blurIntensity = 60,
   blurTint,
 }: HeaderBarProps) {
   const { colors, theme, themeMode } = useThemeStore();
-  const HeaderContainer = enableBlur && Platform.OS === 'ios' ? BlurView : View;
+  const HeaderContainer = enableBlur ? BlurView : View;
 
   // Use theme colors as defaults if not provided
   const finalBgColor = backgroundColor || (enableBlur ? 'transparent' : colors.card);

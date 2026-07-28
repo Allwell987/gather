@@ -33,6 +33,7 @@ import { format, isSameDay } from 'date-fns';
 import { useGroupChat } from './hooks/useGroupChat';
 import { useGroupMembers } from './hooks/useGroupMembers';
 import { EmojiPicker, MessageActionSheet } from './components/ChatModals';
+import { t, getDeviceLocale } from '../../services/locale';
 import type { HomeStackNavigationProp, GroupChatRouteProp } from '../../types/navigation';
 
 const GROUP_META: Record<string, { emoji: string; membersLabel: string }> = {
@@ -95,6 +96,7 @@ const SwipeableMessage = ({ children, onReply }: SwipeableMessageProps) => {
 export default function GroupChatScreen() {
   const navigation = useNavigation<HomeStackNavigationProp>();
   const route = useRoute<GroupChatRouteProp>();
+  const locale = getDeviceLocale();
   const { theme, colors } = useThemeStore();
   const { user } = useAuthStore();
   const { showToast } = useToastStore();
@@ -132,7 +134,7 @@ export default function GroupChatScreen() {
   });
 
   const groupName = groupDetails?.name ?? defaultGroupName;
-  const groupMembersLabel = `${groupMembers.length} member${groupMembers.length === 1 ? '' : 's'}`;
+  const groupMembersLabel = `${groupMembers.length} ${groupMembers.length === 1 ? t('member', locale) : t('membersPlural', locale)}`;
 
   useEffect(() => {
     const showSub = Keyboard.addListener(Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow', () => setKeyboardVisible(true));
@@ -169,7 +171,7 @@ export default function GroupChatScreen() {
         });
         content = serializeChatImageMessage({ imageUrl, caption: trimmed });
       } catch {
-        showToast({ title: 'Upload failed', message: 'Could not send image.', variant: 'error' });
+        showToast({ title: t('uploadFailed', locale), message: t('couldNotSendImage', locale), variant: 'error' });
         return;
       } finally { setIsUploadingAttachment(false); }
     }

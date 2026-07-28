@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { BaseColors, Typography, Spacing, Radius } from '../../../constants/theme';
 import { BIBLE_BOOKS } from '../../../services/bibleApi';
 import { AVAILABLE_VERSIONS, type BibleTranslation } from '../../../types/bible';
+import { t, getDeviceLocale } from '../../../services/locale';
 
 interface BookPickerProps {
   visible: boolean;
@@ -17,42 +18,45 @@ interface BookPickerProps {
   theme: any;
 }
 
-export const BookPicker = ({ visible, onClose, onSelect, currentBook, colors, theme }: BookPickerProps) => (
-  <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
-    <SafeAreaView style={[styles.modalSafe, { backgroundColor: colors.background }]}>
-      <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.modalTitle, { color: colors.text }]}>Choose a book</Text>
-        <TouchableOpacity onPress={onClose}>
-          <Ionicons name="close" size={24} color={colors.text} />
-        </TouchableOpacity>
-      </View>
-      <FlatList
-        data={[...BIBLE_BOOKS]}
-        keyExtractor={(b) => b}
-        numColumns={2}
-        contentContainerStyle={styles.bookGrid}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            style={[
-              styles.bookItem,
-              { backgroundColor: colors.card, borderColor: colors.border },
-              item === currentBook && { backgroundColor: theme.accentLight, borderColor: theme.accent },
-            ]}
-            onPress={() => onSelect(item)}
-          >
-            <Text style={[
-              styles.bookItemText,
-              { color: colors.textSecondary },
-              item === currentBook && { color: theme.accent, fontFamily: Typography.sansSemiBold },
-            ]}>
-              {item}
-            </Text>
+export const BookPicker = ({ visible, onClose, onSelect, currentBook, colors, theme }: BookPickerProps) => {
+  const locale = getDeviceLocale();
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+      <SafeAreaView style={[styles.modalSafe, { backgroundColor: colors.background }]}>
+        <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+          <Text style={[styles.modalTitle, { color: colors.text }]}>{t('chooseBook', locale)}</Text>
+          <TouchableOpacity onPress={onClose}>
+            <Ionicons name="close" size={24} color={colors.text} />
           </TouchableOpacity>
-        )}
-      />
-    </SafeAreaView>
-  </Modal>
-);
+        </View>
+        <FlatList
+          data={[...BIBLE_BOOKS]}
+          keyExtractor={(b) => b}
+          numColumns={2}
+          contentContainerStyle={styles.bookGrid}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[
+                styles.bookItem,
+                { backgroundColor: colors.card, borderColor: colors.border },
+                item === currentBook && { backgroundColor: theme.accentLight, borderColor: theme.accent },
+              ]}
+              onPress={() => onSelect(item)}
+            >
+              <Text style={[
+                styles.bookItemText,
+                { color: colors.textSecondary },
+                item === currentBook && { color: theme.accent, fontFamily: Typography.sansSemiBold },
+              ]}>
+                {item}
+              </Text>
+            </TouchableOpacity>
+          )}
+        />
+      </SafeAreaView>
+    </Modal>
+  );
+};
 
 interface VersionPickerProps {
   visible: boolean;
@@ -65,50 +69,53 @@ interface VersionPickerProps {
   theme: any;
 }
 
-export const VersionPicker = ({ visible, onClose, onSelect, currentTranslation, downloadedVersions, onDelete, colors, theme }: VersionPickerProps) => (
-  <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
-    <SafeAreaView style={[styles.modalSafe, { backgroundColor: colors.background }]}>
-      <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
-        <Text style={[styles.modalTitle, { color: colors.text }]}>Bible Versions</Text>
-        <TouchableOpacity onPress={onClose}>
-          <Ionicons name="close" size={24} color={colors.text} />
-        </TouchableOpacity>
-      </View>
-      <FlatList
-        data={AVAILABLE_VERSIONS}
-        keyExtractor={(v) => v.id}
-        contentContainerStyle={styles.versionList}
-        renderItem={({ item }) => {
-          const isDownloaded = downloadedVersions.includes(item.id);
-          return (
-            <TouchableOpacity
-              style={[
-                styles.versionItem,
-                { backgroundColor: colors.card, borderColor: colors.border },
-                item.id === currentTranslation && { backgroundColor: theme.accentLight, borderColor: theme.accent },
-              ]}
-              onPress={() => onSelect(item.id as BibleTranslation)}
-            >
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.versionItemName, { color: colors.text }, item.id === currentTranslation && { color: theme.accent }]}>
-                  {item.name} ({item.id.toUpperCase()})
-                </Text>
-                <Text style={[styles.versionItemLang, { color: colors.textMuted }]}>{item.language}</Text>
-              </View>
-              {isDownloaded ? (
-                <TouchableOpacity onPress={() => onDelete(item.id as BibleTranslation)}>
-                  <Ionicons name="cloud-done" size={20} color={BaseColors.sage} />
-                </TouchableOpacity>
-              ) : (
-                <Ionicons name="cloud-download-outline" size={20} color={colors.textMuted} />
-              )}
-            </TouchableOpacity>
-          );
-        }}
-      />
-    </SafeAreaView>
-  </Modal>
-);
+export const VersionPicker = ({ visible, onClose, onSelect, currentTranslation, downloadedVersions, onDelete, colors, theme }: VersionPickerProps) => {
+  const locale = getDeviceLocale();
+  return (
+    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
+      <SafeAreaView style={[styles.modalSafe, { backgroundColor: colors.background }]}>
+        <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+          <Text style={[styles.modalTitle, { color: colors.text }]}>{t('bibleVersions', locale)}</Text>
+          <TouchableOpacity onPress={onClose}>
+            <Ionicons name="close" size={24} color={colors.text} />
+          </TouchableOpacity>
+        </View>
+        <FlatList
+          data={AVAILABLE_VERSIONS}
+          keyExtractor={(v) => v.id}
+          contentContainerStyle={styles.versionList}
+          renderItem={({ item }) => {
+            const isDownloaded = downloadedVersions.includes(item.id);
+            return (
+              <TouchableOpacity
+                style={[
+                  styles.versionItem,
+                  { backgroundColor: colors.card, borderColor: colors.border },
+                  item.id === currentTranslation && { backgroundColor: theme.accentLight, borderColor: theme.accent },
+                ]}
+                onPress={() => onSelect(item.id as BibleTranslation)}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.versionItemName, { color: colors.text }, item.id === currentTranslation && { color: theme.accent }]}>
+                    {item.name} ({item.id.toUpperCase()})
+                  </Text>
+                  <Text style={[styles.versionItemLang, { color: colors.textMuted }]}>{item.language}</Text>
+                </View>
+                {isDownloaded ? (
+                  <TouchableOpacity onPress={() => onDelete(item.id as BibleTranslation)}>
+                    <Ionicons name="cloud-done" size={20} color={BaseColors.sage} />
+                  </TouchableOpacity>
+                ) : (
+                  <Ionicons name="cloud-download-outline" size={20} color={colors.textMuted} />
+                )}
+              </TouchableOpacity>
+            );
+          }}
+        />
+      </SafeAreaView>
+    </Modal>
+  );
+};
 
 const styles = StyleSheet.create({
   modalSafe: { flex: 1 },

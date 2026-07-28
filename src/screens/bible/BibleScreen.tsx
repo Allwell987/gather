@@ -14,6 +14,7 @@ import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
 import { useBible } from './hooks/useBible';
 import { BIBLE_BOOKS, BibleBook, getChapterCount } from '../../services/bibleApi';
 import { BookPicker, VersionPicker } from './components/BibleModals';
+import { t, getDeviceLocale } from '../../services/locale';
 import type { BibleTranslation } from '../../types/bible';
 import type { HighlightColor } from '../../types/database';
 
@@ -25,6 +26,7 @@ const HIGHLIGHT_COLORS: { key: HighlightColor; hex: string; label: string }[] = 
 
 export default function BibleScreen() {
   const { theme, colors } = useThemeStore();
+  const locale = getDeviceLocale();
   const [currentBook, setCurrentBook] = useState<BibleBook>('John');
   const [currentChapter, setCurrentChapter] = useState(3);
   const [chapterInput, setChapterInput] = useState('3');
@@ -36,8 +38,18 @@ export default function BibleScreen() {
   const canGoNextBook = bookIndex < BIBLE_BOOKS.length - 1;
   const canGoPrevious = currentChapter > 1 || canGoPreviousBook;
   const canGoNext = currentChapter < totalChapters || canGoNextBook;
-  const previousLabel = currentChapter > 1 ? 'Previous Chapter' : canGoPreviousBook ? `Previous Book: ${BIBLE_BOOKS[bookIndex - 1]}` : 'Previous Chapter';
-  const nextLabel = currentChapter < totalChapters ? 'Next Chapter' : canGoNextBook ? `Next Book: ${BIBLE_BOOKS[bookIndex + 1]}` : 'Next Chapter';
+
+  const previousLabel = useMemo(() => {
+    if (currentChapter > 1) return t('previousChapter', locale);
+    if (canGoPreviousBook) return `${t('previousBook', locale)}: ${BIBLE_BOOKS[bookIndex - 1]}`;
+    return t('previousChapter', locale);
+  }, [currentChapter, canGoPreviousBook, bookIndex, locale]);
+
+  const nextLabel = useMemo(() => {
+    if (currentChapter < totalChapters) return t('nextChapter', locale);
+    if (canGoNextBook) return `${t('nextBook', locale)}: ${BIBLE_BOOKS[bookIndex + 1]}`;
+    return t('nextChapter', locale);
+  }, [currentChapter, totalChapters, canGoNextBook, bookIndex, locale]);
 
   const {
     chapterData, isChapterLoading, downloadedVersions, isOffline,
@@ -48,6 +60,10 @@ export default function BibleScreen() {
   const [showBookPicker, setShowBookPicker] = useState(false);
   const [showVersionPicker, setShowVersionPicker] = useState(false);
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null);
+
+  const updateChapterInput = (chapter: number) => {
+    setChapterInput(String(chapter));
+  };
 
   useEffect(() => {
     const loadLastRead = async () => {
@@ -66,7 +82,7 @@ export default function BibleScreen() {
         setCurrentBook(book);
         setCurrentChapter(validatedChapter);
         setCurrentTranslation(translation);
-        setChapterInput(String(validatedChapter));
+        updateChapterInput(validatedChapter);
       } catch (err) {
         if (__DEV__) {
           console.warn('Failed to load last-read bible state:', err);
@@ -77,20 +93,13 @@ export default function BibleScreen() {
     void loadLastRead();
   }, []);
 
-  useEffect(() => {
-    void AsyncStorage.setItem(
-      '@gather:last-read-bible',
-      JSON.stringify({ book: currentBook, chapter: currentChapter, translation: currentTranslation })
-    );
-    setChapterInput(String(currentChapter));
-  }, [currentBook, currentChapter, currentTranslation]);
-
   const verses = chapterData?.verses ?? [];
 
   const jumpToChapter = () => {
     const parsed = Number(chapterInput);
     if (!Number.isNaN(parsed) && parsed >= 1 && parsed <= totalChapters) {
       setCurrentChapter(parsed);
+      updateChapterInput(parsed);
       setSelectedVerse(null);
     }
   };
@@ -160,7 +169,7 @@ export default function BibleScreen() {
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <HeaderBar
         title={currentBook}
-        subtitle={`Chapter ${currentChapter}`}
+        subtitle={`${t('chapter', locale)} ${currentChapter}`}
         onBackPress={() => setShowBookPicker(true)}
         rightAction={() => setShowVersionPicker(true)}
         rightIcon="options-outline"
@@ -170,7 +179,7 @@ export default function BibleScreen() {
       {(isOffline || usingCached || isDownloading) && (
         <View style={[styles.offlineBar, { backgroundColor: isDownloading ? theme.accent : 'rgba(0,0,0,0.4)' }]}>
           <Text style={styles.offlineText}>
-            {isDownloading ? `Downloading... ${downloadProgress}%` : isOffline ? 'Offline' : 'Cached'}
+            {isDownloading ? `${t('downloading', locale)}... ${downloadProgress}%` : isOffline ? t('offline', locale) : t('cached', locale)}
           </Text>
         </View>
       )}
@@ -181,14 +190,14 @@ export default function BibleScreen() {
           <Text style={[styles.chapterNum, { color: colors.text }]}>{currentChapter}</Text>
           {!usingCached && !isOffline && (
             <TouchableOpacity style={[styles.downloadBtn, { borderColor: theme.accent }]} onPress={downloadBook}>
-              <Text style={{ color: theme.accent }}>Download for offline</Text>
+              <Text style={{ color: theme.accent }}>{t('downloadForOffline', locale)}</Text>
             </TouchableOpacity>
           )}
         </View>
 
         <View style={styles.chapterJumpRow}>
           <View style={[styles.chapterJumpInputWrapper, { borderColor: colors.border, backgroundColor: colors.surface }]}> 
-            <Text style={[styles.jumpLabel, { color: colors.text }]}>Jump to</Text>
+            <Text style={[styles.jumpLabel, { color: colors.text }]}>{t('jumpTo', locale)}</Text>
             <TextInput
               style={[styles.chapterInput, { color: colors.text, borderColor: colors.border, backgroundColor: colors.surface }]}
               keyboardType="number-pad"
@@ -197,12 +206,12 @@ export default function BibleScreen() {
               onChangeText={(value) => setChapterInput(value.replace(/[^0-9]/g, ''))}
               onSubmitEditing={jumpToChapter}
               placeholder={`${currentChapter}`}
-              placeholderTextColor={colors.textSecondary}
+              placeholderTextColor={colors.textMuted}
             />
             <Text style={[styles.chapterTotal, { color: colors.textSecondary }]}>/ {totalChapters}</Text>
           </View>
           <Button
-            label="Go"
+            label={t('go', locale)}
             onPress={jumpToChapter}
             disabled={!chapterInput || Number(chapterInput) < 1 || Number(chapterInput) > totalChapters}
             variant="secondary"
@@ -245,7 +254,20 @@ export default function BibleScreen() {
         />
       </View>
 
-      <BookPicker visible={showBookPicker} onClose={() => setShowBookPicker(false)} onSelect={b => { setCurrentBook(b); setCurrentChapter(1); setShowBookPicker(false); }} currentBook={currentBook} colors={colors} theme={theme} />
+      <BookPicker
+        visible={showBookPicker}
+        onClose={() => setShowBookPicker(false)}
+        onSelect={(b) => {
+          if (BIBLE_BOOKS.includes(b as BibleBook)) {
+            setCurrentBook(b as BibleBook);
+            setCurrentChapter(1);
+          }
+          setShowBookPicker(false);
+        }}
+        currentBook={currentBook}
+        colors={colors}
+        theme={theme}
+      />
       <VersionPicker visible={showVersionPicker} onClose={() => setShowVersionPicker(false)} onSelect={v => { setCurrentTranslation(v); setShowVersionPicker(false); }} currentTranslation={currentTranslation} downloadedVersions={downloadedVersions} onDelete={() => {}} colors={colors} theme={theme} />
     </View>
   );

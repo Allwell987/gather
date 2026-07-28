@@ -27,6 +27,7 @@ export type MainTabParamList = {
 
 export type HomeStackParamList = {
   Home: undefined;
+  Notifications: undefined;
   Giving: undefined;
   GroupChat: { groupId: string; groupName: string };
   ManageRequests: { groupId: string; groupName: string };

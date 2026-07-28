@@ -10,16 +10,18 @@ import { BaseColors, Spacing, Radius, CHURCH } from '../../constants/theme';
 import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL, HELP_CENTER_URL } from '../../constants/links';
 import { useProfile } from './hooks/useProfile';
 import { useAdminVerification } from './hooks/useAdminVerification';
+import { t, getDeviceLocale } from '../../services/locale';
 import { SettingRow, GuestProfilePrompt, EditableAvatar, VerificationBadge } from './components/ProfileComponents';
 import PolicyWebModal from '../../components/common/PolicyWebModal';
-import { ProfileEditor } from './components/ProfileModals';
+import { ProfileEditor, PreferencesEditor } from './components/ProfileModals';
 import type { ProfileScreenNavigationProp } from '../../types/navigation';
 
 export default function ProfileScreen() {
   const navigation = useNavigation<ProfileScreenNavigationProp>();
+  const locale = getDeviceLocale();
   const { theme, colors, themeMode } = useThemeStore();
-  const { setIsGuest } = useAuthStore();
-  const { user, isSaving, hasPendingVerification, handlePickAvatar, updatePersonalInfo, handleSignOut } = useProfile();
+  const { setIsGuest, notificationsEnabled } = useAuthStore();
+  const { user, isSaving, hasPendingVerification, handlePickAvatar, updatePersonalInfo, updatePreferences, handleSignOut } = useProfile();
   const { requests, isLoading, fetchRequests, refresh, reviewRequest, openCertificate } = useAdminVerification(user?.role === 'admin');
 
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
@@ -42,7 +44,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <HeaderBar title="My Profile" showBack={false} enableBlur />
+      <HeaderBar title={t('myProfile', locale)} showBack={false} enableBlur />
 
       <ScrollView
         contentContainerStyle={{ paddingBottom: 40 }}
@@ -64,34 +66,34 @@ export default function ProfileScreen() {
             </View>
             <Text style={{ color: themeMode === 'dark' ? colors.textSecondary : 'rgba(255,255,255,0.7)' }}>{CHURCH.name}</Text>
             <TouchableOpacity onPress={() => setEditor('profile')} style={styles.editBtn}>
-              <Text style={{ color: theme.accent, fontSize: 12, fontWeight: '600' }}>Edit Profile</Text>
+              <Text style={{ color: theme.accent, fontSize: 12, fontWeight: '600' }}>{t('editProfile', locale)}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
-        <Text style={[styles.groupHeader, { color: colors.textSecondary }]}>Account</Text>
+        <Text style={[styles.groupHeader, { color: colors.textSecondary }]}>{t('account', locale)}</Text>
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <SettingRow icon="person-outline" label="Personal details" value={user.full_name} onPress={() => setEditor('profile')} colors={colors} />
-          <SettingRow icon="mail-outline" label="Email" value={user.email} onPress={() => {}} colors={colors} />
+          <SettingRow icon="person-outline" label={t('personalDetails', locale)} value={user.full_name} onPress={() => setEditor('profile')} colors={colors} />
+          <SettingRow icon="mail-outline" label={t('email', locale)} value={user.email} onPress={() => {}} colors={colors} />
         </View>
 
-        <Text style={[styles.groupHeader, { color: colors.textSecondary }]}>App Settings</Text>
+        <Text style={[styles.groupHeader, { color: colors.textSecondary }]}>{t('appSettings', locale)}</Text>
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <SettingRow icon="color-palette-outline" label="Theme" value={theme.name} onPress={() => navigation.navigate('ThemePicker', { fromOnboarding: false })} colors={colors} iconColor={theme.accent} />
-          <SettingRow icon="moon-outline" label="Appearance" value={themeMode === 'system' ? 'System default' : themeMode === 'dark' ? 'Dark' : 'Light'} onPress={() => navigation.navigate('ThemePicker', { fromOnboarding: false, activeTab: 'appearance' })} colors={colors} iconColor={theme.accent} />
-          <SettingRow icon="notifications-outline" label="Daily Verse Reminder" value={user.reminder_time} onPress={() => {}} colors={colors} />
+          <SettingRow icon="color-palette-outline" label={t('themeLabel', locale)} value={theme.name} onPress={() => navigation.navigate('ThemePicker', { fromOnboarding: false })} colors={colors} iconColor={theme.accent} />
+          <SettingRow icon="moon-outline" label={t('appearance', locale)} value={themeMode === 'system' ? t('systemDefault', locale) : themeMode === 'dark' ? t('dark', locale) : t('light', locale)} onPress={() => navigation.navigate('ThemePicker', { fromOnboarding: false, activeTab: 'appearance' })} colors={colors} iconColor={theme.accent} />
+          <SettingRow icon="notifications-outline" label={t('dailyVerseReminder', locale)} value={notificationsEnabled ? user.reminder_time : t('off', locale)} onPress={() => setEditor('preferences')} colors={colors} />
         </View>
 
-        <Text style={[styles.groupHeader, { color: colors.textSecondary }]}>Support & Legal</Text>
+        <Text style={[styles.groupHeader, { color: colors.textSecondary }]}>{t('supportLegal', locale)}</Text>
         <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <SettingRow icon="help-circle-outline" label="Help Center" onPress={() => Linking.openURL(HELP_CENTER_URL)} colors={colors} />
-          <SettingRow icon="shield-checkmark-outline" label="Privacy Policy" onPress={() => setShowPrivacyModal(true)} colors={colors} />
-          <SettingRow icon="document-text-outline" label="Terms of Service" onPress={() => Linking.openURL(TERMS_OF_SERVICE_URL)} colors={colors} />
+          <SettingRow icon="help-circle-outline" label={t('helpCenter', locale)} onPress={() => Linking.openURL(HELP_CENTER_URL)} colors={colors} />
+          <SettingRow icon="shield-checkmark-outline" label={t('privacyPolicy', locale)} onPress={() => setShowPrivacyModal(true)} colors={colors} />
+          <SettingRow icon="document-text-outline" label={t('termsOfService', locale)} onPress={() => Linking.openURL(TERMS_OF_SERVICE_URL)} colors={colors} />
         </View>
 
         {user.role === 'admin' && requests.length > 0 && (
           <View style={styles.adminSection}>
-            <Text style={[styles.groupHeader, { color: colors.text }]}>Admin: Pending Verification</Text>
+            <Text style={[styles.groupHeader, { color: colors.text }]}>{t('adminPendingVerification', locale)}</Text>
             {requests.map(r => (
               <View key={r.id} style={[styles.card, styles.adminCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                 <View style={styles.adminCardHeader}>
@@ -101,15 +103,15 @@ export default function ProfileScreen() {
                   </View>
                   <TouchableOpacity style={styles.viewProofBtn} onPress={() => openCertificate(r)}>
                     <Ionicons name="eye-outline" size={16} color={theme.accent} />
-                    <Text style={{ color: theme.accent, fontWeight: '600' }}>Proof</Text>
+                    <Text style={{ color: theme.accent, fontWeight: '600' }}>{t('proof', locale)}</Text>
                   </TouchableOpacity>
                 </View>
                 <View style={styles.adminActions}>
                   <TouchableOpacity style={[styles.adminBtn, { backgroundColor: BaseColors.green500 }]} onPress={() => reviewRequest(r, 'approved')}>
-                    <Text style={styles.adminBtnText}>Approve</Text>
+                    <Text style={styles.adminBtnText}>{t('approve', locale)}</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={[styles.adminBtn, { backgroundColor: BaseColors.red500 }]} onPress={() => reviewRequest(r, 'rejected')}>
-                    <Text style={styles.adminBtnText}>Reject</Text>
+                    <Text style={styles.adminBtnText}>{t('reject', locale)}</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -119,7 +121,7 @@ export default function ProfileScreen() {
 
         <TouchableOpacity style={styles.signOutBtn} onPress={handleSignOut}>
           <Ionicons name="log-out-outline" size={20} color={BaseColors.red500} />
-          <Text style={styles.signOutText}>Sign Out</Text>
+          <Text style={styles.signOutText}>{t('signOut', locale)}</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -129,6 +131,19 @@ export default function ProfileScreen() {
         onSave={(data: any) => updatePersonalInfo(data).then(success => success && setEditor(null))}
         isSaving={isSaving}
         initialData={user}
+        theme={theme}
+        colors={colors}
+      />
+
+      <PreferencesEditor
+        visible={activeEditor === 'preferences'}
+        onClose={() => setEditor(null)}
+        onSave={(bibleVersion: any, reminderTime: string, enabled: boolean) =>
+          updatePreferences(bibleVersion, reminderTime, enabled).then(success => success && setEditor(null))
+        }
+        isSaving={isSaving}
+        initialData={user}
+        notificationsEnabled={notificationsEnabled}
         theme={theme}
         colors={colors}
       />

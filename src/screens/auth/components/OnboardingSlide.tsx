@@ -2,7 +2,10 @@ import React from 'react';
 import { View, Text, StyleSheet, Dimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Typography, Spacing, Radius } from '../../../constants/theme';
+import GlassView from '../../../components/common/GlassView';
 import type { OnboardingSlideData } from '../constants/onboardingSlides';
+import { t, getDeviceLocale } from '../../../services/locale';
+import { CHURCH } from '../../../constants/theme';
 
 const { width } = Dimensions.get('window');
 
@@ -12,24 +15,40 @@ interface OnboardingSlideProps {
 }
 
 export const OnboardingSlide: React.FC<OnboardingSlideProps> = ({ item, royal }) => {
+  const locale = getDeviceLocale();
+
+  const localized = {
+    eyebrow: t(`onboarding${item.id}Eyebrow` as any, locale),
+    verse: t(`onboarding${item.id}Verse` as any, locale),
+    ref: t(`onboarding${item.id}Ref` as any, locale),
+    title: t(`onboarding${item.id}Title` as any, locale),
+    sub: t(`onboarding${item.id}Sub` as any, locale).replace('{churchName}', CHURCH.name),
+  };
+
   return (
     <View style={styles.slide}>
       <View style={styles.contentCard}>
         <View style={styles.iconCircle}>
           <Ionicons name={item.icon as any} size={40} color={royal.gold} />
         </View>
-        <View style={styles.verseBox}>
-          <View style={styles.verseHeader}>
-            <Ionicons name="eye-outline" size={14} color={royal.goldSoft} />
-            <Text style={styles.verseEye}>{item.eyebrow}</Text>
+        <GlassView
+          style={styles.verseBox}
+          borderRadius={Radius.lg}
+          intensity={40}
+        >
+          <View style={{ padding: Spacing.xl }}>
+            <View style={styles.verseHeader}>
+              <Ionicons name="eye-outline" size={14} color={royal.goldSoft} />
+              <Text style={styles.verseEye}>{localized.eyebrow}</Text>
+            </View>
+            <Text style={styles.verseText} numberOfLines={3} adjustsFontSizeToFit>
+              {localized.verse}
+            </Text>
+            <Text style={styles.verseRef}>{localized.ref}</Text>
           </View>
-          <Text style={styles.verseText} numberOfLines={3} adjustsFontSizeToFit>
-            {item.verse}
-          </Text>
-          <Text style={styles.verseRef}>{item.ref}</Text>
-        </View>
-        <Text style={styles.slideTitle}>{item.title}</Text>
-        <Text style={styles.slideSub}>{item.sub}</Text>
+        </GlassView>
+        <Text style={styles.slideTitle}>{localized.title}</Text>
+        <Text style={styles.slideSub}>{localized.sub}</Text>
       </View>
     </View>
   );
@@ -58,11 +77,6 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(245,220,164,0.1)',
   },
   verseBox: {
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: Radius.lg,
-    padding: Spacing.xl,
-    borderWidth: 1,
-    borderColor: 'rgba(245,220,164,0.24)',
     marginBottom: Spacing.xl,
     width: '100%',
   },

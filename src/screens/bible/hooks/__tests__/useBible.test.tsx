@@ -4,14 +4,14 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React from 'react';
 
 let queryClient: QueryClient;
-let wrapper: ({ children }: { children: React.ReactNode }) => JSX.Element;
+let wrapper: ({ children }: { children: React.ReactNode }) => React.ReactElement;
 
 beforeEach(() => {
   queryClient = new QueryClient({
     defaultOptions: {
       queries: {
         retry: false,
-        cacheTime: 0,
+        gcTime: 0,
         refetchOnWindowFocus: false,
       },
     },

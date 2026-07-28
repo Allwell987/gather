@@ -19,10 +19,12 @@ import { useThemeStore } from '../../store/themeStore';
 import { useCreateGroup } from '../../hooks/useCreateGroup';
 import { GroupHeroPreview } from './components/GroupHeroPreview';
 import { EmojiPicker } from './components/EmojiPicker';
+import { t, getDeviceLocale } from '../../services/locale';
 import type { CommunityScreenNavigationProp } from '../../types/navigation';
 
 export default function CreateGroupScreen() {
   const navigation = useNavigation<CommunityScreenNavigationProp>();
+  const locale = getDeviceLocale();
   const { theme, colors } = useThemeStore();
   const {
     groupName,
@@ -55,8 +57,8 @@ export default function CreateGroupScreen() {
             <Ionicons name="close" size={24} color={BaseColors.white} />
           </TouchableOpacity>
           <View style={styles.headerCopy}>
-            <Text style={styles.headerTitle}>New Community</Text>
-            <Text style={styles.headerSubtitle}>Bring people together for God</Text>
+            <Text style={styles.headerTitle}>{t('newCommunity', locale)}</Text>
+            <Text style={styles.headerSubtitle}>{t('bringPeopleTogether', locale)}</Text>
           </View>
         </View>
       </View>
@@ -84,21 +86,21 @@ export default function CreateGroupScreen() {
             <View style={[styles.noticeCard, { backgroundColor: BaseColors.red500 + '08', borderColor: BaseColors.red500 + '24' }]}>
               <Ionicons name="alert-circle" size={20} color={BaseColors.red600} />
               <Text style={styles.noticeText}>
-                Only verified members can create new groups. Complete your profile verification to start a community.
+                {t('verifiedOnlyGroups', locale)}
               </Text>
             </View>
           )}
 
           <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Identity</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('identity', locale)}</Text>
 
             <View style={styles.fieldBlock}>
-              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Group Name</Text>
+              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>{t('groupName', locale)}</Text>
               <TextInput
                 style={[styles.textInput, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
                 value={groupName}
                 onChangeText={setGroupName}
-                placeholder="e.g. Wednesday Morning Prayer"
+                placeholder={t('groupNamePlaceholder', locale)}
                 placeholderTextColor={colors.textMuted}
                 maxLength={40}
               />
@@ -106,12 +108,12 @@ export default function CreateGroupScreen() {
             </View>
 
             <View style={styles.fieldBlock}>
-              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>About the Community</Text>
+              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>{t('aboutCommunity', locale)}</Text>
               <TextInput
                 style={[styles.textArea, { backgroundColor: colors.background, borderColor: colors.border, color: colors.text }]}
                 value={groupAbout}
                 onChangeText={setGroupAbout}
-                placeholder="What is this group for? How can members participate?"
+                placeholder={t('aboutCommunityPlaceholder', locale)}
                 placeholderTextColor={colors.textMuted}
                 multiline
                 numberOfLines={4}
@@ -122,7 +124,7 @@ export default function CreateGroupScreen() {
             </View>
 
             <View style={styles.fieldBlock}>
-              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Group Photo</Text>
+              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>{t('visualPrivacy', locale)}</Text>
               <View style={styles.actionRow}>
                 <TouchableOpacity
                   style={[styles.secondaryActionButton, { borderColor: theme.accent }]}
@@ -131,7 +133,7 @@ export default function CreateGroupScreen() {
                 >
                   <Ionicons name="image-outline" size={18} color={theme.accent} />
                   <Text style={[styles.secondaryActionText, { color: theme.accent }]}>
-                    {groupPictureUrl ? 'Change Photo' : 'Upload Photo'}
+                    {groupPictureUrl ? t('changePhoto', locale) : t('uploadPhoto', locale)}
                   </Text>
                 </TouchableOpacity>
 
@@ -148,10 +150,10 @@ export default function CreateGroupScreen() {
           </View>
 
           <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Visual & Privacy</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('visualPrivacy', locale)}</Text>
 
             <View style={styles.fieldBlock}>
-              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>Choose an Icon</Text>
+              <Text style={[styles.fieldLabel, { color: colors.textSecondary }]}>{t('chooseIcon', locale)}</Text>
               <EmojiPicker
                 selectedEmoji={groupEmoji}
                 onSelect={setGroupEmoji}
@@ -162,9 +164,9 @@ export default function CreateGroupScreen() {
 
             <View style={[styles.privacyRow, { borderTopColor: colors.border }]}>
               <View style={styles.privacyCopy}>
-                <Text style={[styles.privacyTitle, { color: colors.text }]}>Private Community</Text>
+                <Text style={[styles.privacyTitle, { color: colors.text }]}>{t('privateCommunity', locale)}</Text>
                 <Text style={[styles.privacySubtitle, { color: colors.textSecondary }]}>
-                  Members must be invited or approved by an admin to join.
+                  {t('privateCommunitySub', locale)}
                 </Text>
               </View>
               <Switch
@@ -187,7 +189,7 @@ export default function CreateGroupScreen() {
             {isSaving ? (
               <ActivityIndicator color={BaseColors.white} />
             ) : (
-              <Text style={styles.submitButtonText}>Create Community</Text>
+              <Text style={styles.submitButtonText}>{t('createGroupBtn', locale)}</Text>
             )}
           </TouchableOpacity>
         </ScrollView>

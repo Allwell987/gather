@@ -11,6 +11,7 @@ import { useOfflineSyncStatus } from '../hooks/useOfflineSyncStatus';
 import { useAuthStore } from '../store/authStore';
 import { useThemeStore } from '../store/themeStore';
 import { BaseColors, Typography } from '../constants/theme';
+import { t, getDeviceLocale } from '../services/locale';
 import type {
   MainTabParamList,
   HomeStackParamList,
@@ -18,6 +19,7 @@ import type {
   ProfileStackParamList,
 } from '../types/navigation';
 import HomeScreen from '../screens/home/HomeScreen';
+import NotificationsScreen from '../screens/home/NotificationsScreen';
 import TodayScreen from '../screens/today/TodayScreen';
 import BibleScreen from '../screens/bible/BibleScreen';
 import CommunityScreen from '../screens/community/CommunityScreen';
@@ -57,6 +59,7 @@ function HomeStackNavigator() {
       }}
     >
       <HomeStack.Screen name="Home" component={HomeScreen} />
+      <HomeStack.Screen name="Notifications" component={NotificationsScreen} />
       <HomeStack.Screen name="Giving" component={GivingScreen} />
       <HomeStack.Screen name="GroupChat" component={GroupChatScreen} />
       <HomeStack.Screen name="ManageRequests" component={ManageRequestsScreen} />
@@ -108,13 +111,14 @@ function ProfileStackNavigator() {
 // Custom tab bar
 type TabIconName = 'home-outline' | 'home' | 'calendar-number-outline' | 'calendar-number' | 'book-outline' | 'book' | 'people-outline' | 'people' | 'person-outline' | 'person';
 type TabRoute = { key: string; name: string };
+type TabKey = 'home' | 'today' | 'bible' | 'community' | 'profile';
 
-const TABS: { label: string; icon: TabIconName; iconActive: TabIconName }[] = [
-  { label: 'Home', icon: 'home-outline', iconActive: 'home' },
-  { label: 'Today', icon: 'calendar-number-outline', iconActive: 'calendar-number' },
-  { label: 'Bible', icon: 'book-outline', iconActive: 'book' },
-  { label: 'Community', icon: 'people-outline', iconActive: 'people' },
-  { label: 'Profile', icon: 'person-outline', iconActive: 'person' },
+const TABS: { labelKey: TabKey; icon: TabIconName; iconActive: TabIconName }[] = [
+  { labelKey: 'home', icon: 'home-outline', iconActive: 'home' },
+  { labelKey: 'today', icon: 'calendar-number-outline', iconActive: 'calendar-number' },
+  { labelKey: 'bible', icon: 'book-outline', iconActive: 'book' },
+  { labelKey: 'community', icon: 'people-outline', iconActive: 'people' },
+  { labelKey: 'profile', icon: 'person-outline', iconActive: 'person' },
 ];
 
 function TabBarItem({
@@ -136,7 +140,9 @@ function TabBarItem({
   syncTotal: number;
   navigate: (name: string) => void;
 }) {
+  const locale = getDeviceLocale();
   const tab = TABS[index];
+  const label = t(tab.labelKey, locale);
   const showSyncBadge = route.name === 'ProfileTab' && syncTotal > 0;
   const badgeLabel = syncTotal > 9 ? '9+' : String(syncTotal);
   const scale = useSharedValue(1);
@@ -156,7 +162,7 @@ function TabBarItem({
           navigate(route.name);
         }}
         activeOpacity={0.7}
-        accessibilityLabel={tab.label}
+        accessibilityLabel={label}
         accessibilityRole="tab"
         accessibilityState={{ selected: isFocused }}
       >
@@ -181,7 +187,7 @@ function TabBarItem({
           styles.tabLabel,
           { color: isFocused ? accentColor : textMutedColor }
         ]}>
-          {tab.label}
+          {label}
         </Text>
         {isFocused && (
           <View style={[styles.tabDot, { backgroundColor: accentColor }]} />

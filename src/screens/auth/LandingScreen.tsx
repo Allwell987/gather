@@ -30,7 +30,7 @@ export default function LandingScreen() {
   const [glowAnim] = useState(() => new Animated.Value(0));
 
   useEffect(() => {
-    Animated.parallel([
+    const entranceAnimations = Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 1000,
@@ -41,13 +41,22 @@ export default function LandingScreen() {
         duration: 800,
         useNativeDriver: true,
       }),
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(glowAnim, { toValue: 1, duration: 2000, useNativeDriver: true }),
-          Animated.timing(glowAnim, { toValue: 0, duration: 2000, useNativeDriver: true }),
-        ])
-      ).start(),
-    ]).start();
+    ]);
+
+    const pulseAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, { toValue: 1, duration: 2000, useNativeDriver: true }),
+        Animated.timing(glowAnim, { toValue: 0, duration: 2000, useNativeDriver: true }),
+      ])
+    );
+
+    entranceAnimations.start();
+    pulseAnimation.start();
+
+    return () => {
+      entranceAnimations.stop();
+      pulseAnimation.stop();
+    };
   }, [fadeAnim, slideAnim, glowAnim]);
 
   return (

@@ -26,6 +26,8 @@ export default function Pulse({
   }));
 
   useEffect(() => {
+    // Reanimated shared values are mutable and intentionally updated here.
+    // eslint-disable-next-line react-hooks/immutability
     pulse.value = withRepeat(
       withTiming(scale, {
         duration,

@@ -1,11 +1,24 @@
 // src/services/dailyVerse.ts
 import { supabase } from './supabase';
-import { DAILY_VERSE as FALLBACK_VERSE } from '../constants/theme';
+import { DAILY_VERSE as FALLBACK_VERSE, VERSE_BACKGROUNDS } from '../constants/theme';
 import { fetchVerseText } from './bibleApi';
 
 export interface DailyVerse {
   text: string;
   reference: string;
+  backgroundImage?: string;
+}
+
+/**
+ * Gets a consistent background image for the current day.
+ */
+function getDailyBackground(): string {
+  if (!VERSE_BACKGROUNDS || VERSE_BACKGROUNDS.length === 0) {
+    return 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&q=80&w=1000';
+  }
+  const dayOfYear = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0).getTime()) / 86400000);
+  const index = Math.abs(dayOfYear) % VERSE_BACKGROUNDS.length;
+  return VERSE_BACKGROUNDS[index];
 }
 
 /**
@@ -26,8 +39,8 @@ export async function fetchDailyVerse(): Promise<DailyVerse> {
       .limit(1)
       .maybeSingle();
 
-    if (!devoError && devotional?.anchor_scripture) {
-      const reference = devotional.anchor_scripture;
+    if (!devoError && (devotional as any)?.anchor_scripture) {
+      const reference = (devotional as any).anchor_scripture;
 
       // 2. Check if we already have the text in daily_verses for this reference
       const { data: existingVerse } = await supabase
@@ -37,14 +50,22 @@ export async function fetchDailyVerse(): Promise<DailyVerse> {
         .limit(1)
         .maybeSingle();
 
-      if (existingVerse?.text) {
-        return { text: existingVerse.text, reference };
+      if ((existingVerse as any)?.text) {
+        return {
+          text: (existingVerse as any).text,
+          reference,
+          backgroundImage: getDailyBackground(),
+        };
       }
 
       // 3. If not, fetch the text from the Bible API
       const text = await fetchVerseText(reference);
       if (text) {
-        return { text, reference };
+        return {
+          text,
+          reference,
+          backgroundImage: getDailyBackground(),
+        };
       }
     }
 
@@ -59,11 +80,16 @@ export async function fetchDailyVerse(): Promise<DailyVerse> {
       if (__DEV__) {
         console.error('Error fetching daily verse:', error);
       }
-      return FALLBACK_VERSE;
+      return { ...FALLBACK_VERSE, backgroundImage: getDailyBackground() };
     }
 
-    if (data) {
-      return data as DailyVerse;
+    if (data && typeof data === 'object' && 'text' in data && 'reference' in data) {
+      const verse = data as { text: string; reference: string };
+      return {
+        text: verse.text,
+        reference: verse.reference,
+        backgroundImage: getDailyBackground(),
+      };
     }
   } catch (err) {
     if (__DEV__) {
@@ -71,5 +97,5 @@ export async function fetchDailyVerse(): Promise<DailyVerse> {
     }
   }
 
-  return FALLBACK_VERSE;
+  return { ...FALLBACK_VERSE, backgroundImage: getDailyBackground() };
 }

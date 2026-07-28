@@ -48,7 +48,7 @@ export default function TodayScreen() {
 
         <View style={styles.content}>
           <AnimatedEntrance delay={100}>
-            <Text style={styles.sectionTitle}>{t('dailyDevotional', locale)}</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('dailyDevotional', locale)}</Text>
             <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
               {isLoading ? (
                 <ActivityIndicator size="large" color={theme.accent} style={{ padding: 40 }} />
@@ -62,7 +62,7 @@ export default function TodayScreen() {
                   colors={colors}
                   accent={theme.accent}
                 />
-              ) : <Text>{t('noDevotionalToday', locale)}</Text>}
+              ) : <Text style={{ color: colors.text }}>{t('noDevotionalToday', locale)}</Text>}
             </View>
           </AnimatedEntrance>
         </View>

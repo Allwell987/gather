@@ -167,7 +167,6 @@ export const scheduleNotification = async (
 
 // Schedule daily verse notification at 7:00 AM
 export const scheduleDailyVerseNotification = async (
-  verse: { text: string; reference: string },
   reminderTime = DEFAULT_DAILY_VERSE_TIME
 ): Promise<string | null> => {
   const [hourString, minuteString] = reminderTime.split(':');
@@ -185,9 +184,12 @@ export const scheduleDailyVerseNotification = async (
     minute,
   };
 
+  // Cancel any existing ones first to avoid duplicates
+  await cancelDailyVerseNotifications();
+
   return scheduleNotification(
-    '📖 Daily Verse',
-    `"${verse.text}"\n— ${verse.reference}`,
+    '📖 Daily Verse Reminder',
+    'Your daily verse is ready! Tap to read and reflect on God\'s word today.',
     trigger,
     { type: 'bible_verse' }
   );

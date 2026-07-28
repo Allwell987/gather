@@ -30,6 +30,8 @@ export default function AnimatedEntrance({
   }));
 
   useEffect(() => {
+    // Reanimated shared values are mutable and intentionally updated here.
+    // eslint-disable-next-line react-hooks/immutability
     opacity.value = withDelay(
       delay,
       withTiming(1, {
@@ -37,6 +39,7 @@ export default function AnimatedEntrance({
         easing: Easing.out(Easing.back(1.5)),
       })
     );
+    // eslint-disable-next-line react-hooks/immutability
     translateY.value = withDelay(
       delay,
       withTiming(0, {

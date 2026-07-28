@@ -1,0 +1,3 @@
+[auth]
+# Enable leaked password protection to block known-compromised passwords.
+leaked_password_protection = true

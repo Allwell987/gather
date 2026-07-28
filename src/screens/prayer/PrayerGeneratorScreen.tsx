@@ -11,9 +11,11 @@ import { useThemeStore } from '../../store/themeStore';
 import { useToastStore } from '../../store/toastStore';
 import { Typography, Spacing, Radius } from '../../constants/theme';
 import { generatePrayer as generatePrayerRequest } from '../../services/prayer';
+import { t, getDeviceLocale } from '../../services/locale';
 
 export default function PrayerGeneratorScreen() {
   const navigation = useNavigation();
+  const locale = getDeviceLocale();
   const { theme, colors } = useThemeStore();
   const { showToast } = useToastStore();
   const [input, setInput] = useState('');
@@ -22,20 +24,20 @@ export default function PrayerGeneratorScreen() {
 
   const handleGeneratePrayer = async () => {
     if (!input.trim()) {
-      showToast({ title: 'Input required', message: 'Please share what you are feeling.', variant: 'warning' });
+      showToast({ title: t('inputRequired', locale), message: t('shareFeeling', locale), variant: 'warning' });
       return;
     }
 
     setIsLoading(true);
     try {
       const prayer = await generatePrayerRequest(input);
-      setGeneratedPrayer(prayer || 'Could not generate prayer. Please try again.');
+      setGeneratedPrayer(prayer || t('couldNotGeneratePrayer', locale));
     } catch (error: any) {
       if (__DEV__) {
         console.error('Error generating prayer:', error);
       }
-      const message = error.message || 'Failed to generate prayer.';
-      showToast({ title: 'Error', message, variant: 'error' });
+      const message = error.message || t('failedToGeneratePrayer', locale);
+      showToast({ title: t('error', locale), message, variant: 'error' });
     } finally {
       setIsLoading(false);
     }
@@ -48,8 +50,8 @@ export default function PrayerGeneratorScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <HeaderBar
-        title="AI Prayer Assistant"
-        subtitle="Personalized spiritual support"
+        title={t('aiPrayerAssistant', locale)}
+        subtitle={t('personalizedSupport', locale)}
         onBackPress={() => navigation.goBack()}
         enableBlur
       />
@@ -61,12 +63,12 @@ export default function PrayerGeneratorScreen() {
       >
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <Text style={[styles.label, { color: colors.textSecondary }]}>How are you feeling today?</Text>
+            <Text style={[styles.label, { color: colors.textSecondary }]}>{t('howAreYouFeeling', locale)}</Text>
             <TextInput
               style={[styles.input, { backgroundColor: colors.background, color: colors.text, borderColor: colors.border }]}
               value={input}
               onChangeText={setInput}
-              placeholder="e.g., I'm feeling anxious about my exams..."
+              placeholder={t('feelingAnxiousPlaceholder', locale)}
               placeholderTextColor={colors.textMuted}
               multiline
               numberOfLines={3}
@@ -81,7 +83,7 @@ export default function PrayerGeneratorScreen() {
               ) : (
                 <>
                   <Ionicons name="sparkles" size={18} color="#fff" />
-                  <Text style={styles.generateBtnText}>Generate Prayer</Text>
+                  <Text style={styles.generateBtnText}>{t('generatePrayer', locale)}</Text>
                 </>
               )}
             </TouchableOpacity>
@@ -89,16 +91,16 @@ export default function PrayerGeneratorScreen() {
 
           {generatedPrayer ? (
             <View style={[styles.prayerCard, { backgroundColor: colors.card, borderColor: theme.accentBorder }]}>
-              <Text style={[styles.prayerTitle, { color: theme.accent }]}>A Prayer For You</Text>
+              <Text style={[styles.prayerTitle, { color: theme.accent }]}>{t('aPrayerForYou', locale)}</Text>
               <Text style={[styles.prayerText, { color: colors.text }]}>{generatedPrayer}</Text>
               <View style={styles.prayerActions}>
                 <TouchableOpacity style={[styles.actionBtn, { borderColor: theme.accent }]} onPress={handleShare}>
                   <Ionicons name="share-social-outline" size={18} color={theme.accent} />
-                  <Text style={{ color: theme.accent }}>Share</Text>
+                  <Text style={{ color: theme.accent }}>{t('share', locale)}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={[styles.actionBtn, { borderColor: theme.accent }]} onPress={() => setInput('')}>
                   <Ionicons name="refresh-outline" size={18} color={theme.accent} />
-                  <Text style={{ color: theme.accent }}>New</Text>
+                  <Text style={{ color: theme.accent }}>{t('new', locale)}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -106,7 +108,7 @@ export default function PrayerGeneratorScreen() {
             <View style={styles.emptyState}>
               <Ionicons name="heart-outline" size={48} color={colors.textMuted} />
               <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-                Share your heart above, and I'll help you find the words to talk to God.
+                {t('shareHeartHelper', locale)}
               </Text>
             </View>
           )}

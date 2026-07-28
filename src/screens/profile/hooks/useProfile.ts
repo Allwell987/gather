@@ -14,11 +14,10 @@ import {
   scheduleDailyVerseNotification,
   cancelDailyVerseNotifications
 } from '../../../services/notifications';
-import { fetchDailyVerse } from '../../../services/dailyVerse';
 import { getFriendlyErrorMessage } from '../../../services/errorMapping';
 
 export function useProfile() {
-  const { user, setUser, signOut } = useAuthStore();
+  const { user, setUser, signOut, notificationsEnabled, setNotificationsEnabled } = useAuthStore();
   const { showToast } = useToastStore();
   const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
@@ -97,7 +96,7 @@ export function useProfile() {
     }
   };
 
-  const updatePreferences = async (bibleVersion: any, reminderTime: string, notificationsEnabled: boolean) => {
+  const updatePreferences = async (bibleVersion: any, reminderTime: string, enabled: boolean) => {
     if (!user) return;
     setIsSaving(true);
     try {
@@ -106,11 +105,10 @@ export function useProfile() {
         reminder_time: reminderTime,
       });
       setUser(updated);
+      setNotificationsEnabled(enabled);
 
-      if (notificationsEnabled) {
-        const verse = await fetchDailyVerse();
-        await cancelDailyVerseNotifications();
-        await scheduleDailyVerseNotification(verse, reminderTime);
+      if (enabled) {
+        await scheduleDailyVerseNotification(reminderTime);
       } else {
         await cancelDailyVerseNotifications();
       }

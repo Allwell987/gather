@@ -10,6 +10,7 @@ import { useAuthStore } from '../../store/authStore';
 import { SLIDES } from './constants/onboardingSlides';
 import { OnboardingSlide } from './components/OnboardingSlide';
 import { OnboardingDots } from './components/OnboardingDots';
+import { t, getDeviceLocale } from '../../services/locale';
 import type { AuthStackNavigationProp } from '../../types/navigation';
 
 
@@ -28,6 +29,7 @@ const royal = {
 
 export default function OnboardingScreen() {
   const navigation = useNavigation<AuthStackNavigationProp>();
+  const locale = getDeviceLocale();
   const { setIsGuest } = useAuthStore();
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
@@ -108,7 +110,7 @@ export default function OnboardingScreen() {
             <TouchableOpacity style={styles.primaryBtn} onPress={handleNext}>
               <LinearGradient colors={[royal.gold, '#b38a3d']} style={styles.primaryGradient}>
                 <Text style={styles.primaryBtnText}>
-                  {currentIndex === SLIDES.length - 1 ? 'GET STARTED' : 'CONTINUE'}
+                  {currentIndex === SLIDES.length - 1 ? t('getStarted', locale) : t('continue', locale)}
                 </Text>
                 <Ionicons name="arrow-forward" size={18} color={royal.midnight} />
               </LinearGradient>
@@ -118,11 +120,11 @@ export default function OnboardingScreen() {
               style={styles.secondaryBtn}
               onPress={() => navigation.navigate('Login')}
             >
-              <Text style={styles.secondaryBtnText}>Sign in to account</Text>
+              <Text style={styles.secondaryBtnText}>{t('signInBtn', locale)}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.guestBtn} onPress={() => setIsGuest(true)}>
-              <Text style={styles.guestBtnText}>Continue as Guest</Text>
+              <Text style={styles.guestBtnText}>{t('continueAsGuest', locale)}</Text>
               <Ionicons name="chevron-forward" size={14} color={royal.mist} />
             </TouchableOpacity>
           </View>
@@ -132,7 +134,7 @@ export default function OnboardingScreen() {
               <Animated.View style={[styles.swipeArrow, { transform: [{ translateX: swipeAnim }] }]}>
                 <Ionicons name="arrow-forward" size={20} color={royal.goldSoft} />
               </Animated.View>
-              <Text style={styles.swipeHint}>Swipe to explore</Text>
+              <Text style={styles.swipeHint}>{t('swipeToExplore', locale)}</Text>
             </View>
           )}
         </View>

@@ -20,11 +20,13 @@ import {
 import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
 import { useAuthStore } from '../../store/authStore';
 import { ensureProfileForSession } from '../../services/profile';
+import { t, getDeviceLocale } from '../../services/locale';
 import type { AuthStackNavigationProp, EmailVerificationRouteProp } from '../../types/navigation';
 
 export default function EmailVerificationScreen() {
   const navigation = useNavigation<AuthStackNavigationProp>();
   const route = useRoute<EmailVerificationRouteProp>();
+  const locale = getDeviceLocale();
   const { showToast } = useToastStore();
   const {
     pendingVerificationEmail,
@@ -156,9 +158,9 @@ export default function EmailVerificationScreen() {
             <View style={styles.iconContainer}>
               <Ionicons name="mail-unread" size={48} color={BaseColors.gold} />
             </View>
-            <Text style={styles.title}>Check your email</Text>
+            <Text style={styles.title}>{t('checkEmail', locale)}</Text>
             <Text style={styles.subtitle}>
-              A verification link was sent to{'\n'}
+              {t('verificationSentTo', locale)}{'\n'}
               <Text style={styles.email}>{email}</Text>
             </Text>
           </View>
@@ -188,7 +190,7 @@ export default function EmailVerificationScreen() {
                 colors={[BaseColors.gold, BaseColors.goldDeep]}
                 style={styles.continueGradient}
               >
-                {loading ? <ActivityIndicator color={BaseColors.white} /> : <Text style={styles.continueBtnText}>I&apos;VE VERIFIED MY EMAIL</Text>}
+                {loading ? <ActivityIndicator color={BaseColors.white} /> : <Text style={styles.continueBtnText}>{t('iveVerifiedEmail', locale)}</Text>}
               </LinearGradient>
             </TouchableOpacity>
 
@@ -196,7 +198,7 @@ export default function EmailVerificationScreen() {
               style={styles.skipBtn}
               onPress={handleSkip}
             >
-              <Text style={styles.skipBtnText}>Skip for now →</Text>
+              <Text style={styles.skipBtnText}>{t('skipForNow', locale)}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -204,14 +206,14 @@ export default function EmailVerificationScreen() {
               onPress={handleResendEmail}
               disabled={resendLoading}
             >
-              <Text style={styles.resendBtnText}>{resendLoading ? 'Sending...' : 'Resend verification email'}</Text>
+              <Text style={styles.resendBtnText}>{resendLoading ? t('sending', locale) : t('resendEmail', locale)}</Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.footer}>
             <Text style={styles.footerText}>
-              Wrong email?{' '}
-              <Text style={styles.footerLink} onPress={() => navigation.navigate('Register')}>Sign up again</Text>
+              {t('unexpectedError', locale).split('.')[0]}?{' '}
+              <Text style={styles.footerLink} onPress={() => navigation.navigate('Register')}>{t('signUpAgain', locale)}</Text>
             </Text>
           </View>
         </ScrollView>

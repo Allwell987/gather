@@ -21,9 +21,10 @@ jest.mock('../bibleApi', () => ({
 
 describe('fetchDailyVerse', () => {
   const fromMock = supabase.from as jest.Mock;
-  const selectMock = supabase.select as jest.Mock;
-  const maybeSingleMock = (supabase.maybeSingle as any) as jest.Mock;
   const fetchVerseTextMock = fetchVerseText as jest.Mock;
+
+  // Use a helper to get access to mocked methods if needed
+  const getMaybeSingleMock = () => (supabase as any).maybeSingle as jest.Mock;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -31,7 +32,7 @@ describe('fetchDailyVerse', () => {
 
   it('prioritizes the anchor scripture from today\'s devotional', async () => {
     // 1. Mock today's devotional
-    maybeSingleMock
+    getMaybeSingleMock()
       .mockResolvedValueOnce({
         data: { anchor_scripture: 'Psalm 23:1' },
         error: null,
@@ -44,14 +45,18 @@ describe('fetchDailyVerse', () => {
 
     const result = await fetchDailyVerse();
 
-    expect(result).toEqual({ text: 'The Lord is my shepherd.', reference: 'Psalm 23:1' });
+    expect(result).toEqual({
+      text: 'The Lord is my shepherd.',
+      reference: 'Psalm 23:1',
+      backgroundImage: expect.any(String),
+    });
     expect(fromMock).toHaveBeenCalledWith('devotionals');
     expect(fromMock).toHaveBeenCalledWith('daily_verses');
   });
 
   it('fetches from Bible API if text is not in daily_verses', async () => {
     // 1. Mock today's devotional
-    maybeSingleMock
+    getMaybeSingleMock()
       .mockResolvedValueOnce({
         data: { anchor_scripture: 'John 3:16' },
         error: null,
@@ -67,13 +72,17 @@ describe('fetchDailyVerse', () => {
 
     const result = await fetchDailyVerse();
 
-    expect(result).toEqual({ text: 'For God so loved the world.', reference: 'John 3:16' });
+    expect(result).toEqual({
+      text: 'For God so loved the world.',
+      reference: 'John 3:16',
+      backgroundImage: expect.any(String),
+    });
     expect(fetchVerseTextMock).toHaveBeenCalledWith('John 3:16');
   });
 
   it('falls back to daily_verses if no devotional is found', async () => {
     // 1. Mock no devotional found
-    maybeSingleMock
+    getMaybeSingleMock()
       .mockResolvedValueOnce({
         data: null,
         error: null,
@@ -89,12 +98,13 @@ describe('fetchDailyVerse', () => {
     expect(result).toEqual({
       text: 'I can do all things through Christ.',
       reference: 'Philippians 4:13',
+      backgroundImage: expect.any(String),
     });
   });
 
   it('falls back to hardcoded verse if everything fails', async () => {
     // 1. Mock devotional fetch error
-    maybeSingleMock
+    getMaybeSingleMock()
       .mockResolvedValueOnce({
         data: null,
         error: { message: 'DB Error' },
@@ -107,6 +117,9 @@ describe('fetchDailyVerse', () => {
 
     const result = await fetchDailyVerse();
 
-    expect(result).toEqual(FALLBACK_VERSE);
+    expect(result).toEqual({
+      ...FALLBACK_VERSE,
+      backgroundImage: expect.any(String),
+    });
   });
 });

@@ -21,6 +21,7 @@ import { signInWithApple, signInWithGoogle } from '../../services/auth';
 import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
+import { t, getDeviceLocale } from '../../services/locale';
 import type { AuthStackNavigationProp } from '../../types/navigation';
 
 interface FormErrors {
@@ -32,6 +33,7 @@ interface FormErrors {
 
 export default function RegisterScreen() {
   const navigation = useNavigation<AuthStackNavigationProp>();
+  const locale = getDeviceLocale();
   const { setPendingVerificationEmail, setAuthFeedback, setIsOnboarded } = useAuthStore();
   const { showToast } = useToastStore();
 
@@ -61,17 +63,17 @@ export default function RegisterScreen() {
     const newErrors: FormErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-    if (!firstName.trim()) newErrors.firstName = 'First name is required';
+    if (!firstName.trim()) newErrors.firstName = t('firstName', locale) + ' is required';
     if (!email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('emailRequired', locale);
     } else if (!emailRegex.test(email.trim().toLowerCase())) {
-      newErrors.email = 'Enter a valid email address';
+      newErrors.email = t('validEmailRequired', locale);
     }
 
     if (!password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t('passwordRequired', locale);
     } else if (password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+      newErrors.password = t('password', locale) + ' must be at least 8 characters';
     }
 
     if (confirmPassword !== password) {
@@ -194,7 +196,7 @@ export default function RegisterScreen() {
         style={StyleSheet.absoluteFill}
       />
       <HeaderBar
-        title="Create Account"
+        title={t('createAccount', locale)}
         onBackPress={() => navigation.goBack()}
         backgroundColor="transparent"
         enableBlur={true}
@@ -212,8 +214,8 @@ export default function RegisterScreen() {
             keyboardDismissMode="on-drag"
           >
             <View style={styles.header}>
-              <Text style={styles.stepLabel}>Step 1 of 2</Text>
-              <Text style={styles.title}>Create Account</Text>
+              <Text style={styles.stepLabel}>{t('stepXofY', locale).replace('{x}', '1').replace('{y}', '2')}</Text>
+              <Text style={styles.title}>{t('createAccount', locale)}</Text>
               <Text style={styles.subtitle}>Begin your journey with the Wealth Reality Church</Text>
             </View>
 
@@ -253,7 +255,7 @@ export default function RegisterScreen() {
 
             <View style={styles.dividerRow}>
               <View style={styles.divider} />
-              <Text style={styles.dividerText}>or continue with email</Text>
+              <Text style={styles.dividerText}>{t('orContinueWithEmail', locale)}</Text>
               <View style={styles.divider} />
             </View>
 
@@ -266,7 +268,7 @@ export default function RegisterScreen() {
 
             <View style={styles.nameRow}>
               <View style={[styles.inputWrap, { flex: 1 }]}>
-                <Text style={styles.label}>First name</Text>
+                <Text style={styles.label}>{t('firstName', locale)}</Text>
                 <TextInput
                   style={[styles.input, errors.firstName ? styles.inputError : null]}
                   value={firstName}
@@ -281,7 +283,7 @@ export default function RegisterScreen() {
                 {renderInputError(errors.firstName)}
               </View>
               <View style={[styles.inputWrap, { flex: 1 }]}>
-                <Text style={styles.label}>Last name</Text>
+                <Text style={styles.label}>{t('lastName', locale)}</Text>
                 <TextInput
                   style={styles.input}
                   value={lastName}
@@ -294,7 +296,7 @@ export default function RegisterScreen() {
             </View>
 
             <View style={styles.inputWrap}>
-              <Text style={styles.label}>Email Address</Text>
+              <Text style={styles.label}>{t('emailAddress', locale)}</Text>
               <TextInput
                 style={[styles.input, errors.email ? styles.inputError : null]}
                 value={email}
@@ -302,7 +304,7 @@ export default function RegisterScreen() {
                   setEmail(t);
                   if (errors.email) setErrors({ ...errors, email: undefined });
                 }}
-                placeholder="youremail@domain.com"
+                placeholder={t('emailPlaceholder', locale)}
                 placeholderTextColor={BaseColors.brown400}
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -312,7 +314,7 @@ export default function RegisterScreen() {
             </View>
 
             <View style={styles.inputWrap}>
-              <Text style={styles.label}>Password</Text>
+              <Text style={styles.label}>{t('password', locale)}</Text>
               <View style={[styles.passWrap, errors.password ? styles.inputError : null]}>
                 <TextInput
                   style={[styles.input, { flex: 1, borderWidth: 0, paddingHorizontal: 0 }]}
@@ -334,7 +336,7 @@ export default function RegisterScreen() {
             </View>
 
             <View style={styles.inputWrap}>
-              <Text style={styles.label}>Confirm Password</Text>
+              <Text style={styles.label}>{t('confirmPassword', locale)}</Text>
               <View style={[styles.passWrap, errors.confirmPassword ? styles.inputError : null]}>
                 <TextInput
                   style={[styles.input, { flex: 1, borderWidth: 0, paddingHorizontal: 0 }]}
@@ -365,14 +367,14 @@ export default function RegisterScreen() {
                 {loading ? (
                   <ActivityIndicator color={BaseColors.white} />
                 ) : (
-                  <Text style={styles.submitText}>CREATE ACCOUNT</Text>
+                  <Text style={styles.submitText}>{t('createAccount', locale).toUpperCase()}</Text>
                 )}
               </LinearGradient>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.signInLink}>
               <Text style={styles.signInText}>
-                Already a member?{'  '}<Text style={styles.signInHighlight}>Sign in</Text>
+                {t('alreadyMember', locale)}{'  '}<Text style={styles.signInHighlight}>{t('signInBtn', locale)}</Text>
               </Text>
             </TouchableOpacity>
           </ScrollView>

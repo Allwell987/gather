@@ -150,6 +150,7 @@ export const BaseColors = {
   gray700: '#374151',
   gray800: '#1f2937',
   gray900: '#111827',
+  green500: '#22c55e',
   green100: '#dcfce7',
   green700: '#15803d',
   red50: '#fef2f2',
@@ -157,6 +158,8 @@ export const BaseColors = {
   red500: '#ef4444',
   red600: '#dc2626',
   red700: '#b91c1c',
+  orange100: '#ffedd5',
+  orange700: '#c2410c',
   danger: '#dc2626',
   dangerLight: '#fef2f2',
   yellow700: '#b45309',
@@ -177,19 +180,35 @@ export const BaseColors = {
   navy700: '#1a243d',
   cyan500: '#06b6d4',
   cyan400: '#22d3ee',
+  gray: '#64748b',
+  grayDark: '#1a365d',
+  // Glass colors
+  glassBorderLight: 'rgba(255, 255, 255, 0.4)',
+  glassBorderDark: 'rgba(255, 255, 255, 0.15)',
+  glassGlowLight: 'rgba(255, 255, 255, 0.2)',
+  glassGlowDark: 'rgba(255, 255, 255, 0.05)',
 };
+
+export const VERSE_BACKGROUNDS = [
+  'https://images.unsplash.com/photo-1501854140801-50d01698950b?auto=format&fit=crop&q=80&w=1000',
+  'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=1000',
+  'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&q=80&w=1000',
+  'https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&q=80&w=1000',
+  'https://images.unsplash.com/photo-1500627803232-96c1cd4b1d4d?auto=format&fit=crop&q=80&w=1000',
+];
 
 export const SemanticColors = {
   light: {
     background: '#fcfaf7',
     surface: '#ffffff',
-    text: '#0f172a',
+    text: '#1a365d',
     textSecondary: '#475569',
     textMuted: '#94a3b8',
     border: '#e2e8f0',
     card: '#ffffff',
     error: '#ef4444',
     success: '#10b981',
+    glassBg: 'rgba(255, 255, 255, 0.25)',
   },
   dark: {
     background: '#0a0f1d',
@@ -201,6 +220,7 @@ export const SemanticColors = {
     card: '#12192b',
     error: '#f87171',
     success: '#34d399',
+    glassBg: 'rgba(15, 23, 42, 0.25)',
   },
 };
 

@@ -2,14 +2,18 @@
 -- Safe to run multiple times.
 
 CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = public
+AS $$
 BEGIN
   IF to_jsonb(NEW) ? 'updated_at' THEN
     NEW := jsonb_populate_record(NEW, jsonb_build_object('updated_at', NOW()));
   END IF;
   RETURN NEW;
 END;
-$$ language 'plpgsql';
+$$;
 
 CREATE TABLE IF NOT EXISTS message_reactions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

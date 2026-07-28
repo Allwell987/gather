@@ -19,6 +19,7 @@ import { signInWithApple, signInWithGoogle } from '../../services/auth';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
 import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
+import { t, getDeviceLocale } from '../../services/locale';
 import type { AuthStackNavigationProp } from '../../types/navigation';
 
 interface FormErrors {
@@ -28,6 +29,7 @@ interface FormErrors {
 
 export default function LoginScreen() {
   const navigation = useNavigation<AuthStackNavigationProp>();
+  const locale = getDeviceLocale();
   const { setIsOnboarded } = useAuthStore();
   const { showToast } = useToastStore();
 
@@ -52,12 +54,12 @@ export default function LoginScreen() {
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
     if (!email.trim()) {
-      newErrors.email = 'Email is required';
+      newErrors.email = t('emailRequired', locale);
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim().toLowerCase())) {
-      newErrors.email = 'Enter a valid email address';
+      newErrors.email = t('validEmailRequired', locale);
     }
     if (!password) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t('passwordRequired', locale);
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -83,7 +85,7 @@ export default function LoginScreen() {
       if (error) {
         const message = getSupabaseAuthErrorMessage(error.message);
         setAuthError(message);
-        showToast({ title: 'Login failed', message, variant: 'error' });
+        showToast({ title: t('loginFailed', locale), message, variant: 'error' });
         return;
       }
 
@@ -94,9 +96,9 @@ export default function LoginScreen() {
       if (__DEV__) {
         console.error('Login error:', err);
       }
-      const message = 'An unexpected error occurred. Please try again.';
+      const message = t('unexpectedError', locale);
       setAuthError(message);
-      showToast({ title: 'Login failed', message, variant: 'error' });
+      showToast({ title: t('loginFailed', locale), message, variant: 'error' });
     } finally {
       setLoading(false);
     }
@@ -143,7 +145,7 @@ export default function LoginScreen() {
         style={StyleSheet.absoluteFill}
       />
       <HeaderBar
-        title="Sign In"
+        title={t('signInBtn', locale)}
         onBackPress={() => navigation.goBack()}
         backgroundColor="transparent"
         enableBlur={true}
@@ -161,8 +163,8 @@ export default function LoginScreen() {
             keyboardDismissMode="on-drag"
           >
             <View style={styles.header}>
-              <Text style={styles.title}>Welcome Back</Text>
-              <Text style={styles.subtitle}>Sign in to your kingdom community</Text>
+              <Text style={styles.title}>{t('welcomeBack', locale)}</Text>
+              <Text style={styles.subtitle}>{t('signInSubtitle', locale)}</Text>
             </View>
 
             <View style={styles.socialButtons}>
@@ -201,7 +203,7 @@ export default function LoginScreen() {
 
             <View style={styles.dividerRow}>
               <View style={styles.divider} />
-              <Text style={styles.dividerText}>or continue with email</Text>
+              <Text style={styles.dividerText}>{t('orContinueWithEmail', locale)}</Text>
               <View style={styles.divider} />
             </View>
 
@@ -213,7 +215,7 @@ export default function LoginScreen() {
             ) : null}
 
             <View style={styles.inputWrap}>
-              <Text style={styles.label}>Email Address</Text>
+              <Text style={styles.label}>{t('emailAddress', locale)}</Text>
               <TextInput
                 style={[styles.input, errors.email ? styles.inputError : null]}
                 value={email}
@@ -221,7 +223,7 @@ export default function LoginScreen() {
                   setEmail(t);
                   if (errors.email) setErrors({ ...errors, email: undefined });
                 }}
-                placeholder="youremail@domain.com"
+                placeholder={t('emailPlaceholder', locale)}
                 placeholderTextColor={BaseColors.brown400}
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -231,7 +233,7 @@ export default function LoginScreen() {
             </View>
 
             <View style={styles.inputWrap}>
-              <Text style={styles.label}>Password</Text>
+              <Text style={styles.label}>{t('password', locale)}</Text>
               <View style={[styles.passWrap, errors.password ? styles.inputError : null]}>
                 <TextInput
                   style={[styles.input, { flex: 1, borderWidth: 0, paddingHorizontal: 0 }]}
@@ -240,7 +242,7 @@ export default function LoginScreen() {
                     setPassword(t);
                     if (errors.password) setErrors({ ...errors, password: undefined });
                   }}
-                  placeholder="Enter your password"
+                  placeholder={t('passwordPlaceholder', locale)}
                   placeholderTextColor={BaseColors.brown400}
                   secureTextEntry={!showPass}
                   selectionColor={BaseColors.gold}
@@ -270,7 +272,7 @@ export default function LoginScreen() {
                 {loading ? (
                   <ActivityIndicator color={BaseColors.white} />
                 ) : (
-                  <Text style={styles.submitText}>SIGN IN</Text>
+                  <Text style={styles.submitText}>{t('signInBtn', locale)}</Text>
                 )}
               </LinearGradient>
             </TouchableOpacity>
@@ -279,10 +281,10 @@ export default function LoginScreen() {
               onPress={() => navigation.navigate('Register')}
               style={styles.registerLink}
               accessibilityRole="button"
-              accessibilityLabel="Create account"
+              accessibilityLabel={t('createAccount', locale)}
             >
               <Text style={styles.registerText}>
-                New to Gather?{'  '}<Text style={styles.registerHighlight}>Create account</Text>
+                {t('newToGather', locale)}{'  '}<Text style={styles.registerHighlight}>{t('createAccount', locale)}</Text>
               </Text>
             </TouchableOpacity>
           </ScrollView>

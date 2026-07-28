@@ -11,6 +11,7 @@ import { useThemeStore } from '../../store/themeStore';
 import { useAuthStore } from '../../store/authStore';
 import { useGroupMembers, GroupMember } from './hooks/useGroupMembers';
 import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
+import { t, getDeviceLocale } from '../../services/locale';
 import type { HomeStackParamList } from '../../types/navigation';
 
 type GroupInfoRouteProp = RouteProp<HomeStackParamList, 'GroupInfo'>;
@@ -18,6 +19,7 @@ type GroupInfoRouteProp = RouteProp<HomeStackParamList, 'GroupInfo'>;
 export default function GroupInfoScreen() {
   const navigation = useNavigation();
   const route = useRoute<GroupInfoRouteProp>();
+  const locale = getDeviceLocale();
   const { groupId, groupName } = route.params;
   const { theme, colors } = useThemeStore();
   const { user: currentUser } = useAuthStore();
@@ -28,15 +30,23 @@ export default function GroupInfoScreen() {
 
     Alert.alert(
       member.name,
-      'Manage group member privileges',
+      t('areYouSureRemoveMember', locale),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('cancel', locale), style: 'cancel' },
         member.isAdmin ? (
-          { text: 'Remove Admin', style: 'destructive', onPress: () => removeAdmin(member.id) }
+          { text: t('removeAdmin', locale), style: 'destructive', onPress: () => removeAdmin(member.id) }
         ) : (
-          { text: 'Promote to Admin', onPress: () => makeAdmin(member.id) }
+          { text: t('promoteToAdmin', locale), onPress: () => makeAdmin(member.id) }
         ),
-        { text: 'Remove from Group', style: 'destructive', onPress: () => Alert.alert('Confirm', 'Are you sure you want to remove this member?', [{ text: 'Cancel' }, { text: 'Remove', style: 'destructive' }]) }
+        {
+          text: t('removeFromGroup', locale),
+          style: 'destructive',
+          onPress: () => Alert.alert(
+            t('confirm', locale),
+            t('areYouSureRemoveMember', locale),
+            [{ text: t('cancel', locale) }, { text: t('remove', locale), style: 'destructive' }]
+          )
+        }
       ]
     );
   };
@@ -52,11 +62,11 @@ export default function GroupInfoScreen() {
       </View>
       <View style={styles.memberInfo}>
         <Text style={[styles.memberName, { color: colors.text }]}>
-          {item.name} {item.isYou && '(You)'}
+          {item.name} {item.isYou && `(${t('you', locale)})`}
         </Text>
         {item.isAdmin && (
           <View style={[styles.adminBadge, { backgroundColor: theme.accentLight }]}>
-            <Text style={[styles.adminBadgeText, { color: theme.accent }]}>Admin</Text>
+            <Text style={[styles.adminBadgeText, { color: theme.accent }]}>{t('admin', locale)}</Text>
           </View>
         )}
       </View>
@@ -69,7 +79,7 @@ export default function GroupInfoScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <HeaderBar
-        title="Group Info"
+        title={t('groupInfo', locale)}
         subtitle={groupName}
         onBackPress={() => navigation.goBack()}
         enableBlur
@@ -81,11 +91,11 @@ export default function GroupInfoScreen() {
             <Ionicons name="people" size={40} color="#fff" />
           </View>
           <Text style={[styles.groupTitle, { color: colors.text }]}>{groupName}</Text>
-          <Text style={[styles.memberCount, { color: colors.textSecondary }]}>{members.length} Members</Text>
+          <Text style={[styles.memberCount, { color: colors.textSecondary }]}>{members.length} {t('members', locale)}</Text>
         </View>
 
         <View style={[styles.section, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <Text style={[styles.sectionTitle, { color: theme.accent }]}>Members</Text>
+          <Text style={[styles.sectionTitle, { color: theme.accent }]}>{t('members', locale)}</Text>
           {members.map(member => (
             <View key={member.id}>
               {renderMember({ item: member })}

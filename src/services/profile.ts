@@ -130,7 +130,7 @@ const toUserProfile = (
   updated_at: profile?.updated_at ?? new Date().toISOString(),
 });
 
-const toStoredUserProfile = (profile: ProfileRow): UserProfile => ({
+export const toStoredUserProfile = (profile: ProfileRow): UserProfile => ({
   id: profile.id,
   email: normalizeEmail(profile.email),
   full_name: profile.full_name,
@@ -149,7 +149,7 @@ const toStoredUserProfile = (profile: ProfileRow): UserProfile => ({
   updated_at: profile.updated_at,
 });
 
-const fetchProfileById = async (userId: string) => {
+export const fetchProfileById = async (userId: string) => {
   return supabase
     .from('profiles')
     .select(PROFILE_SELECT)

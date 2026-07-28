@@ -26,10 +26,6 @@ DROP POLICY IF EXISTS "Users can upload chat images" ON storage.objects;
 DROP POLICY IF EXISTS "Users can update their own chat images" ON storage.objects;
 DROP POLICY IF EXISTS "Users can delete their own chat images" ON storage.objects;
 
-CREATE POLICY "Chat images are publicly accessible" ON storage.objects
-  FOR SELECT
-  USING (bucket_id = 'chat-images');
-
 CREATE POLICY "Users can upload chat images" ON storage.objects
   FOR INSERT
   TO authenticated

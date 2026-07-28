@@ -239,7 +239,7 @@ const styles = StyleSheet.create({
   replySnippetText: { fontFamily: Typography.sans, fontSize: 12, color: '#54656f', lineHeight: 17 },
   imageMessageWrap: { gap: 8 },
   chatImage: { width: 220, height: 220, borderRadius: 14, backgroundColor: '#d9d9d9' },
-  bubbleText: { fontFamily: Typography.sans, fontSize: 15, color: '#111b21', lineHeight: 21 },
+  bubbleText: { fontFamily: Typography.sans, fontSize: 15, color: '#1a365d', lineHeight: 21 },
   bubbleTextOut: { color: '#122116' },
   messageMeta: { flexDirection: 'row', alignItems: 'center', alignSelf: 'flex-end', marginTop: 2, gap: 4 },
   editedText: { fontSize: 10, color: '#667781', fontStyle: 'italic' },

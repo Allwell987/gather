@@ -5,14 +5,18 @@
 -- 0. UTILS
 -- ============================================================================
 CREATE OR REPLACE FUNCTION update_updated_at_column()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = public
+AS $$
 BEGIN
   IF to_jsonb(NEW) ? 'updated_at' THEN
     NEW := jsonb_populate_record(NEW, jsonb_build_object('updated_at', NOW()));
   END IF;
-    RETURN NEW;
+  RETURN NEW;
 END;
-$$ language 'plpgsql';
+$$;
 
 -- ============================================================================
 -- 1. PROFILES TABLE (User profiles)
@@ -96,7 +100,7 @@ CREATE POLICY "users_can_view_all_profiles" ON profiles
 CREATE OR REPLACE FUNCTION public.handle_new_user_profile()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY INVOKER
 SET search_path = public
 AS $$
 BEGIN
@@ -367,6 +371,8 @@ CREATE POLICY "group_admins_can_delete_chat_group_admins" ON chat_group_admins
 CREATE OR REPLACE FUNCTION public.prevent_last_group_admin_removal()
 RETURNS TRIGGER
 LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = public
 AS $$
 DECLARE
   admin_count INTEGER;
@@ -443,7 +449,7 @@ CREATE POLICY "group_admins_can_insert_chat_group_admin_audit_logs" ON chat_grou
 CREATE OR REPLACE FUNCTION public.ensure_group_creator_is_admin()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY INVOKER
 SET search_path = public
 AS $$
 BEGIN

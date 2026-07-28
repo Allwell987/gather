@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../../../services/supabase';
 import { readOfflineCache, writeOfflineCache } from '../../../services/offlineCache';
 import { differenceInDays } from 'date-fns';
+import { t, getDeviceLocale } from '../../../services/locale';
 
 const SERVICE_TIMES = [
   { day: 'Sunday', service: 'Special Service', time: '8:00 AM', dayNum: 0, hour: 8 },
@@ -13,13 +14,14 @@ const SERVICE_TIMES = [
 export function useHome(user: any) {
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const locale = getDeviceLocale();
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour >= 5 && hour < 12) return 'Good morning,';
-    if (hour >= 12 && hour < 17) return 'Good afternoon,';
-    if (hour >= 17 && hour < 22) return 'Good evening,';
-    return 'Good night,';
+    if (hour >= 5 && hour < 12) return t('goodMorning', locale);
+    if (hour >= 12 && hour < 17) return t('goodAfternoon', locale);
+    if (hour >= 17 && hour < 22) return t('goodEvening', locale);
+    return t('goodNight', locale);
   };
 
   const getNextService = () => {
@@ -51,11 +53,11 @@ export function useHome(user: any) {
   const getStreakData = () => {
     const count = user?.streak_count ?? 0;
     const last = user?.streak_last_date ? new Date(user.streak_last_date) : null;
-    if (!last) return { count: 0, status: 'Start your journey!' };
+    if (!last) return { count: 0, status: t('streakStatusStart', locale) };
     const diff = differenceInDays(new Date(), last);
-    if (diff === 0) return { count, status: 'Keep it up!' };
-    if (diff === 1) return { count, status: 'Read today to maintain!' };
-    return { count: 0, status: 'Start a new streak!' };
+    if (diff === 0) return { count, status: t('streakStatusKeep', locale) };
+    if (diff === 1) return { count, status: t('streakStatusToday', locale) };
+    return { count: 0, status: t('streakStatusNew', locale) };
   };
 
   return {

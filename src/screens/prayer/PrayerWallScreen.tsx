@@ -17,9 +17,11 @@ import { PrayerStats } from './components/PrayerStats';
 import { PrayerTabs } from './components/PrayerTabs';
 import { PrayerCard } from './components/PrayerCard';
 import { PrayerComposeModal } from './components/PrayerComposeModal';
+import { t, getDeviceLocale } from '../../services/locale';
 
 export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: boolean }) {
   const { theme, colors } = useThemeStore();
+  const locale = getDeviceLocale();
   const {
     activeTab,
     setActiveTab,
@@ -73,7 +75,7 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {!hideHeader && (
         <HeaderBar
-          title="Prayer Wall"
+          title={t('prayerWall', locale)}
           subtitle="The Wealth Reality Church"
           enableBlur={true}
           showBack={false}
@@ -112,7 +114,7 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
           <View style={[styles.cachedBanner, { borderColor: theme.accentBorder, backgroundColor: theme.accentLight }]}>
             <Ionicons name="cloud-offline-outline" size={14} color={theme.accent} />
             <Text style={[styles.cachedBannerText, { color: theme.accentDeep }]}>
-              Showing saved requests. {formatOfflineTimestamp(offlineTimestamp)}
+              {t('showingSavedRequests', locale)} {formatOfflineTimestamp(offlineTimestamp)}
             </Text>
           </View>
         )}
@@ -126,15 +128,15 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
         {!loading && filteredPrayers.length === 0 && (
           <View style={[styles.emptyState, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Ionicons name="sparkles-outline" size={24} color={theme.accent} />
-            <Text style={[styles.emptyStateTitle, { color: colors.text }]}>No prayer requests yet</Text>
+            <Text style={[styles.emptyStateTitle, { color: colors.text }]}>{t('noPrayerRequests', locale)}</Text>
             <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
               {activeTab === 'Mine'
-                ? 'You have not posted any requests yet. Tap + to share one.'
+                ? t('noMineRequests', locale)
                 : activeTab === 'Answered'
-                  ? 'No answered requests yet. Keep praying with the church family.'
+                  ? t('noAnsweredRequests', locale)
                   : activeTab === 'Urgent'
-                    ? 'No urgent requests right now.'
-                    : 'Be the first to post a prayer request and encourage others.'}
+                    ? t('noUrgentRequests', locale)
+                    : t('beFirstPrayer', locale)}
             </Text>
           </View>
         )}
@@ -181,7 +183,7 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
               loop={false}
               style={styles.successLottie}
             />
-            <Text style={styles.successTitle}>Request Posted!</Text>
+            <Text style={styles.successTitle}>{t('requestPosted', locale)}</Text>
           </View>
         </View>
       </Modal>

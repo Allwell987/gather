@@ -32,6 +32,7 @@ interface ThemeState {
     accentLight: string;
     accentBorder: string;
     accentSubtle: string;
+    themeMode: ThemeMode;
   };
   setAccent: (key: AccentKey) => void;
   setFontStyle: (key: FontStyle) => void;
@@ -67,6 +68,7 @@ const getColors = (mode: ThemeMode, accent: AccentTheme) => {
     accentLight: accent.accentLight,
     accentBorder: accent.accentBorder,
     accentSubtle: accent.accentSubtle,
+    themeMode: mode,
   };
 };
 

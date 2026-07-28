@@ -50,6 +50,8 @@ CREATE POLICY "group_admins_can_delete_chat_group_admins" ON chat_group_admins
 CREATE OR REPLACE FUNCTION public.prevent_last_group_admin_removal()
 RETURNS TRIGGER
 LANGUAGE plpgsql
+SECURITY INVOKER
+SET search_path = public
 AS $$
 DECLARE
   admin_count INTEGER;
@@ -123,7 +125,7 @@ CREATE POLICY "group_admins_can_insert_chat_group_admin_audit_logs" ON chat_grou
 CREATE OR REPLACE FUNCTION public.ensure_group_creator_is_admin()
 RETURNS TRIGGER
 LANGUAGE plpgsql
-SECURITY DEFINER
+SECURITY INVOKER
 SET search_path = public
 AS $$
 BEGIN

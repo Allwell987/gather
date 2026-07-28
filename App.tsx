@@ -61,7 +61,11 @@ import {
   isSupportedEmailOtpType,
   supabase,
 } from './src/services/supabase';
-import { registerForPushNotificationsAsync } from './src/services/notifications';
+import {
+  registerForPushNotificationsAsync,
+  scheduleDailyVerseNotification,
+  cancelDailyVerseNotifications
+} from './src/services/notifications';
 import { flushOfflineActions } from './src/services/offlineActionQueue';
 import { ensureProfileForSession } from './src/services/profile';
 
@@ -83,7 +87,9 @@ function App() {
     setAuthFeedback,
     user,
     isOnboarded,
+    setIsOnboarded,
     setPendingVerificationEmail,
+    notificationsEnabled,
   } = useAuthStore();
   const { colors, themeMode } = useThemeStore();
   const colorScheme = themeMode === 'system' ? Appearance.getColorScheme() ?? 'light' : themeMode;
@@ -102,6 +108,11 @@ function App() {
       const profile = await ensureProfileForSession(session, pushToken);
       setUser(profile);
 
+      // Auto-onboard if profile exists
+      if (profile) {
+        setIsOnboarded(true);
+      }
+
       setSession(session.access_token ?? null);
       setAuthFeedback(null);
       setPendingVerificationEmail(null);
@@ -115,7 +126,7 @@ function App() {
         'We could not finish setting up your profile. Apply the SQL fix in database/fix_profiles_rls.sql and try again.'
       );
     }
-  }, [setAuthFeedback, setPendingVerificationEmail, setSession, setUser]);
+  }, [setAuthFeedback, setIsOnboarded, setPendingVerificationEmail, setSession, setUser]);
 
   const handleAuthLink = useCallback(async (url: string) => {
     const params = getAuthParamsFromUrl(url);
@@ -318,6 +329,11 @@ function App() {
   useEffect(() => {
     if (!user?.id) {
       return;
+    }
+
+    // Re-schedule notifications on app start if enabled
+    if (notificationsEnabled && user.reminder_time) {
+      void scheduleDailyVerseNotification(user.reminder_time);
     }
 
     const flushQueuedChanges = async () => {

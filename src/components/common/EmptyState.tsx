@@ -6,7 +6,8 @@ import {
   StyleSheet,
   ViewStyle,
 } from 'react-native';
-import { BaseColors, Typography, Spacing } from '../../constants/theme';
+import { Typography, Spacing } from '../../constants/theme';
+import { useThemeStore } from '../../store/themeStore';
 
 export interface EmptyStateProps {
   emoji?: string;
@@ -23,17 +24,19 @@ export default function EmptyState({
   action,
   style,
 }: EmptyStateProps) {
+  const { colors } = useThemeStore();
+
   return (
     <View style={[styles.container, style]}>
       <Text style={styles.emoji}>{emoji}</Text>
-      <Text style={[Typography.heading2 as any, { color: BaseColors.gray900, marginTop: Spacing.lg }]}>
+      <Text style={[Typography.heading2 as any, { color: colors.text, marginTop: Spacing.lg }]}>
         {title}
       </Text>
       {description && (
         <Text
           style={[
             Typography.body2 as any,
-            { color: BaseColors.gray600, marginTop: Spacing.sm, textAlign: 'center' },
+            { color: colors.textSecondary, marginTop: Spacing.sm, textAlign: 'center' },
           ]}
         >
           {description}

@@ -1,0 +1,23 @@
+- [x] Initial Health Check & Discovery
+- [x] Comprehensive Localization (EN/FR)
+    - [x] Update `src/services/locale.ts` with all required keys
+    - [x] Localize Home Stack:
+        - [x] `HomeScreen.tsx` & `useHome.ts`
+        - [x] `GivingScreen.tsx`
+        - [x] `PrayerGeneratorScreen.tsx`
+    - [x] Localize Auth Stack:
+        - [x] `LoginScreen.tsx`
+        - [x] `RegisterScreen.tsx`
+        - [x] `OnboardingScreen.tsx`
+        - [x] `EmailVerificationScreen.tsx`
+    - [x] Localize Community & Chat Stack:
+        - [x] `CreateGroupScreen.tsx`
+        - [x] `GroupChatScreen.tsx`
+        - [x] `ManageRequestsScreen.tsx`
+    - [x] Localize Prayer Stack:
+        - [x] `PrayerWallScreen.tsx`
+- [x] Final Verification & TestFlight Prep
+    - [x] Run `npm run typecheck`
+    - [x] Run `npm run test`
+    - [x] Mock `expo-localization` in `jest.setup.js` for testing
+    - [x] Final review of `app.config.js` and `eas.json`

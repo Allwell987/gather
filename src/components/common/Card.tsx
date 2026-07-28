@@ -6,6 +6,7 @@ import {
 } from 'react-native';
 import { useThemeStore } from '../../store/themeStore';
 import { Spacing, Radius } from '../../constants/theme';
+import GlassView from './GlassView';
 
 export interface CardProps {
   children: React.ReactNode;
@@ -65,13 +66,13 @@ export default function Card({
       break;
 
     case 'glass':
-      containerStyle = {
-        ...containerStyle,
-        backgroundColor: colors.themeMode === 'dark' ? 'rgba(30, 41, 59, 0.7)' : 'rgba(255, 255, 255, 0.7)',
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-      };
-      break;
+      return (
+        <GlassView style={style} borderRadius={Radius.lg}>
+          <View style={{ padding: Spacing.lg }}>
+            {children}
+          </View>
+        </GlassView>
+      );
   }
 
   return <View style={[containerStyle, style]}>{children}</View>;

@@ -14,9 +14,9 @@ export type { RootStackParamList };
 const Stack = createStackNavigator<RootStackParamList>();
 
 export default function RootNavigator() {
-  const { user, isLoading, isOnboarded, isGuest } = useAuthStore();
+  const { user, isLoading, isOnboarded, isGuest, isHydrated } = useAuthStore();
 
-  if (isLoading) {
+  if (isLoading || !isHydrated) {
     return (
       <View
         style={{

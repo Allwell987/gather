@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import type { Devotional } from '../../types/database';
 import { BaseColors, Spacing, Radius, Typography } from '../../constants/theme';
+import { t, getDeviceLocale } from '../../services/locale';
 
 type Props = {
   devotional: Devotional;
@@ -14,7 +15,9 @@ type Props = {
   accent?: string;
 };
 
-export default function DevotionalCard({ devotional, onShare, onMarkRead, hasReadToday, isMarking, colors = {}, accent = '#2b6cb0' }: Props) {
+export default function DevotionalCard({ devotional, onShare, onMarkRead, hasReadToday, isMarking, colors = { text: '#1a365d', textSecondary: '#475569' }, accent = '#2b6cb0' }: Props) {
+  const locale = getDeviceLocale();
+
   return (
     <View style={[styles.card, { backgroundColor: colors.card || '#fff', borderColor: colors.border || '#eee' }]}>
       <Text style={[styles.devoTitle, { color: accent }]}>{devotional.title}</Text>
@@ -22,21 +25,21 @@ export default function DevotionalCard({ devotional, onShare, onMarkRead, hasRea
 
       {devotional.opening_charge ? (
         <View style={styles.section}>
-          <Text style={styles.sectionHeading}>Opening Charge</Text>
+          <Text style={[styles.sectionHeading, { color: colors.textSecondary || BaseColors.grayDark }]}>{t('openingCharge', locale)}</Text>
           <Text style={[styles.sectionText, { color: colors.text }]}>{devotional.opening_charge}</Text>
         </View>
       ) : null}
 
       {devotional.core_teaching ? (
         <View style={styles.section}>
-          <Text style={styles.sectionHeading}>Core Teaching</Text>
+          <Text style={[styles.sectionHeading, { color: colors.textSecondary || BaseColors.grayDark }]}>{t('coreTeaching', locale)}</Text>
           <Text style={[styles.sectionText, { color: colors.text }]}>{devotional.core_teaching}</Text>
         </View>
       ) : null}
 
       {devotional.supporting_scriptures && devotional.supporting_scriptures.length > 0 ? (
         <View style={styles.section}>
-          <Text style={styles.sectionHeading}>Supporting Scriptures</Text>
+          <Text style={[styles.sectionHeading, { color: colors.textSecondary || BaseColors.grayDark }]}>{t('supportingScriptures', locale)}</Text>
           {devotional.supporting_scriptures.map((s, i) => (
             <Text key={i} style={[styles.scriptureItem, { color: colors.text }]}>{`• ${s}`}</Text>
           ))}
@@ -45,35 +48,35 @@ export default function DevotionalCard({ devotional, onShare, onMarkRead, hasRea
 
       {devotional.spiritual_insight ? (
         <View style={styles.section}>
-          <Text style={styles.sectionHeading}>Spiritual Insight</Text>
+          <Text style={[styles.sectionHeading, { color: colors.textSecondary || BaseColors.grayDark }]}>{t('spiritualInsight', locale)}</Text>
           <Text style={[styles.sectionText, { color: colors.text }]}>{devotional.spiritual_insight}</Text>
         </View>
       ) : null}
 
       {devotional.biblical_example ? (
         <View style={styles.section}>
-          <Text style={styles.sectionHeading}>Biblical Example</Text>
+          <Text style={[styles.sectionHeading, { color: colors.textSecondary || BaseColors.grayDark }]}>{t('biblicalExample', locale)}</Text>
           <Text style={[styles.sectionText, { color: colors.text }]}>{devotional.biblical_example}</Text>
         </View>
       ) : null}
 
       {devotional.warning_correction ? (
         <View style={styles.section}>
-          <Text style={styles.sectionHeading}>Warning / Correction</Text>
+          <Text style={[styles.sectionHeading, { color: colors.textSecondary || BaseColors.grayDark }]}>{t('warningCorrection', locale)}</Text>
           <Text style={[styles.sectionText, { color: colors.text }]}>{devotional.warning_correction}</Text>
         </View>
       ) : null}
 
       {devotional.declaration ? (
         <View style={styles.section}>
-          <Text style={styles.sectionHeading}>Declaration</Text>
+          <Text style={[styles.sectionHeading, { color: colors.textSecondary || BaseColors.grayDark }]}>{t('declaration', locale)}</Text>
           <Text style={[styles.sectionText, { color: colors.text }]}>{devotional.declaration}</Text>
         </View>
       ) : null}
 
       {devotional.summary ? (
         <View style={styles.section}>
-          <Text style={styles.sectionHeading}>Summary</Text>
+          <Text style={[styles.sectionHeading, { color: colors.textSecondary || BaseColors.grayDark }]}>{t('summary', locale)}</Text>
           <Text style={[styles.sectionText, { color: colors.text }]}>{devotional.summary}</Text>
         </View>
       ) : null}
@@ -89,7 +92,7 @@ export default function DevotionalCard({ devotional, onShare, onMarkRead, hasRea
           disabled={hasReadToday || isMarking}
         >
           <Text style={{ color: hasReadToday ? accent : '#fff', fontWeight: '700' }}>
-            {isMarking ? '...' : hasReadToday ? 'Done' : 'Mark as read'}
+            {isMarking ? '...' : hasReadToday ? t('readDone', locale) : t('markAsRead', locale)}
           </Text>
         </TouchableOpacity>
       </View>

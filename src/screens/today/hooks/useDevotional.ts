@@ -4,9 +4,10 @@ import { supabase } from '../../../services/supabase';
 import { format } from 'date-fns';
 import { useAuthStore } from '../../../store/authStore';
 import type { Devotional } from '../../../types/database';
+import { fetchProfileById, toStoredUserProfile } from '../../../services/profile';
 
 export function useDevotional() {
-  const { user } = useAuthStore();
+  const { user, setUser } = useAuthStore();
   const queryClient = useQueryClient();
   const today = format(new Date(), 'yyyy-MM-dd');
 
@@ -32,9 +33,25 @@ export function useDevotional() {
   const markAsRead = useMutation({
     mutationFn: async () => {
       if (!user?.id || !devotional?.id) return;
-      await supabase.from('devotional_reads').upsert({ user_id: user.id, devotional_id: devotional.id } as never);
+
+      const { error } = await supabase.from('devotional_reads').upsert({
+        user_id: user.id,
+        devotional_id: devotional.id,
+        read_at: new Date().toISOString()
+      } as never);
+
+      if (error) throw error;
+
+      // Re-fetch profile to get updated streak
+      const { data: profileData, error: profileError } = await fetchProfileById(user.id);
+      if (profileError) throw profileError;
+      if (profileData) {
+        setUser(toStoredUserProfile(profileData));
+      }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['devotional-read'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['devotional-read'] });
+    },
   });
 
   return {

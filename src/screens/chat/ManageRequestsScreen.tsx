@@ -17,6 +17,7 @@ import { useThemeStore } from '../../store/themeStore';
 import { useToastStore } from '../../store/toastStore';
 import { getPendingJoinRequests, approveJoinRequest, rejectJoinRequest } from '../../services/chatGroups';
 import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
+import { t, getDeviceLocale } from '../../services/locale';
 import type { HomeStackParamList } from '../../types/navigation';
 
 type ManageRequestsRouteProp = RouteProp<HomeStackParamList, 'ManageRequests'>;
@@ -24,6 +25,7 @@ type ManageRequestsRouteProp = RouteProp<HomeStackParamList, 'ManageRequests'>;
 export default function ManageRequestsScreen() {
   const navigation = useNavigation();
   const route = useRoute<ManageRequestsRouteProp>();
+  const locale = getDeviceLocale();
   const { groupId, groupName } = route.params;
   const { colors, theme } = useThemeStore();
   const { showToast } = useToastStore();
@@ -39,10 +41,10 @@ export default function ManageRequestsScreen() {
       approveJoinRequest(requestId, groupId, userId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pending-requests', groupId] });
-      showToast({ title: 'Approved', message: 'The user has been added to the group.', variant: 'success' });
+      showToast({ title: t('approved', locale), message: t('userAddedToGroup', locale), variant: 'success' });
     },
     onError: (error: any) => {
-      showToast({ title: 'Error', message: error.message || 'Failed to approve request', variant: 'error' });
+      showToast({ title: t('error', locale), message: error.message || t('failedToApprove', locale), variant: 'error' });
     },
   });
 
@@ -50,10 +52,10 @@ export default function ManageRequestsScreen() {
     mutationFn: (requestId: string) => rejectJoinRequest(requestId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pending-requests', groupId] });
-      showToast({ title: 'Rejected', message: 'The request has been declined.', variant: 'info' });
+      showToast({ title: t('rejected', locale), message: t('requestDeclined', locale), variant: 'info' });
     },
     onError: (error: any) => {
-      showToast({ title: 'Error', message: error.message || 'Failed to reject request', variant: 'error' });
+      showToast({ title: t('error', locale), message: error.message || t('failedToReject', locale), variant: 'error' });
     },
   });
 
@@ -83,7 +85,7 @@ export default function ManageRequestsScreen() {
           {approveMutation.isPending ? (
             <ActivityIndicator size="small" color={BaseColors.white} />
           ) : (
-            <Text style={styles.actionBtnText}>Approve</Text>
+            <Text style={styles.actionBtnText}>{t('approve', locale)}</Text>
           )}
         </TouchableOpacity>
         <TouchableOpacity
@@ -94,7 +96,7 @@ export default function ManageRequestsScreen() {
           {rejectMutation.isPending ? (
             <ActivityIndicator size="small" color={BaseColors.red500} />
           ) : (
-            <Text style={[styles.actionBtnText, { color: BaseColors.red500 }]}>Decline</Text>
+            <Text style={[styles.actionBtnText, { color: BaseColors.red500 }]}>{t('decline', locale)}</Text>
           )}
         </TouchableOpacity>
       </View>
@@ -104,7 +106,7 @@ export default function ManageRequestsScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <HeaderBar
-        title="Join Requests"
+        title={t('joinRequests', locale)}
         subtitle={groupName}
         onBackPress={() => navigation.goBack()}
         enableBlur={true}
@@ -116,9 +118,9 @@ export default function ManageRequestsScreen() {
       ) : requests.length === 0 ? (
         <View style={styles.centered}>
           <Ionicons name="people-outline" size={64} color={colors.textMuted} />
-          <Text style={[styles.emptyTitle, { color: colors.text }]}>No pending requests</Text>
+          <Text style={[styles.emptyTitle, { color: colors.text }]}>{t('noPendingRequests', locale)}</Text>
           <Text style={[styles.emptySub, { color: colors.textSecondary }]}>
-            All caught up! New requests to join this private group will appear here.
+            {t('allCaughtUpRequests', locale)}
           </Text>
         </View>
       ) : (
