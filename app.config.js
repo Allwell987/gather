@@ -25,6 +25,7 @@ const baseConfig = {
     infoPlist: {
       CFBundleAllowMixedLocalizations: true,
       NSPhotoLibraryAddUsageDescription: 'Gather uses your photos to enhance your experience.',
+      ITSAppUsesNonExemptEncryption: false,
     },
     associatedDomains: [
       'applinks:gather.wealthrealitychurch.com',
