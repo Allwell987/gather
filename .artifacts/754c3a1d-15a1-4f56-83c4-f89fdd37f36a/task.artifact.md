@@ -1,2 +1,2 @@
-- [ ] Add encryption compliance flag to `app.config.js`
-- [ ] Provide deployment command to user
+- [x] Add encryption compliance flag to `app.config.js`
+- [x] Provide deployment command to user

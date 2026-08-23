@@ -10,6 +10,7 @@ import {
   getSupabaseConfigMessage,
   supabase,
 } from './supabase';
+import { resolveGoogleClientId } from './oauth';
 
 export interface GoogleUser {
   id: string;
@@ -58,6 +59,8 @@ export async function signInWithGoogle(): Promise<{ user?: GoogleUser; error?: s
     // Use a unique parameter to tell App.tsx to ignore this redirect
     const redirectTo = getAuthRedirectUrl({ source: 'auth-session' });
 
+    const googleClientId = resolveGoogleClientId();
+
     const { data: oauthData, error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -66,8 +69,7 @@ export async function signInWithGoogle(): Promise<{ user?: GoogleUser; error?: s
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
-          // Pass the client ID if available to help Google identify the requester
-          client_id: process.env.EXPO_PUBLIC_GOOGLE_CLIENT_ID || '',
+          client_id: googleClientId,
         },
       },
     });
@@ -76,7 +78,10 @@ export async function signInWithGoogle(): Promise<{ user?: GoogleUser; error?: s
       return { error: getSupabaseAuthErrorMessage(oauthError?.message) };
     }
 
-    const result = await WebBrowser.openAuthSessionAsync(oauthData.url, redirectTo);
+    const result = await WebBrowser.openAuthSessionAsync(oauthData.url, redirectTo, {
+      showInRecents: true,
+      createTask: false,
+    });
 
     if (result.type !== 'success') {
       return { error: 'Authentication was cancelled or failed' };
@@ -98,6 +103,10 @@ export async function signInWithGoogle(): Promise<{ user?: GoogleUser; error?: s
           errorDescription: params.error_description,
         }),
       };
+    }
+
+    if (!params.code && !params.access_token && !params.refresh_token) {
+      return { error: 'Google sign-in did not return a valid auth response. Please try again.' };
     }
 
     // Handle session establishment via code (PKCE) or tokens (Implicit)

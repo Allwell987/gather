@@ -59,6 +59,7 @@ import {
   getSupabaseConfigMessage,
   isSupabaseConfigured,
   isSupportedEmailOtpType,
+  normalizeAuthCallbackUrl,
   supabase,
 } from './src/services/supabase';
 import {
@@ -129,7 +130,8 @@ function App() {
   }, [setAuthFeedback, setIsOnboarded, setPendingVerificationEmail, setSession, setUser]);
 
   const handleAuthLink = useCallback(async (url: string) => {
-    const params = getAuthParamsFromUrl(url);
+    const normalizedUrl = normalizeAuthCallbackUrl(url);
+    const params = getAuthParamsFromUrl(normalizedUrl);
 
     // If the link comes from a manual auth session (like Google/Apple via WebBrowser),
     // we should let the caller of WebBrowser.openAuthSessionAsync handle it to avoid

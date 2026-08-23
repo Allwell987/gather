@@ -1,8 +1,21 @@
 #!/bin/bash
 # Retry failed devotional generations using failed-days.log
 
-SUPABASE_FUNCTION_URL="https://eeofuuepqvysakqonaxj.functions.supabase.co/generate-365-devotionals"
-SUPABASE_SERVICE_ROLE_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlb2Z1dWVwcXZ5c2FrcW9uYXhqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NDQzODI2NiwiZXhwIjoyMDkwMDE0MjY2fQ.Srwk5AD-hGSU__UKasEpRvBZn_7ZoyHHIIa6Q8weFDw"
+# Load environment variables from .env in repo root (never commit secrets to source)
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+if [ -f "$ROOT_DIR/.env" ]; then
+  set -a
+  # shellcheck source=/dev/null
+  source "$ROOT_DIR/.env"
+  set +a
+fi
+
+if [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+  echo "Error: SUPABASE_SERVICE_ROLE_KEY is not set. Add it to your .env file or export it."
+  exit 1
+fi
+
+SUPABASE_FUNCTION_URL="${EXPO_PUBLIC_SUPABASE_URL:-https://eeofuuepqvysakqonaxj.supabase.co}/functions/v1/generate-365-devotionals"
 
 if [ ! -f failed-days.log ]; then
   echo "No failed-days.log found. Nothing to retry."

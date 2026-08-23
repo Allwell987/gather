@@ -215,16 +215,34 @@ export const getAuthFeedbackMessage = ({
 };
 
 export const getAuthParamsFromUrl = (url: string) => {
-  const queryIndex = url.indexOf('?');
-  const hashIndex = url.indexOf('#');
+  const normalizedUrl = normalizeAuthCallbackUrl(url);
+  const queryIndex = normalizedUrl.indexOf('?');
+  const hashIndex = normalizedUrl.indexOf('#');
 
   const queryString = queryIndex >= 0
-    ? url.slice(queryIndex + 1, hashIndex >= 0 ? hashIndex : undefined)
+    ? normalizedUrl.slice(queryIndex + 1, hashIndex >= 0 ? hashIndex : undefined)
     : '';
-  const hashString = hashIndex >= 0 ? url.slice(hashIndex + 1) : '';
+  const hashString = hashIndex >= 0 ? normalizedUrl.slice(hashIndex + 1) : '';
   const params = new URLSearchParams(
     [queryString, hashString].filter(Boolean).join('&')
   );
 
   return Object.fromEntries(params.entries());
+};
+
+export const normalizeAuthCallbackUrl = (url: string) => {
+  if (!url) {
+    return url;
+  }
+
+  try {
+    const parsedUrl = new URL(url);
+    if (parsedUrl.pathname === '/auth/callback') {
+      return `${parsedUrl.origin}${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
+    }
+  } catch {
+    // Ignore invalid URLs and fall back to the original string.
+  }
+
+  return url;
 };

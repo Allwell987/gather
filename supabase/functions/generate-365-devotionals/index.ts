@@ -43,12 +43,46 @@ serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
+  // Require service_role key or admin user
+  const authHeader = req.headers.get('Authorization')
+  const token = authHeader?.replace('Bearer ', '')
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+
+  if (!token) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    })
+  }
+
+  if (token !== serviceRoleKey) {
+    // Check if the caller is an authenticated admin user
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!
+    const userClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader! } },
+    })
+    const { data: { user } } = await userClient.auth.getUser()
+    if (!user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+    const adminClient = createClient(supabaseUrl, serviceRoleKey)
+    const { data: profile } = await adminClient.from('profiles').select('role').eq('id', user.id).single()
+    if (!['admin', 'pastor'].includes(profile?.role ?? '')) {
+      return new Response(JSON.stringify({ error: 'Forbidden' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+  }
+
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     const openaiApiKey = Deno.env.get('OPENAI_API_KEY')!
 
-    const supabase = createClient(supabaseUrl, supabaseKey)
+    const supabase = createClient(supabaseUrl, serviceRoleKey)
     const openai = new OpenAI({ apiKey: openaiApiKey })
 
     const { start_date, days } = await req.json()

@@ -1,3 +1,12 @@
 [auth]
-# Enable leaked password protection to block known-compromised passwords.
-leaked_password_protection = true
+site_url = "exp://"
+additional_redirect_urls = ["exp://", "gather://auth/callback"]
+
+[auth.mfa.totp]
+enroll_enabled = true
+verify_enabled = true
+
+[auth.email]
+enable_confirmations = true
+max_frequency = "40s"
+otp_length = 8
