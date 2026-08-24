@@ -21,6 +21,7 @@
     },
     "production": {
       "channel": "production",
+      "credentialsSource": "remote",
       "ios": {
         "buildConfiguration": "Release"
       }
@@ -31,6 +32,10 @@
       "ios": {
         "appleId": "developer@wealthrealitychurch.com",
         "ascAppId": "6795704505"
+      },
+      "android": {
+        "serviceAccountKeyPath": "./credentials/google-play-service-account.json",
+        "track": "internal"
       }
     }
   }

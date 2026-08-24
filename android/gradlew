@@ -1,5 +1,10 @@
 #!/bin/sh
 
+case " ${JAVA_TOOL_OPTIONS:-} " in
+    *" --enable-native-access=ALL-UNNAMED "*) ;;
+    *) JAVA_TOOL_OPTIONS="${JAVA_TOOL_OPTIONS:+$JAVA_TOOL_OPTIONS }--enable-native-access=ALL-UNNAMED"; export JAVA_TOOL_OPTIONS ;;
+esac
+
 #
 # Copyright © 2015 the original authors.
 #

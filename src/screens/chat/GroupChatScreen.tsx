@@ -192,7 +192,7 @@ export default function GroupChatScreen() {
     if (result.canceled || !result.assets[0]?.base64) return;
     const asset = result.assets[0];
     setPendingAttachment({ uri: asset.uri, base64: asset.base64, mimeType: asset.mimeType, fileName: asset.fileName });
-  }, []);
+  }, [setPendingAttachment]);
 
   const renderMessage = useCallback(({ item, index }: { item: Message, index: number }) => {
     const prevMsg = messages[index - 1];
@@ -220,7 +220,7 @@ export default function GroupChatScreen() {
         </SwipeableMessage>
       </View>
     );
-  }, [messages, toggleReaction]);
+  }, [messages, setReplyTarget, setSelectedMessageAction, toggleReaction]);
 
   return (
     <View style={styles.container}>

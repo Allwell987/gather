@@ -17,6 +17,9 @@ import { t, getDeviceLocale } from '../../services/locale';
 
 const AMOUNTS = [2000, 5000, 10000, 20000];
 
+const createPaymentReference = (userId?: string) =>
+  `APP_${userId?.slice(0, 8) ?? 'guest'}_${Date.now()}`;
+
 export default function GivingScreen() {
   const navigation = useNavigation();
   const locale = getDeviceLocale();
@@ -30,7 +33,7 @@ export default function GivingScreen() {
   const formatCategory = (category: string) => category === 'app_maintenance' ? t('appMaintenance', locale) : t('appSupport', locale);
 
   const onPaymentSuccess = (response: { reference?: string; transaction?: string; trans?: string }) => {
-    const reference = response.reference ?? `APP_${user?.id?.slice(0, 8)}_${Date.now()}`;
+    const reference = response.reference ?? createPaymentReference(user?.id);
 
     saveDonation({
       amount,
@@ -52,7 +55,7 @@ export default function GivingScreen() {
       return;
     }
 
-    const reference = `APP_${user.id.slice(0, 8)}_${Date.now()}`;
+    const reference = createPaymentReference(user.id);
 
     popup.checkout({
       email: user.email,

@@ -10,7 +10,12 @@ jest.mock('@expo/vector-icons', () => {
 
 // Ensure native Platform constants exist for the test environment
 const { NativeModules } = require('react-native');
-NativeModules.PlatformConstants = NativeModules.PlatformConstants || { forceTouchAvailable: false, osVersion: '0' };
+NativeModules.PlatformConstants = {
+  ...(NativeModules.PlatformConstants || {}),
+  forceTouchAvailable: false,
+  osVersion: '0',
+  getConstants: () => ({ forceTouchAvailable: false, osVersion: '0' }),
+};
 
 const DevotionalCard = require('../DevotionalCard').default;
 
@@ -30,8 +35,13 @@ const sample = {
 };
 
 it('renders devotional card snapshot', () => {
-  const tree = renderer.create(
+  const testRenderer = renderer.create(
     <DevotionalCard devotional={sample as any} onShare={() => {}} onMarkRead={() => {}} />
-  ).toJSON();
-  expect(tree).toMatchSnapshot();
+  );
+
+  try {
+    expect(testRenderer.toJSON()).toMatchSnapshot();
+  } finally {
+    testRenderer.unmount();
+  }
 });

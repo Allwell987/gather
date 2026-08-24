@@ -11,6 +11,12 @@ jest.mock('react-native/Libraries/BatchedBridge/NativeModules', () => ({
       removeEventListener: jest.fn(),
     },
     UIManager: {},
+    SourceCode: {
+      getConstants: jest.fn(() => ({})),
+    },
+    DeviceInfo: {
+      getConstants: jest.fn(() => ({})),
+    },
     NativeUnimoduleProxy: {
       viewManagersMetadata: {},
       modulesConstants: {},

@@ -22,5 +22,11 @@ allprojects {
 
 ext.buildToolsVersion = '35.0.0'
 
+project(':expo') {
+  afterEvaluate {
+    dependencies.add('implementation', project(':expo-updates'))
+  }
+}
+
 apply plugin: "expo-root-project"
 apply plugin: "com.facebook.react.rootproject"
