@@ -103,6 +103,15 @@ npx expo run:ios        # iOS simulator
 npx expo run:android    # Android emulator
 ```
 
+### Submit to App Stores
+```bash
+npm run submit:ios
+npm run submit:android
+npm run submit:all
+```
+
+> The `submit:all` command runs both platform submissions in sequence using the existing EAS production profile.
+
 ---
 
 ## Project Structure
