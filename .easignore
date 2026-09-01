@@ -1,8 +1,13 @@
 .git/
 node_modules/
+android/app/build/
 android/build/
+android/.gradle/
+android/.gradle_home/
+android/app/.cxx/
 ios/build/
 ios/Pods/
+ios/.xcode.env.local
 dist/
 dist-smoke/
 .expo/
@@ -10,3 +15,12 @@ dist-smoke/
 .venv/
 .artifacts/
 *.log
+**/build/
+**/Pods/
+**/.gradle/
+**/.gradle_home/
+**/.cxx/
+**/*.xcresult/
+**/*.xcworkspace/xcuserdata/
+**/*.xcodeproj/project.xcworkspace/
+**/*.xcodeproj/xcuserdata/
