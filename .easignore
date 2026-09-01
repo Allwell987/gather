@@ -1,0 +1,12 @@
+.git/
+node_modules/
+android/build/
+ios/build/
+ios/Pods/
+dist/
+dist-smoke/
+.expo/
+.idea/
+.venv/
+.artifacts/
+*.log
