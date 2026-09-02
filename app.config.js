@@ -75,6 +75,7 @@ const baseConfig = {
   plugins: [
     'expo-apple-authentication',
     'expo-secure-store',
+    'expo-sqlite',
     'expo-asset',
     'expo-video',
     'expo-audio',

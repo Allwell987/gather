@@ -1,12 +1,15 @@
 // src/services/supabase.ts
+import 'expo-sqlite/localStorage/install';
 import { createClient } from '@supabase/supabase-js';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import * as Linking from 'expo-linking';
-import * as SecureStore from 'expo-secure-store';
 import { Database } from '../types/database';
 
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL?.trim() ?? 'https://YOUR_PROJECT.supabase.co';
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY?.trim() ?? 'YOUR_ANON_KEY';
+const supabasePublishableKey = (
+  process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  ?? process.env.EXPO_PUBLIC_SUPABASE_KEY
+)?.trim() ?? 'YOUR_PUBLISHABLE_KEY';
 const authCallbackPath = 'auth/callback';
 const authScheme = 'gather';
 const SUPABASE_URL_PLACEHOLDERS = new Set([
@@ -14,10 +17,9 @@ const SUPABASE_URL_PLACEHOLDERS = new Set([
   'https://your-project.supabase.co',
 ]);
 const SUPABASE_KEY_PLACEHOLDERS = new Set([
-  'YOUR_ANON_KEY',
-  'your-anon-key',
+  'YOUR_PUBLISHABLE_KEY',
+  'your-publishable-key',
 ]);
-const SUPABASE_URL_REGEX = /^https:\/\/[a-z0-9-]+\.supabase\.co$/i;
 const SUPABASE_LEGACY_JWT_KEY_REGEX = /^eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/;
 const SUPABASE_PUBLISHABLE_KEY_REGEX = /^sb_publishable_[A-Za-z0-9._-]+$/;
 const SUPABASE_SECRET_KEY_REGEX = /^sb_secret_[A-Za-z0-9._-]+$/;
@@ -81,38 +83,40 @@ const decodeJwtPayload = (token: string) => {
   }
 };
 
-// Secure token storage using expo-secure-store
-const SecureStoreAdapter = {
-  getItem: (key: string) => SecureStore.getItemAsync(key),
-  setItem: (key: string, value: string) => SecureStore.setItemAsync(key, value),
-  removeItem: (key: string) => SecureStore.deleteItemAsync(key),
+const isValidSupabaseUrl = (value: string) => {
+  try {
+    const url = new URL(value);
+    return ['https:', 'http:'].includes(url.protocol) && Boolean(url.hostname);
+  } catch {
+    return false;
+  }
 };
 
 const getSupabaseConfigError = () => {
-  if (!supabaseUrl || SUPABASE_URL_PLACEHOLDERS.has(supabaseUrl) || !SUPABASE_URL_REGEX.test(supabaseUrl)) {
+  if (!supabaseUrl || SUPABASE_URL_PLACEHOLDERS.has(supabaseUrl) || !isValidSupabaseUrl(supabaseUrl)) {
     return 'Set EXPO_PUBLIC_SUPABASE_URL in your .env to your real Supabase project URL.';
   }
 
-  if (!supabaseAnonKey || SUPABASE_KEY_PLACEHOLDERS.has(supabaseAnonKey)) {
-    return 'Set EXPO_PUBLIC_SUPABASE_ANON_KEY in your .env to your real Supabase anon key.';
+  if (!supabasePublishableKey || SUPABASE_KEY_PLACEHOLDERS.has(supabasePublishableKey)) {
+    return 'Set EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY in your .env to your real Supabase publishable key.';
   }
 
-  if (SUPABASE_SECRET_KEY_REGEX.test(supabaseAnonKey)) {
-    return 'EXPO_PUBLIC_SUPABASE_ANON_KEY must use a public Supabase anon or publishable key, never a secret key.';
+  if (SUPABASE_SECRET_KEY_REGEX.test(supabasePublishableKey)) {
+    return 'EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY must use a public Supabase anon or publishable key, never a secret key.';
   }
 
   if (
-    !SUPABASE_LEGACY_JWT_KEY_REGEX.test(supabaseAnonKey)
-    && !SUPABASE_PUBLISHABLE_KEY_REGEX.test(supabaseAnonKey)
+    !SUPABASE_LEGACY_JWT_KEY_REGEX.test(supabasePublishableKey)
+    && !SUPABASE_PUBLISHABLE_KEY_REGEX.test(supabasePublishableKey)
   ) {
-    return 'Set EXPO_PUBLIC_SUPABASE_ANON_KEY to the public anon or publishable key from your Supabase project.';
+    return 'Set EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY to the public anon or publishable key from your Supabase project.';
   }
 
-  if (SUPABASE_LEGACY_JWT_KEY_REGEX.test(supabaseAnonKey)) {
-    const payload = decodeJwtPayload(supabaseAnonKey);
+  if (SUPABASE_LEGACY_JWT_KEY_REGEX.test(supabasePublishableKey)) {
+    const payload = decodeJwtPayload(supabasePublishableKey);
 
     if (payload?.role && payload.role !== 'anon') {
-      return 'EXPO_PUBLIC_SUPABASE_ANON_KEY is not the correct public anon key for this app. Copy the anon key again from Supabase and replace the current value.';
+      return 'EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY is not the correct public anon key for this app. Copy the public key again from Supabase and replace the current value.';
     }
   }
 
@@ -122,9 +126,9 @@ const getSupabaseConfigError = () => {
 export const supabaseConfigError = getSupabaseConfigError();
 export const isSupabaseConfigured = !supabaseConfigError;
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient<Database>(supabaseUrl, supabasePublishableKey, {
   auth: {
-    storage: SecureStoreAdapter,
+    storage: localStorage,
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: false,
@@ -184,7 +188,7 @@ export const getSupabaseAuthErrorMessage = (value?: string) => {
   const lowerMessage = normalizedMessage?.toLowerCase() ?? '';
 
   if (INVALID_SUPABASE_API_KEY_PATTERNS.some((pattern) => lowerMessage.includes(pattern))) {
-    return 'Supabase rejected the client API key. Make sure EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY come from the same Supabase project, use the public anon or publishable key, then restart Expo with npm run start:clear.';
+    return 'Supabase rejected the client API key. Make sure EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY come from the same Supabase project, use the public anon or publishable key, then restart Expo with npm run start:clear.';
   }
 
   return normalizedMessage ?? 'We could not complete that Supabase request. Please try again.';
