@@ -35,7 +35,7 @@ export const SLIDES: OnboardingSlideData[] = [
     verse: '"And let us consider how we may spur one another on toward love and good deeds."',
     ref: 'Hebrews 10:24',
     title: 'Stay Connected',
-    sub: 'Prayer, group chats, events, and live worship for the whole church family.',
+    sub: 'Prayer, events, and live worship for the whole church family.',
     eyebrow: 'Church community',
   },
 ];

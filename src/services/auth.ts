@@ -5,12 +5,12 @@ import * as WebBrowser from 'expo-web-browser';
 import {
   getAuthParamsFromUrl,
   getAuthRedirectUrl,
+  manualAuthSession,
   getSupabaseAuthErrorMessage,
   getAuthFeedbackMessage,
   getSupabaseConfigMessage,
   supabase,
 } from './supabase';
-import { resolveGoogleClientId } from './oauth';
 
 export interface GoogleUser {
   id: string;
@@ -23,6 +23,7 @@ const APPLE_SIGN_IN_ERROR_MESSAGES: Record<string, string> = {
   ERR_REQUEST_CANCELED: 'Apple sign-in was canceled.',
   ERR_REQUEST_NOT_HANDLED: 'Apple sign-in is not available on this device right now.',
   ERR_INVALID_OPERATION: 'Apple sign-in is not configured correctly for this app yet.',
+  ERR_REQUEST_UNKNOWN: 'Apple sign-in could not start because this iOS build is not authorized by Apple. Rebuild with signing enabled, then test on a physical device or a Simulator signed in to an Apple ID with two-factor authentication.',
 };
 
 function base64URLEncode(array: Uint8Array): string {
@@ -56,10 +57,8 @@ export async function signInWithGoogle(): Promise<{ user?: GoogleUser; error?: s
       return { error: configMessage };
     }
 
-    // Use a unique parameter to tell App.tsx to ignore this redirect
-    const redirectTo = getAuthRedirectUrl({ source: 'auth-session' });
-
-    const googleClientId = resolveGoogleClientId();
+    // Plain URL so it matches the Supabase redirect allow-list exactly
+    const redirectTo = getAuthRedirectUrl();
 
     const { data: oauthData, error: oauthError } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -69,7 +68,6 @@ export async function signInWithGoogle(): Promise<{ user?: GoogleUser; error?: s
         queryParams: {
           access_type: 'offline',
           prompt: 'consent',
-          client_id: googleClientId,
         },
       },
     });
@@ -78,10 +76,16 @@ export async function signInWithGoogle(): Promise<{ user?: GoogleUser; error?: s
       return { error: getSupabaseAuthErrorMessage(oauthError?.message) };
     }
 
-    const result = await WebBrowser.openAuthSessionAsync(oauthData.url, redirectTo, {
-      showInRecents: true,
-      createTask: false,
-    });
+    manualAuthSession.active = true;
+    let result: WebBrowser.WebBrowserAuthSessionResult;
+    try {
+      result = await WebBrowser.openAuthSessionAsync(oauthData.url, redirectTo, {
+        showInRecents: true,
+        createTask: false,
+      });
+    } finally {
+      setTimeout(() => { manualAuthSession.active = false; }, 1500);
+    }
 
     if (result.type !== 'success') {
       return { error: 'Authentication was cancelled or failed' };
@@ -169,13 +173,18 @@ export async function signInWithApple(): Promise<{ error?: string }> {
       return { error: 'Apple sign-in is only available on supported Apple devices.' };
     }
 
-    const nonce = generateNonce();
+    const rawNonce = generateNonce();
+    const hashedNonce = await Crypto.digestStringAsync(
+      Crypto.CryptoDigestAlgorithm.SHA256,
+      rawNonce,
+      { encoding: Crypto.CryptoEncoding.HEX },
+    );
     const credential = await AppleAuthentication.signInAsync({
       requestedScopes: [
         AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
         AppleAuthentication.AppleAuthenticationScope.EMAIL,
       ],
-      nonce,
+      nonce: hashedNonce,
     });
 
     if (!credential.identityToken) {
@@ -185,7 +194,7 @@ export async function signInWithApple(): Promise<{ error?: string }> {
     const { error } = await supabase.auth.signInWithIdToken({
       provider: 'apple',
       token: credential.identityToken,
-      nonce,
+      nonce: rawNonce,
     });
 
     if (error) {

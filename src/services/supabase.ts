@@ -8,7 +8,6 @@ import { Database } from '../types/database';
 const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL?.trim() ?? 'https://YOUR_PROJECT.supabase.co';
 const supabasePublishableKey = (
   process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-  ?? process.env.EXPO_PUBLIC_SUPABASE_KEY
 )?.trim() ?? 'YOUR_PUBLISHABLE_KEY';
 const authCallbackPath = 'auth/callback';
 const authScheme = 'gather';
@@ -30,58 +29,6 @@ const INVALID_SUPABASE_API_KEY_PATTERNS = [
   'invalid apikey',
   'no api key found in request',
 ];
-
-const decodeJwtPayload = (token: string) => {
-  const parts = token.split('.');
-
-  if (parts.length !== 3) {
-    return null;
-  }
-
-  try {
-    const base64 = parts[1]
-      .replace(/-/g, '+')
-      .replace(/_/g, '/');
-
-    const padding = '='.repeat((4 - (base64.length % 4)) % 4);
-    const base64WithPadding = base64 + padding;
-
-    let decoded;
-    if (typeof atob === 'function') {
-      decoded = atob(base64WithPadding);
-    } else {
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-      let str = base64WithPadding.replace(/=+$/, '');
-      let output = '';
-      for (let bc = 0, bs = 0, buffer, i = 0; (buffer = str.charAt(i++)); ) {
-        buffer = chars.indexOf(buffer);
-        if (buffer === -1) continue;
-        bs = bc % 4 ? bs * 64 + buffer : buffer;
-        if (bc++ % 4) {
-          output += String.fromCharCode(255 & (bs >> ((-2 * bc) & 6)));
-        }
-      }
-      decoded = output;
-    }
-
-    // JSON.parse can fail if there's trailing garbage from bitwise shifts or incorrect padding.
-    // We slice from the first '{' to the last '}' to be safe.
-    const start = decoded.indexOf('{');
-    const end = decoded.lastIndexOf('}');
-    if (start === -1 || end === -1) throw new Error('Invalid JSON structure');
-    const cleanJson = decoded.substring(start, end + 1);
-
-    return JSON.parse(cleanJson) as {
-      role?: string;
-      ref?: string;
-    };
-  } catch (err) {
-    if (__DEV__) {
-      console.error('JWT decode error:', err);
-    }
-    return null;
-  }
-};
 
 const isValidSupabaseUrl = (value: string) => {
   try {
@@ -113,11 +60,7 @@ const getSupabaseConfigError = () => {
   }
 
   if (SUPABASE_LEGACY_JWT_KEY_REGEX.test(supabasePublishableKey)) {
-    const payload = decodeJwtPayload(supabasePublishableKey);
-
-    if (payload?.role && payload.role !== 'anon') {
-      return 'EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY is not the correct public anon key for this app. Copy the public key again from Supabase and replace the current value.';
-    }
+    return 'EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY must use the current sb_publishable_ key from your Supabase project.';
   }
 
   return null;
@@ -158,6 +101,9 @@ const supportedEmailOtpTypes: SupportedEmailOtpType[] = [
   'email',
 ];
 
+// Set while a WebBrowser OAuth flow owns the callback, so App.tsx ignores the redirect.
+export const manualAuthSession = { active: false };
+
 export const isExpoGo = Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
 export const getAuthRedirectUrl = (params?: Record<string, string>) => {
@@ -186,6 +132,10 @@ const normalizeAuthMessage = (value?: string) => value
 export const getSupabaseAuthErrorMessage = (value?: string) => {
   const normalizedMessage = normalizeAuthMessage(value);
   const lowerMessage = normalizedMessage?.toLowerCase() ?? '';
+
+  if (lowerMessage.includes('unsupported provider') && lowerMessage.includes('not enabled')) {
+    return 'Google sign-in is not enabled for this app yet. Enable Google under Supabase Dashboard > Authentication > Providers, or use email sign-in below.';
+  }
 
   if (INVALID_SUPABASE_API_KEY_PATTERNS.some((pattern) => lowerMessage.includes(pattern))) {
     return 'Supabase rejected the client API key. Make sure EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY come from the same Supabase project, use the public anon or publishable key, then restart Expo with npm run start:clear.';

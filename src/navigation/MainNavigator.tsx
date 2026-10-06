@@ -19,17 +19,13 @@ import type {
   ProfileStackParamList,
 } from '../types/navigation';
 import HomeScreen from '../screens/home/HomeScreen';
-import NotificationsScreen from '../screens/home/NotificationsScreen';
+import SpotlightScreen from '../screens/home/SpotlightScreen';
 import TodayScreen from '../screens/today/TodayScreen';
 import BibleScreen from '../screens/bible/BibleScreen';
 import CommunityScreen from '../screens/community/CommunityScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
-import GroupChatScreen from '../screens/chat/GroupChatScreen';
-import CreateGroupScreen from '../screens/chat/CreateGroupScreen';
 import GivingScreen from '../screens/giving/GivingScreen';
 import EventDetailScreen from '../screens/events/EventDetailScreen';
-import ManageRequestsScreen from '../screens/chat/ManageRequestsScreen';
-import GroupInfoScreen from '../screens/chat/GroupInfoScreen';
 import PrayerGeneratorScreen from '../screens/prayer/PrayerGeneratorScreen';
 import ThemePickerScreen from '../screens/auth/ThemePickerScreen';
 
@@ -59,11 +55,8 @@ function HomeStackNavigator() {
       }}
     >
       <HomeStack.Screen name="Home" component={HomeScreen} />
-      <HomeStack.Screen name="Notifications" component={NotificationsScreen} />
+      <HomeStack.Screen name="Spotlight" component={SpotlightScreen} />
       <HomeStack.Screen name="Giving" component={GivingScreen} />
-      <HomeStack.Screen name="GroupChat" component={GroupChatScreen} />
-      <HomeStack.Screen name="ManageRequests" component={ManageRequestsScreen} />
-      <HomeStack.Screen name="GroupInfo" component={GroupInfoScreen} />
       <HomeStack.Screen name="PrayerGenerator" component={PrayerGeneratorScreen} />
     </HomeStack.Navigator>
   );
@@ -83,7 +76,6 @@ function CommunityStackNavigator() {
       }}
     >
       <CommunityStack.Screen name="CommunityHome" component={CommunityScreen} />
-      <CommunityStack.Screen name="CreateGroup" component={CreateGroupScreen} />
       <CommunityStack.Screen name="EventDetail" component={EventDetailScreen} />
     </CommunityStack.Navigator>
   );

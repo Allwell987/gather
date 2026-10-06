@@ -1,7 +1,7 @@
 const baseConfig = {
   name: 'Gather',
   slug: 'gather-twrc',
-  version: '1.0.0',
+  version: '2.0.0',
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'automatic',
@@ -11,7 +11,7 @@ const baseConfig = {
     backgroundColor: '#000000',
   },
   assetBundlePatterns: ['**/*'],
-  runtimeVersion: '1.0.0',
+  runtimeVersion: '2.0.0',
   newArchEnabled: true,
   updates: {
     url: 'https://u.expo.dev/33325d84-541e-4330-8a9d-09e1ed6eafec',

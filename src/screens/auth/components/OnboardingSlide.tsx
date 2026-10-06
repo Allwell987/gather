@@ -110,14 +110,15 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes['4xl'],
     color: '#fff8ed',
     textAlign: 'center',
+    lineHeight: 44,
     marginBottom: Spacing.sm,
   },
   slideSub: {
     fontFamily: Typography.sans,
     fontSize: Typography.sizes.base,
-    color: 'rgba(255,248,237,0.72)',
+    color: '#fff8ed',
     textAlign: 'center',
-    lineHeight: 23,
+    lineHeight: 25,
     maxWidth: 310,
   },
 });

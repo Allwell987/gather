@@ -45,6 +45,7 @@ import RootNavigator from './src/navigation/RootNavigator';
 import ToastHost from './src/components/ToastHost';
 import * as Sentry from '@sentry/react-native';
 import { initSentry } from './src/services/sentry';
+import { useNotificationStore } from './src/store/notificationStore';
 import {
   flushPendingNotificationNavigation,
   navigationRef,
@@ -56,6 +57,7 @@ import { useThemeStore } from './src/store/themeStore';
 import {
   getAuthFeedbackMessage,
   getAuthParamsFromUrl,
+  manualAuthSession,
   getSupabaseConfigMessage,
   isSupabaseConfigured,
   isSupportedEmailOtpType,
@@ -85,11 +87,9 @@ function App() {
     setUser,
     setSession,
     setIsLoading,
-    setAuthFeedback,
     user,
     isOnboarded,
     setIsOnboarded,
-    setPendingVerificationEmail,
     notificationsEnabled,
   } = useAuthStore();
   const { colors, themeMode } = useThemeStore();
@@ -115,8 +115,6 @@ function App() {
       }
 
       setSession(session.access_token ?? null);
-      setAuthFeedback(null);
-      setPendingVerificationEmail(null);
     } catch (err) {
       if (__DEV__) {
         console.error('Session sync error:', err);
@@ -127,7 +125,7 @@ function App() {
         'We could not finish setting up your profile. Apply the SQL fix in database/fix_profiles_rls.sql and try again.'
       );
     }
-  }, [setAuthFeedback, setIsOnboarded, setPendingVerificationEmail, setSession, setUser]);
+  }, [setIsOnboarded, setSession, setUser]);
 
   const handleAuthLink = useCallback(async (url: string) => {
     const normalizedUrl = normalizeAuthCallbackUrl(url);
@@ -136,40 +134,27 @@ function App() {
     // If the link comes from a manual auth session (like Google/Apple via WebBrowser),
     // we should let the caller of WebBrowser.openAuthSessionAsync handle it to avoid
     // race conditions and double-exchange errors.
-    if (params.source === 'auth-session') {
+    if (manualAuthSession.active) {
       return;
     }
-
-    const handleAuthFailure = (errorCode?: string, errorDescription?: string) => {
-      const message = getAuthFeedbackMessage({ errorCode, errorDescription });
-
-      setAuthFeedback({
-        code: errorCode,
-        message,
-      });
-
-      Alert.alert('Verification link issue', message);
-    };
 
     if (params.error_description) {
       if (__DEV__) {
         console.error('Auth callback error:', params.error_description);
       }
-      handleAuthFailure(params.error_code, params.error_description);
+      const message = getAuthFeedbackMessage({
+        errorCode: params.error_code,
+        errorDescription: params.error_description
+      });
+      Alert.alert('Authentication issue', message);
       return;
     }
 
     if (params.code) {
       const { error } = await supabase.auth.exchangeCodeForSession(params.code);
-      if (error) {
-        if (__DEV__) {
-          console.error('Code exchange error:', error);
-        }
-        handleAuthFailure(undefined, error.message);
-        return;
+      if (error && __DEV__) {
+        console.error('Code exchange error:', error);
       }
-
-      setAuthFeedback(null);
       return;
     }
 
@@ -179,35 +164,11 @@ function App() {
         refresh_token: params.refresh_token,
       });
 
-      if (error) {
-        if (__DEV__) {
-          console.error('Deep link session error:', error);
-        }
-        handleAuthFailure(undefined, error.message);
-        return;
+      if (error && __DEV__) {
+        console.error('Deep link session error:', error);
       }
-
-      setAuthFeedback(null);
-      return;
     }
-
-    if (params.token_hash && isSupportedEmailOtpType(params.type)) {
-      const { error } = await supabase.auth.verifyOtp({
-        token_hash: params.token_hash,
-        type: params.type,
-      });
-
-      if (error) {
-        if (__DEV__) {
-          console.error('OTP verification error:', error);
-        }
-        handleAuthFailure(undefined, error.message);
-        return;
-      }
-
-      setAuthFeedback(null);
-    }
-  }, [setAuthFeedback]);
+  }, []);
 
   useEffect(() => {
     // Keep startup resilient so a single font failure does not blank the app forever.
@@ -246,10 +207,7 @@ function App() {
         const configMessage = getSupabaseConfigMessage();
 
         if (!isSupabaseConfigured && configMessage) {
-          setAuthFeedback({
-            code: 'supabase_not_configured',
-            message: configMessage,
-          });
+          Alert.alert('Configuration Issue', configMessage);
           return;
         }
 
@@ -289,7 +247,7 @@ function App() {
       subscription.unsubscribe();
       linkSubscription.remove();
     };
-  }, [handleAuthLink, setAuthFeedback, setIsLoading, syncUserFromSession]);
+  }, [handleAuthLink, setIsLoading, syncUserFromSession]);
 
   // Notification listeners
   useEffect(() => {
@@ -308,8 +266,19 @@ function App() {
       });
 
     // Handle notification received while app is foregrounded
-    const notificationListener = Notifications.addNotificationReceivedListener(() => {
-      // Notification received - handled silently
+    const notificationListener = Notifications.addNotificationReceivedListener(notification => {
+      // Notification received - add to Spotlight store
+      const { title, body, data } = notification.request.content;
+      if (title || body) {
+        useNotificationStore.getState().addItem({
+          id: notification.request.identifier,
+          type: (data?.type as any) === 'update' ? 'update' : (data?.type as any) === 'news' ? 'news' : 'notification',
+          title: title ?? 'New Notification',
+          description: body ?? '',
+          timestamp: new Date().toISOString(),
+          link: data?.link as string,
+        });
+      }
     });
 
     // Handle notification response (user taps notification)

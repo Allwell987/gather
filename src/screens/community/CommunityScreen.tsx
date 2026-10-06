@@ -14,12 +14,10 @@ import EmptyState from '../../components/common/EmptyState';
 import PrayerWallScreen from '../prayer/PrayerWallScreen';
 import EventsScreen from '../events/EventsScreen';
 import { useLiveStatus } from '../../hooks/useLiveStatus';
-import { useCommunityGroups } from './hooks/useCommunityGroups';
-import { GroupCard } from './components/GroupCard';
 import { t, getDeviceLocale } from '../../services/locale';
 import type { CommunityScreenNavigationProp } from '../../types/navigation';
 
-type CommunityTab = 'Wall' | 'Events' | 'Groups';
+type CommunityTab = 'Wall' | 'Events';
 
 export default function CommunityScreen() {
   const navigation = useNavigation<CommunityScreenNavigationProp>();
@@ -27,57 +25,28 @@ export default function CommunityScreen() {
   const { user } = useAuthStore();
   const { theme, colors } = useThemeStore();
   const [activeTab, setActiveTab] = useState<CommunityTab>('Wall');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [showWallCompose, setShowWallCompose] = useState(false);
 
   const { isLive, activeLive } = useLiveStatus();
-  const { groups, isLoading, joinedSet, pendingSet, join, request, isJoining, isRequesting, joinVariables, requestVariables, refetch } = useCommunityGroups(user?.id ?? null);
-
-  const filteredGroups = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return groups;
-    return groups.filter(g => g.name.toLowerCase().includes(q) || (g.description?.toLowerCase().includes(q) ?? false));
-  }, [groups, searchQuery]);
 
   const handleJoinLive = () => {
     if (activeLive?.live_url) Linking.openURL(activeLive.live_url).catch(() => Alert.alert(t('error', locale), t('couldNotOpenStream', locale)));
   };
 
-  const renderGroups = () => (
-    <ScrollView contentContainerStyle={styles.groupsList} showsVerticalScrollIndicator={false}>
-      <View style={styles.searchBar}>
-        <Ionicons name="search" size={18} color={colors.textMuted} />
-        <TextInput value={searchQuery} onChangeText={setSearchQuery} placeholder={t('searchGroups', locale)} placeholderTextColor={colors.textMuted} style={{ flex: 1, color: colors.text }} />
-      </View>
-
-      {isLoading ? (
-        <ActivityIndicator size="large" color={theme.accent} style={{ marginTop: 40 }} />
-      ) : filteredGroups.length === 0 ? (
-        <EmptyState title={t('noGroupsFound', locale)} description={t('tryDifferentSearch', locale)} />
-      ) : filteredGroups.map(group => (
-        <GroupCard
-          key={group.id}
-          group={group}
-          isMember={joinedSet.has(group.id)}
-          isPending={pendingSet.has(group.id)}
-          onPress={() => navigation.navigate('HomeTab', { screen: 'GroupChat', params: { groupId: group.id, groupName: group.name } })}
-          onJoin={() => join(group.id)}
-          onRequest={() => request(group.id)}
-          isJoining={isJoining && joinVariables === group.id}
-          isRequesting={isRequesting && requestVariables === group.id}
-          colors={colors}
-          theme={theme}
-        />
-      ))}
-    </ScrollView>
-  );
-
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <HeaderBar title={t('community', locale)} subtitle={CHURCH.name} enableBlur showBack={false} />
+      <HeaderBar
+        title={t('community', locale)}
+        subtitle={CHURCH.name}
+        enableBlur
+        showBack={false}
+        rightIcon={activeTab === 'Wall' ? 'add' : undefined}
+        rightAction={activeTab === 'Wall' ? () => setShowWallCompose(true) : undefined}
+      />
 
       <View style={styles.tabBar}>
-        {(['Wall', 'Events', 'Groups'] as CommunityTab[]).map(tab => {
-          const label = tab === 'Wall' ? t('wall', locale) : tab === 'Events' ? t('eventsTab', locale) : t('groupsTab', locale);
+        {(['Wall', 'Events'] as CommunityTab[]).map(tab => {
+          const label = tab === 'Wall' ? t('wall', locale) : t('eventsTab', locale);
           return (
             <TouchableOpacity key={tab} style={[styles.tab, activeTab === tab && { backgroundColor: theme.accent }]} onPress={() => setActiveTab(tab)}>
               <Text style={[styles.tabText, activeTab !== tab && { color: 'rgba(255,255,255,0.6)' }]}>{label}</Text>
@@ -93,7 +62,15 @@ export default function CommunityScreen() {
             <Ionicons name="chevron-forward" size={16} color="#fff" />
           </TouchableOpacity>
         )}
-        {activeTab === 'Wall' ? <PrayerWallScreen hideHeader /> : activeTab === 'Events' ? <EventsScreen hideHeader /> : renderGroups()}
+        {activeTab === 'Wall' ? (
+          <PrayerWallScreen
+            hideHeader
+            externalShowCompose={showWallCompose}
+            onCloseExternalCompose={() => setShowWallCompose(false)}
+          />
+        ) : (
+          <EventsScreen hideHeader />
+        )}
       </View>
     </View>
   );
@@ -104,7 +81,5 @@ const styles = StyleSheet.create({
   tabBar: { flexDirection: 'row', backgroundColor: BaseColors.brown900, padding: 8, gap: 8 },
   tab: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: Radius.full },
   tabText: { color: '#fff', fontWeight: '600', fontSize: 12 },
-  groupsList: { padding: Spacing.xl },
-  searchBar: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.05)', borderRadius: Radius.full, paddingHorizontal: 12, paddingVertical: 8, marginBottom: 20 },
   liveBanner: { flexDirection: 'row', justifyContent: 'space-between', padding: 12, alignItems: 'center' },
 });

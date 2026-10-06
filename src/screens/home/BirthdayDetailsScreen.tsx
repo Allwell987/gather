@@ -107,10 +107,6 @@ export default function BirthdayDetailsScreen() {
               <Ionicons name="gift-outline" size={18} color={BaseColors.white} />
               <Text style={styles.actionChipText}>Send Gift</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.actionChip, { backgroundColor: theme.accent }]}> 
-              <Ionicons name="chatbubble-ellipses-outline" size={18} color={BaseColors.white} />
-              <Text style={styles.actionChipText}>Share Blessing</Text>
-            </TouchableOpacity>
           </View>
         </View>
       </ScrollView>

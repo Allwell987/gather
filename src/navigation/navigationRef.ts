@@ -40,24 +40,6 @@ const navigateFromNotificationPayload = (payload: NotificationPayload) => {
     return true;
   }
 
-  if (type === 'group_chat') {
-    const groupId = getStringValue(payload.groupId);
-    const groupName = getStringValue(payload.groupName) ?? 'Group Chat';
-
-    if (!groupId) {
-      return false;
-    }
-
-    navigationRef.navigate('Main', {
-      screen: 'HomeTab',
-      params: {
-        screen: 'GroupChat',
-        params: { groupId, groupName },
-      },
-    });
-    return true;
-  }
-
   return false;
 };
 

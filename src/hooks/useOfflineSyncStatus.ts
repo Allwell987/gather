@@ -13,7 +13,6 @@ import {
 const EMPTY_SYNC_SUMMARY: OfflineActionSummary = {
   total: 0,
   prayerCount: 0,
-  messageCount: 0,
   rsvpCount: 0,
 };
 

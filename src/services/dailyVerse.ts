@@ -1,7 +1,8 @@
 // src/services/dailyVerse.ts
 import { supabase } from './supabase';
 import { DAILY_VERSE as FALLBACK_VERSE, VERSE_BACKGROUNDS } from '../constants/theme';
-import { fetchVerseText } from './bibleApi';
+import { BIBLE_BOOKS, fetchChapter, getChapterCount } from './bibleApi';
+import { format } from 'date-fns';
 
 export interface DailyVerse {
   text: string;
@@ -21,55 +22,46 @@ function getDailyBackground(): string {
   return VERSE_BACKGROUNDS[index];
 }
 
+function createDailyRandom(seedText: string): () => number {
+  let seed = 0;
+  for (const character of seedText) {
+    seed = (Math.imul(seed, 31) + character.charCodeAt(0)) >>> 0;
+  }
+
+  return () => {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    return seed / 0x100000000;
+  };
+}
+
 /**
- * Fetches the verse of the day for the current date.
- * Prioritizes the anchor scripture from today's devotional.
- * Falls back to the hardcoded DAILY_VERSE if none is found for today.
+ * Selects a stable random Bible verse for the current date.
+ * Falls back to the stored or hardcoded verse if the Bible API is unavailable.
  */
 export async function fetchDailyVerse(): Promise<DailyVerse> {
-  const today = new Date().toISOString().split('T')[0];
+  const today = format(new Date(), 'yyyy-MM-dd');
 
   try {
-    // 1. Try to fetch today's devotional first
-    const { data: devotional, error: devoError } = await supabase
-      .from('devotionals')
-      .select('anchor_scripture')
-      .lte('publish_date', today)
-      .order('publish_date', { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const random = createDailyRandom(today);
+    const book = BIBLE_BOOKS[Math.floor(random() * BIBLE_BOOKS.length)];
+    const chapterNumber = Math.floor(random() * getChapterCount(book)) + 1;
+    const chapter = await fetchChapter(book, chapterNumber);
 
-    if (!devoError && (devotional as any)?.anchor_scripture) {
-      const reference = (devotional as any).anchor_scripture;
-
-      // 2. Check if we already have the text in daily_verses for this reference
-      const { data: existingVerse } = await supabase
-        .from('daily_verses')
-        .select('text')
-        .eq('reference', reference)
-        .limit(1)
-        .maybeSingle();
-
-      if ((existingVerse as any)?.text) {
-        return {
-          text: (existingVerse as any).text,
-          reference,
-          backgroundImage: getDailyBackground(),
-        };
-      }
-
-      // 3. If not, fetch the text from the Bible API
-      const text = await fetchVerseText(reference);
-      if (text) {
-        return {
-          text,
-          reference,
-          backgroundImage: getDailyBackground(),
-        };
-      }
+    if (chapter?.verses.length) {
+      const verse = chapter.verses[Math.floor(random() * chapter.verses.length)];
+      return {
+        text: verse.text,
+        reference: `${chapter.book} ${chapter.chapter}:${verse.num}`,
+        backgroundImage: getDailyBackground(),
+      };
     }
+  } catch (err) {
+    if (__DEV__) {
+      console.error('Unexpected error fetching random Bible verse:', err);
+    }
+  }
 
-    // 4. Fallback to today's daily_verses if devotional fetching failed or had no text
+  try {
     const { data, error } = await supabase
       .from('daily_verses')
       .select('text, reference')
@@ -80,10 +72,7 @@ export async function fetchDailyVerse(): Promise<DailyVerse> {
       if (__DEV__) {
         console.error('Error fetching daily verse:', error);
       }
-      return { ...FALLBACK_VERSE, backgroundImage: getDailyBackground() };
-    }
-
-    if (data && typeof data === 'object' && 'text' in data && 'reference' in data) {
+    } else if (data && typeof data === 'object' && 'text' in data && 'reference' in data) {
       const verse = data as { text: string; reference: string };
       return {
         text: verse.text,
@@ -93,7 +82,7 @@ export async function fetchDailyVerse(): Promise<DailyVerse> {
     }
   } catch (err) {
     if (__DEV__) {
-      console.error('Unexpected error fetching daily verse:', err);
+      console.error('Unexpected error fetching stored daily verse:', err);
     }
   }
 

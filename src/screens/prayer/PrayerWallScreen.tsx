@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, StyleSheet, Modal, ActivityIndicator,
-  Animated,
+  Animated, TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,7 +19,17 @@ import { PrayerCard } from './components/PrayerCard';
 import { PrayerComposeModal } from './components/PrayerComposeModal';
 import { t, getDeviceLocale } from '../../services/locale';
 
-export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: boolean }) {
+interface PrayerWallScreenProps {
+  hideHeader?: boolean;
+  externalShowCompose?: boolean;
+  onCloseExternalCompose?: () => void;
+}
+
+export default function PrayerWallScreen({
+  hideHeader = false,
+  externalShowCompose,
+  onCloseExternalCompose,
+}: PrayerWallScreenProps) {
   const { theme, colors } = useThemeStore();
   const locale = getDeviceLocale();
   const {
@@ -47,6 +57,12 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
 
   const [headerOpacity] = useState(() => new Animated.Value(0));
   const [listOpacity] = useState(() => new Animated.Value(0));
+
+  useEffect(() => {
+    if (externalShowCompose) {
+      setShowCompose(true);
+    }
+  }, [externalShowCompose, setShowCompose]);
 
   useEffect(() => {
     Animated.parallel([
@@ -126,7 +142,14 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
         )}
 
         {!loading && filteredPrayers.length === 0 && (
-          <View style={[styles.emptyState, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <TouchableOpacity
+            style={[styles.emptyState, { backgroundColor: colors.card, borderColor: colors.border }]}
+            onPress={() => {
+              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+              setShowCompose(true);
+            }}
+            activeOpacity={0.7}
+          >
             <Ionicons name="sparkles-outline" size={24} color={theme.accent} />
             <Text style={[styles.emptyStateTitle, { color: colors.text }]}>{t('noPrayerRequests', locale)}</Text>
             <Text style={[styles.emptyStateText, { color: colors.textSecondary }]}>
@@ -138,7 +161,11 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
                     ? t('noUrgentRequests', locale)
                     : t('beFirstPrayer', locale)}
             </Text>
-          </View>
+            <View style={[styles.emptyStateButton, { backgroundColor: theme.accent }]}>
+              <Ionicons name="add" size={18} color="#ffffff" />
+              <Text style={styles.emptyStateButtonText}>{t('postRequest', locale)}</Text>
+            </View>
+          </TouchableOpacity>
         )}
 
         {filteredPrayers.map((prayer) => (
@@ -153,9 +180,26 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
         ))}
       </Animated.ScrollView>
 
+      {/* Floating Action Button (FAB) */}
+      <TouchableOpacity
+        style={[styles.fab, { backgroundColor: theme.accent }]}
+        onPress={() => {
+          void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+          setShowCompose(true);
+        }}
+        activeOpacity={0.8}
+        accessibilityRole="button"
+        accessibilityLabel={t('addPrayerRequest', locale)}
+      >
+        <Ionicons name="add" size={28} color="#ffffff" />
+      </TouchableOpacity>
+
       <PrayerComposeModal
         visible={showCompose}
-        onClose={() => setShowCompose(false)}
+        onClose={() => {
+          setShowCompose(false);
+          onCloseExternalCompose?.();
+        }}
         onSubmit={submitPrayer}
         newPrayerText={newPrayerText}
         setNewPrayerText={setNewPrayerText}
@@ -193,7 +237,23 @@ export default function PrayerWallScreen({ hideHeader = false }: { hideHeader?: 
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  list: { padding: Spacing.xl, gap: Spacing.md, paddingBottom: 40 },
+  list: { padding: Spacing.xl, gap: Spacing.md, paddingBottom: 90 },
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 20,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    zIndex: 999,
+  },
   cachedBanner: { flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderRadius: Radius.md, padding: 10, marginBottom: Spacing.sm },
   cachedBannerText: { flex: 1, fontFamily: Typography.sansMedium, fontSize: Typography.sizes.sm },
   emptyState: {
@@ -203,6 +263,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     padding: Spacing.xl,
     marginBottom: Spacing.sm,
+  },
+  emptyStateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: Radius.full,
+    marginTop: Spacing.xs,
+  },
+  emptyStateButtonText: {
+    color: '#ffffff',
+    fontFamily: Typography.sansSemiBold,
+    fontSize: Typography.sizes.sm,
   },
   emptyStateTitle: {
     fontFamily: Typography.sansSemiBold,

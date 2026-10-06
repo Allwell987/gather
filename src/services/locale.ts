@@ -23,6 +23,7 @@ export type TranslationKey =
   | 'summary'
   | 'home'
   | 'bible'
+  | 'prayer'
   | 'community'
   | 'profile'
   | 'chapter'
@@ -52,6 +53,11 @@ export type TranslationKey =
   | 'wall'
   | 'eventsTab'
   | 'groupsTab'
+  | 'createGroupBtn'
+  | 'groupNamePlaceholder'
+  | 'aboutCommunityPlaceholder'
+  | 'couldNotSendImage'
+  | 'uploadFailed'
   | 'searchGroups'
   | 'noGroupsFound'
   | 'tryDifferentSearch'
@@ -120,7 +126,6 @@ export type TranslationKey =
   | 'identity'
   | 'groupName'
   | 'aboutCommunity'
-  | 'createGroupBtn'
   | 'verifiedOnlyGroups'
   | 'changePhoto'
   | 'uploadPhoto'
@@ -128,12 +133,8 @@ export type TranslationKey =
   | 'chooseIcon'
   | 'privateCommunity'
   | 'privateCommunitySub'
-  | 'groupNamePlaceholder'
-  | 'aboutCommunityPlaceholder'
   | 'member'
   | 'membersPlural'
-  | 'couldNotSendImage'
-  | 'uploadFailed'
   | 'userAddedToGroup'
   | 'requestDeclined'
   | 'failedToApprove'
@@ -164,6 +165,8 @@ export type TranslationKey =
   | 'noUrgentRequests'
   | 'beFirstPrayer'
   | 'requestPosted'
+  | 'postRequest'
+  | 'addPrayerRequest'
   | 'showingSavedRequests'
   | 'aiPrayerAssistant'
   | 'personalizedSupport'
@@ -183,6 +186,8 @@ export type TranslationKey =
   | 'emailRequired'
   | 'validEmailRequired'
   | 'passwordRequired'
+  | 'welcomeToGather'
+  | 'signInWithSocial'
   | 'stepXofY'
   | 'getStarted'
   | 'continue'
@@ -232,6 +237,7 @@ const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {
     summary: 'Summary',
     home: 'Home',
     bible: 'Bible',
+    prayer: 'Prayer',
     community: 'Community',
     profile: 'Profile',
     chapter: 'Chapter',
@@ -373,6 +379,8 @@ const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {
     noUrgentRequests: 'No urgent requests right now.',
     beFirstPrayer: 'Be the first to post a prayer request and encourage others.',
     requestPosted: 'Request Posted!',
+    postRequest: 'Post a Request',
+    addPrayerRequest: 'Add Prayer Request',
     showingSavedRequests: 'Showing saved requests.',
     aiPrayerAssistant: 'AI Prayer Assistant',
     personalizedSupport: 'Personalized spiritual support',
@@ -392,6 +400,8 @@ const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {
     emailRequired: 'Email is required',
     validEmailRequired: 'Enter a valid email address',
     passwordRequired: 'Password is required',
+    welcomeToGather: 'Welcome to Gather',
+    signInWithSocial: 'Sign in to access your digital kingdom community',
     stepXofY: 'Step {x} of {y}',
     getStarted: 'GET STARTED',
     continue: 'CONTINUE',
@@ -410,7 +420,7 @@ const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {
     onboarding3Verse: '"And let us consider how we may spur one another on toward love and good deeds."',
     onboarding3Ref: 'Hebrews 10:24',
     onboarding3Title: 'Stay Connected',
-    onboarding3Sub: 'Prayer, group chats, events, and live worship for the whole church family.',
+    onboarding3Sub: 'Prayer, events, and live worship for the whole church family.',
     onboarding3Eyebrow: 'Church community',
   },
   fr: {
@@ -435,6 +445,7 @@ const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {
     summary: "Résumé",
     home: 'Accueil',
     bible: 'Bible',
+    prayer: 'Prière',
     community: 'Communauté',
     profile: 'Profil',
     chapter: 'Chapitre',
@@ -576,6 +587,8 @@ const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {
     noUrgentRequests: 'Aucune demande urgente pour le moment.',
     beFirstPrayer: 'Soyez le premier à poster une demande de prière et encouragez les autres.',
     requestPosted: 'Demande postée !',
+    postRequest: 'Publier une demande',
+    addPrayerRequest: 'Ajouter une demande de prière',
     showingSavedRequests: 'Affichage des demandes enregistrées.',
     aiPrayerAssistant: 'Assistant de prière IA',
     personalizedSupport: 'Soutien spirituel personnalisé',
@@ -595,6 +608,8 @@ const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {
     emailRequired: 'L’e-mail est requis',
     validEmailRequired: 'Entrez une adresse e-mail valide',
     passwordRequired: 'Le mot de passe est requis',
+    welcomeToGather: 'Bienvenue sur Gather',
+    signInWithSocial: 'Connectez-vous pour accéder à votre communauté',
     stepXofY: 'Étape {x} sur {y}',
     getStarted: 'COMMENCER',
     continue: 'CONTINUER',
@@ -613,7 +628,7 @@ const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {
     onboarding3Verse: '"Veillons les uns sur les autres pour nous exciter à la charité et aux bonnes œuvres."',
     onboarding3Ref: 'Hébreux 10:24',
     onboarding3Title: 'Restez connecté',
-    onboarding3Sub: 'Prière, chats de groupe, événements et culte en direct pour toute la famille de l’église.',
+    onboarding3Sub: 'Prière, événements et culte en direct pour toute la famille de l’église.',
     onboarding3Eyebrow: 'Communauté d’église',
   },
 };

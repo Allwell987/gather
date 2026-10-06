@@ -22,9 +22,19 @@ SET
   allowed_mime_types = EXCLUDED.allowed_mime_types;
 
 DROP POLICY IF EXISTS "Avatar images are publicly accessible" ON storage.objects;
+DROP POLICY IF EXISTS "Users can view their own avatar" ON storage.objects;
 DROP POLICY IF EXISTS "Users can upload their own avatar" ON storage.objects;
 DROP POLICY IF EXISTS "Users can update their own avatar" ON storage.objects;
 DROP POLICY IF EXISTS "Users can delete their own avatar" ON storage.objects;
+
+CREATE POLICY "Users can view their own avatar" ON storage.objects
+  FOR SELECT
+  TO authenticated
+  USING (
+    bucket_id = 'avatars'
+    AND auth.uid() IS NOT NULL
+    AND (storage.foldername(name))[1] = auth.uid()::text
+  );
 
 CREATE POLICY "Users can upload their own avatar" ON storage.objects
   FOR INSERT

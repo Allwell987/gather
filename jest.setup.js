@@ -2,28 +2,41 @@
 // Jest setup file
 import '@testing-library/react-native/extend-expect';
 
-// Mock NativeModules before anything else
-jest.mock('react-native/Libraries/BatchedBridge/NativeModules', () => ({
-  __esModule: true,
-  default: {
-    LinkingManager: {
-      addEventListener: jest.fn(),
-      removeEventListener: jest.fn(),
-    },
-    UIManager: {},
-    SourceCode: {
-      getConstants: jest.fn(() => ({})),
-    },
-    DeviceInfo: {
-      getConstants: jest.fn(() => ({})),
-    },
-    NativeUnimoduleProxy: {
-      viewManagersMetadata: {},
-      modulesConstants: {},
-      exportedMethods: {},
-    },
+global.expo = {
+  EventEmitter: class MockEventEmitter {
+    addListener() {
+      return { remove: jest.fn() };
+    }
+
+    removeListener() {}
   },
-}));
+};
+
+global.localStorage = {
+  getItem: jest.fn(() => null),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn(),
+};
+
+jest.mock('expo-modules-core', () => {
+  const actual = jest.requireActual('expo-modules-core');
+  class MockNativeResponse {
+    addListener() {
+      return { remove: jest.fn() };
+    }
+  }
+
+  return {
+    ...actual,
+    requireNativeModule: jest.fn((name) => (
+      name === 'ExpoFetchModule' ? { NativeResponse: MockNativeResponse } : {}
+    )),
+    requireOptionalNativeModule: jest.fn(() => null),
+  };
+});
+
+jest.mock('expo-sqlite/localStorage/install', () => ({}));
 
 // Mock expo-secure-store
 jest.mock('expo-secure-store', () => ({

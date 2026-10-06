@@ -63,7 +63,7 @@ export default function OnboardingScreen() {
     if (nextIndex < SLIDES.length) {
       flatListRef.current?.scrollToIndex({ index: nextIndex, animated: true });
     } else {
-      navigation.navigate('Register');
+      navigation.navigate('Login');
     }
   };
 
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   guestBtnText: {
     fontFamily: Typography.sansMedium,
     fontSize: Typography.sizes.sm,
-    color: royal.mist,
+    color: royal.pearl,
   },
   swipeIndicatorContainer: {
     alignItems: 'center',
@@ -202,7 +202,7 @@ const styles = StyleSheet.create({
   swipeHint: {
     fontFamily: Typography.sans,
     fontSize: Typography.sizes.sm,
-    color: royal.mist,
+    color: royal.pearl,
     marginTop: 24,
   },
 });

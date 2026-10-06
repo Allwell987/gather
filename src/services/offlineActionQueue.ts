@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 import { supabase } from './supabase';
-import { serializeChatImageMessage, uploadChatImage } from './chatMedia';
 
 const OFFLINE_ACTION_QUEUE_KEY = 'offline-action-queue';
 const OFFLINE_ACTION_LAST_SYNC_KEY = 'offline-action-last-sync';
@@ -21,31 +20,14 @@ export type CreatePrayerOfflineAction = OfflineActionBase<'create_prayer', {
   isAnonymous: boolean;
 }>;
 
-export type SendMessageOfflineAction = OfflineActionBase<'send_message', {
-  userId: string;
-  groupId: string;
-  content: string;
-  senderName: string;
-  replyToMessageId?: string | null;
-  replySenderName?: string;
-  replyPreview?: string;
-  pendingImage?: {
-    base64: string;
-    mimeType?: string | null;
-    fileName?: string | null;
-    previewUri: string;
-  };
-}>;
-
 export type ToggleRsvpOfflineAction = OfflineActionBase<'toggle_rsvp', {
-  userId: string;
   eventId: string;
+  userId: string;
   shouldRsvp: boolean;
 }>;
 
 export type OfflineAction =
   | CreatePrayerOfflineAction
-  | SendMessageOfflineAction
   | ToggleRsvpOfflineAction;
 
 type NewOfflineAction = Omit<OfflineAction, 'id' | 'createdAt'>;
@@ -58,7 +40,6 @@ export interface FlushOfflineActionsResult {
 export interface OfflineActionSummary {
   total: number;
   prayerCount: number;
-  messageCount: number;
   rsvpCount: number;
 }
 
@@ -188,43 +169,6 @@ const performOfflineAction = async (action: OfflineAction) => {
       return;
     }
 
-    case 'send_message': {
-      let content = action.payload.content;
-
-      if (action.payload.pendingImage) {
-        const imageUrl = await uploadChatImage({
-          userId: action.payload.userId,
-          groupId: action.payload.groupId,
-          base64: action.payload.pendingImage.base64,
-          contentType: action.payload.pendingImage.mimeType,
-          fileName: action.payload.pendingImage.fileName,
-          uploadKey: action.id,
-        });
-
-        content = serializeChatImageMessage({
-          imageUrl,
-          caption: action.payload.content,
-          fileName: action.payload.pendingImage.fileName ?? undefined,
-          mimeType: action.payload.pendingImage.mimeType ?? undefined,
-        });
-      }
-
-      const { error } = await supabase
-        .from('messages')
-        .insert({
-          user_id: action.payload.userId,
-          group_id: action.payload.groupId,
-          content,
-          reply_to_message_id: action.payload.replyToMessageId ?? null,
-        } as never);
-
-      if (error) {
-        throw error;
-      }
-
-      return;
-    }
-
     case 'toggle_rsvp': {
       if (action.payload.shouldRsvp) {
         const { error } = await supabase
@@ -274,23 +218,18 @@ export const getOfflineActionSummary = (actions: OfflineAction[]): OfflineAction
           total: summary.total + 1,
           prayerCount: summary.prayerCount + 1,
         };
-      case 'send_message':
-        return {
-          ...summary,
-          total: summary.total + 1,
-          messageCount: summary.messageCount + 1,
-        };
       case 'toggle_rsvp':
         return {
           ...summary,
           total: summary.total + 1,
           rsvpCount: summary.rsvpCount + 1,
         };
+      default:
+        return summary;
     }
   }, {
     total: 0,
     prayerCount: 0,
-    messageCount: 0,
     rsvpCount: 0,
   });
 };

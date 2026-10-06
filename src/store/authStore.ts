@@ -19,8 +19,6 @@ interface AuthState {
   isOnboarded: boolean;
   isGuest: boolean;
   notificationsEnabled: boolean;
-  pendingVerificationEmail: string | null;
-  authFeedback: AuthFeedback | null;
   isHydrated: boolean;
   setUser: (user: UserProfile | null) => void;
   setSession: (session: string | null) => void;
@@ -28,8 +26,6 @@ interface AuthState {
   setIsOnboarded: (onboarded: boolean) => void;
   setIsGuest: (isGuest: boolean) => void;
   setNotificationsEnabled: (enabled: boolean) => void;
-  setPendingVerificationEmail: (email: string | null) => void;
-  setAuthFeedback: (feedback: AuthFeedback | null) => void;
   setIsHydrated: (isHydrated: boolean) => void;
   signOut: () => void;
 }
@@ -43,8 +39,6 @@ export const useAuthStore = create<AuthState>()(
       isOnboarded: false,
       isGuest: false,
       notificationsEnabled: true,
-      pendingVerificationEmail: null,
-      authFeedback: null,
       isHydrated: false,
       setUser: (user) => set({ user }),
       setSession: (session) => set({ session }),
@@ -52,8 +46,6 @@ export const useAuthStore = create<AuthState>()(
       setIsOnboarded: (isOnboarded) => set({ isOnboarded }),
       setIsGuest: (isGuest) => set({ isGuest }),
       setNotificationsEnabled: (notificationsEnabled) => set({ notificationsEnabled }),
-      setPendingVerificationEmail: (pendingVerificationEmail) => set({ pendingVerificationEmail }),
-      setAuthFeedback: (authFeedback) => set({ authFeedback }),
       setIsHydrated: (isHydrated) => set({ isHydrated }),
       signOut: async () => {
         await supabase.auth.signOut();
@@ -62,8 +54,6 @@ export const useAuthStore = create<AuthState>()(
           session: null,
           isOnboarded: false,
           isGuest: false,
-          pendingVerificationEmail: null,
-          authFeedback: null,
         });
       },
     }),
@@ -78,7 +68,6 @@ export const useAuthStore = create<AuthState>()(
         isOnboarded: state.isOnboarded,
         isGuest: state.isGuest,
         notificationsEnabled: state.notificationsEnabled,
-        pendingVerificationEmail: state.pendingVerificationEmail,
       }),
     }
   )

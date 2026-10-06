@@ -24,9 +24,9 @@ If you have questions about this policy or want to exercise your rights, contact
 
 3. Data We Collect
 
-- Account Information: name, email address, phone number, username, and password when you create an account.
+- Account Information: name and email address when you sign in via Google or Apple.
 - Profile Data: avatar/profile photos and profile fields you choose to provide.
-- Content You Provide: messages, posts, event details, images, and other content you upload or submit through the app (including chat messages and comments).
+- Content You Provide: posts, event details, images, and other content you upload or submit through the app (including prayer requests and comments).
 - Usage and Device Data: device type, operating system, app version, crash logs, IP address, language, time zone, and app usage analytics.
 - Metadata and Logs: timestamps, referral/source information, and metrics about how you use features.
 - Location: approximate location if you enable location-based features (only with your permission).
@@ -37,7 +37,7 @@ We use collected data to:
 
 - Provide, operate, maintain, and improve the app and its features.
 - Authenticate accounts and provide account recovery.
-- Process and store content you submit (e.g., chats, images) so other users can view/interact as intended.
+- Process and store content you submit (e.g., prayer requests, images) so other users can view/interact as intended.
 - Communicate with you about account activity, updates, and support.
 - Monitor and fix bugs and crashes; analyze usage to improve performance.
 - Enforce our Terms of Service and protect against abuse.
@@ -62,7 +62,7 @@ Those third parties may receive certain data (such as logs, crash data, and iden
 We may share data with:
 
 - Service providers and vendors who perform services on our behalf (hosting, analytics, messaging).
-- Other users: information you post or share publicly or within groups (e.g., event details, messages, profile data).
+- Other users: information you post or share publicly (e.g., event details, prayer requests, profile data).
 - Legal and safety: when required by law, to respond to lawful requests, or to protect rights, property, or safety.
 
 8. Data Retention

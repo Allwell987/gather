@@ -2,10 +2,7 @@
 import React from 'react';
 import { createStackNavigator , CardStyleInterpolators } from '@react-navigation/stack';
 import OnboardingScreen from '../screens/auth/OnboardingScreen';
-import LandingScreen from '../screens/auth/LandingScreen';
 import LoginScreen from '../screens/auth/LoginScreen';
-import RegisterScreen from '../screens/auth/RegisterScreen';
-import EmailVerificationScreen from '../screens/auth/EmailVerificationScreen';
 import ThemePickerScreen from '../screens/auth/ThemePickerScreen';
 import { useAuthStore } from '../store/authStore';
 import type { AuthStackParamList } from '../types/navigation';
@@ -15,12 +12,10 @@ export type { AuthStackParamList };
 const Stack = createStackNavigator<AuthStackParamList>();
 
 export default function AuthNavigator() {
-  const { user, isOnboarded, authFeedback, pendingVerificationEmail } = useAuthStore();
+  const { user, isOnboarded } = useAuthStore();
   const initialRouteName = user && !isOnboarded
     ? 'ThemePicker'
-    : authFeedback || pendingVerificationEmail
-      ? 'EmailVerification'
-      : 'Landing';
+    : 'Onboarding';
 
   return (
     <Stack.Navigator
@@ -36,11 +31,8 @@ export default function AuthNavigator() {
         },
       }}
     >
-      <Stack.Screen name="Landing" component={LandingScreen} />
       <Stack.Screen name="Onboarding" component={OnboardingScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen name="EmailVerification" component={EmailVerificationScreen} />
       <Stack.Screen name="ThemePicker" component={ThemePickerScreen} />
     </Stack.Navigator>
   );

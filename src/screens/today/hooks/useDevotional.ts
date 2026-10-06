@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../../services/supabase';
 import { format } from 'date-fns';
@@ -14,9 +13,27 @@ export function useDevotional() {
   const { data: devotional, isLoading } = useQuery<Devotional | null>({
     queryKey: ['devotional', today],
     queryFn: async () => {
-      const { data, error } = await supabase.from('devotionals').select('*').lte('publish_date', today).order('publish_date', { ascending: false }).limit(1).maybeSingle();
+      const { data, error } = await supabase
+        .from('devotionals')
+        .select('*')
+        .lte('publish_date', today)
+        .order('publish_date', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
       if (error) throw error;
-      return data as Devotional | null;
+      if (data) return data as Devotional;
+
+      // Fallback: if no devotional exists on or before today (e.g. date out of range), fetch the latest available devotional
+      const { data: fallbackData, error: fallbackError } = await supabase
+        .from('devotionals')
+        .select('*')
+        .order('publish_date', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (fallbackError) throw fallbackError;
+      return (fallbackData as Devotional | null);
     },
   });
 
@@ -34,11 +51,17 @@ export function useDevotional() {
     mutationFn: async () => {
       if (!user?.id || !devotional?.id) return;
 
-      const { error } = await supabase.from('devotional_reads').upsert({
-        user_id: user.id,
-        devotional_id: devotional.id,
-        read_at: new Date().toISOString()
-      } as never);
+      const { error } = await supabase.from('devotional_reads').upsert(
+        {
+          user_id: user.id,
+          devotional_id: devotional.id,
+          read_at: new Date().toISOString(),
+        } as never,
+        {
+          onConflict: 'user_id,devotional_id',
+          ignoreDuplicates: true,
+        }
+      );
 
       if (error) throw error;
 

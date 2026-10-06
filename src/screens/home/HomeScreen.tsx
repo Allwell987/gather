@@ -14,6 +14,7 @@ import Pulse from '../../components/common/Pulse';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import { useAuthStore } from '../../store/authStore';
 import { useThemeStore } from '../../store/themeStore';
+import { useNotificationStore } from '../../store/notificationStore';
 import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
 import { useHome } from './hooks/useHome';
 import { fetchDailyVerse, DailyVerse } from '../../services/dailyVerse';
@@ -62,7 +63,7 @@ function QuickAccessItem({ item, navigation }: QuickAccessItemProps) {
   };
 
   return (
-    <Animated.View style={[{ flex: 1 }, animatedStyle]}>
+    <Animated.View style={[styles.gridItemWrapper, animatedStyle]}>
       <TouchableOpacity
         activeOpacity={1}
         onPressIn={onPressIn}
@@ -84,6 +85,7 @@ export default function HomeScreen() {
   const locale = getDeviceLocale();
   const { user } = useAuthStore();
   const { theme, colors } = useThemeStore();
+  const hasUnread = useNotificationStore(state => state.hasUnread());
   const { greeting, nextService, isLoading, streak, refetch } = useHome(user);
 
   const [dailyVerse, setDailyVerse] = useState<DailyVerse | null>(null);
@@ -122,7 +124,7 @@ export default function HomeScreen() {
                 <Text style={[styles.minimalStreakText, { color: colors.text }]}>{streak.count}</Text>
               </View>
             )}
-            <TouchableOpacity onPress={() => navigation.navigate('Notifications')}>
+            <TouchableOpacity onPress={() => navigation.navigate('Spotlight')}>
               <GlassView
                 borderRadius={Radius.full}
                 intensity={30}
@@ -132,6 +134,7 @@ export default function HomeScreen() {
               >
                 <View style={styles.bellIconInner}>
                   <Ionicons name="notifications-outline" size={18} color={colors.text} />
+                  {hasUnread && <View style={[styles.badge, { backgroundColor: BaseColors.red500 }]} />}
                 </View>
               </GlassView>
             </TouchableOpacity>
@@ -254,6 +257,16 @@ const styles = StyleSheet.create({
   navRight: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingRight: 16 },
   bellWrapper: { width: 34, height: 34 },
   bellIconInner: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  badge: {
+    position: 'absolute',
+    top: 6,
+    right: 6,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: 'rgba(255,255,255,0.8)',
+  },
   avatar: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
   avatarText: { color: '#fff', fontWeight: 'bold' },
   hero: {
@@ -287,8 +300,9 @@ const styles = StyleSheet.create({
   body: { padding: Spacing.xl },
   sectionTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 16 },
   sectionHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 24, marginBottom: 16 },
-  grid: { flexDirection: 'row', gap: 12, marginBottom: 24 },
-  gridItem: { flex: 1, padding: 12, borderRadius: Radius.lg, borderWidth: 1, alignItems: 'center', gap: 8 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 24 },
+  gridItemWrapper: { width: '48%' },
+  gridItem: { minHeight: 112, padding: 12, borderRadius: Radius.lg, borderWidth: 1, alignItems: 'center', justifyContent: 'center', gap: 8 },
   service: { flexDirection: 'row', justifyContent: 'space-between', padding: 16, borderRadius: Radius.lg, borderWidth: 1 },
   sermonsScroll: { marginHorizontal: -Spacing.xl, paddingHorizontal: Spacing.xl },
   sermonCard: { width: 220, borderRadius: Radius.lg, borderWidth: 1, overflow: 'hidden' },

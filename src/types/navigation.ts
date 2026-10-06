@@ -9,11 +9,8 @@ export type RootStackParamList = {
 };
 
 export type AuthStackParamList = {
-  Landing: undefined;
   Onboarding: undefined;
   Login: undefined;
-  Register: undefined;
-  EmailVerification: { email?: string } | undefined;
   ThemePicker: { fromOnboarding: boolean; activeTab?: 'theme' | 'font' | 'appearance' };
 };
 
@@ -27,17 +24,13 @@ export type MainTabParamList = {
 
 export type HomeStackParamList = {
   Home: undefined;
-  Notifications: undefined;
+  Spotlight: undefined;
   Giving: undefined;
-  GroupChat: { groupId: string; groupName: string };
-  ManageRequests: { groupId: string; groupName: string };
-  GroupInfo: { groupId: string; groupName: string };
   PrayerGenerator: undefined;
 };
 
 export type CommunityStackParamList = {
   CommunityHome: undefined;
-  CreateGroup: undefined;
   EventDetail: { eventId: string };
   LiveStream: { videoId?: string } | undefined;
 };
@@ -74,7 +67,5 @@ export type ProfileScreenNavigationProp = CompositeNavigationProp<
   MainTabNavigationProp
 >;
 
-export type GroupChatRouteProp = RouteProp<HomeStackParamList, 'GroupChat'>;
 export type EventDetailRouteProp = RouteProp<CommunityStackParamList, 'EventDetail'>;
 export type ThemePickerRouteProp = RouteProp<AuthStackParamList | ProfileStackParamList, 'ThemePicker'>;
-export type EmailVerificationRouteProp = RouteProp<AuthStackParamList, 'EmailVerification'>;

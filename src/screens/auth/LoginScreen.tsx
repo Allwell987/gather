@@ -1,8 +1,8 @@
 // src/screens/auth/LoginScreen.tsx
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, StyleSheet, TextInput, TouchableOpacity,
-  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator,
+  View, Text, StyleSheet, TouchableOpacity,
+  Platform, ActivityIndicator, KeyboardAvoidingView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,11 +10,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import * as AppleAuthentication from 'expo-apple-authentication';
 import HeaderBar from '../../components/common/HeaderBar';
-import {
-  getSupabaseAuthErrorMessage,
-  getSupabaseConfigMessage,
-  supabase,
-} from '../../services/supabase';
 import { signInWithApple, signInWithGoogle } from '../../services/auth';
 import { useAuthStore } from '../../store/authStore';
 import { useToastStore } from '../../store/toastStore';
@@ -22,24 +17,13 @@ import { BaseColors, Typography, Spacing, Radius } from '../../constants/theme';
 import { t, getDeviceLocale } from '../../services/locale';
 import type { AuthStackNavigationProp } from '../../types/navigation';
 
-interface FormErrors {
-  email?: string;
-  password?: string;
-}
-
 export default function LoginScreen() {
   const navigation = useNavigation<AuthStackNavigationProp>();
   const locale = getDeviceLocale();
   const { setIsOnboarded } = useAuthStore();
   const { showToast } = useToastStore();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPass, setShowPass] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
   const [authError, setAuthError] = useState<string | null>(null);
-
   const [googleLoading, setGoogleLoading] = useState(false);
   const [appleLoading, setAppleLoading] = useState(false);
   const [appleAvailable, setAppleAvailable] = useState(false);
@@ -50,59 +34,6 @@ export default function LoginScreen() {
       .then(setAppleAvailable)
       .catch(() => setAppleAvailable(false));
   }, []);
-
-  const validate = (): boolean => {
-    const newErrors: FormErrors = {};
-    if (!email.trim()) {
-      newErrors.email = t('emailRequired', locale);
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim().toLowerCase())) {
-      newErrors.email = t('validEmailRequired', locale);
-    }
-    if (!password) {
-      newErrors.password = t('passwordRequired', locale);
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleLogin = async () => {
-    if (!validate()) return;
-    setAuthError(null);
-
-    const configMessage = getSupabaseConfigMessage();
-    if (configMessage) {
-      setAuthError(configMessage);
-      return;
-    }
-
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(),
-        password
-      });
-
-      if (error) {
-        const message = getSupabaseAuthErrorMessage(error.message);
-        setAuthError(message);
-        showToast({ title: t('loginFailed', locale), message, variant: 'error' });
-        return;
-      }
-
-      if (data.user) {
-        setIsOnboarded(true);
-      }
-    } catch (err) {
-      if (__DEV__) {
-        console.error('Login error:', err);
-      }
-      const message = t('unexpectedError', locale);
-      setAuthError(message);
-      showToast({ title: t('loginFailed', locale), message, variant: 'error' });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleGoogleSignIn = async () => {
     setAuthError(null);
@@ -118,6 +49,7 @@ export default function LoginScreen() {
   };
 
   const handleAppleSignIn = async () => {
+    setAuthError(null);
     setAppleLoading(true);
     const { error } = await signInWithApple();
     setAppleLoading(false);
@@ -126,16 +58,6 @@ export default function LoginScreen() {
       showToast({ title: 'Apple sign-in failed', message: error, variant: 'error' });
     }
     else setIsOnboarded(true);
-  };
-
-  const renderInputError = (error?: string) => {
-    if (!error) return null;
-    return (
-      <View style={styles.errorContainer}>
-        <Ionicons name="alert-circle" size={12} color={BaseColors.red500} />
-        <Text style={styles.errorText}>{error}</Text>
-      </View>
-    );
   };
 
   return (
@@ -152,142 +74,58 @@ export default function LoginScreen() {
         blurTint="dark"
       />
       <SafeAreaView style={styles.safe} edges={['bottom', 'left', 'right']}>
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={{ flex: 1 }}
-        >
-          <ScrollView
-            contentContainerStyle={styles.scroll}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-            keyboardDismissMode="on-drag"
-          >
-            <View style={styles.header}>
-              <Text style={styles.title}>{t('welcomeBack', locale)}</Text>
-              <Text style={styles.subtitle}>{t('signInSubtitle', locale)}</Text>
-            </View>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.safe}>
+          <View style={styles.header}>
+            <Text style={styles.title}>{t('welcomeToGather', locale) || 'Welcome to Gather'}</Text>
+            <Text style={styles.subtitle}>{t('signInWithSocial', locale) || 'Sign in to access your digital kingdom community'}</Text>
+          </View>
 
-            <View style={styles.socialButtons}>
+          {authError ? (
+            <View style={styles.authErrorBanner}>
+              <Ionicons name="alert-circle" size={16} color={BaseColors.red600} />
+              <Text style={styles.authErrorText}>{authError}</Text>
+            </View>
+          ) : null}
+
+          <View style={styles.socialButtonsContainer}>
+            <TouchableOpacity
+              style={styles.googleBtn}
+              onPress={handleGoogleSignIn}
+              disabled={googleLoading}
+            >
+              {googleLoading ? (
+                <ActivityIndicator size="small" color={BaseColors.gold} />
+              ) : (
+                <>
+                  <Ionicons name="logo-google" size={20} color={BaseColors.white} />
+                  <Text style={styles.googleText}>Continue with Google</Text>
+                </>
+              )}
+            </TouchableOpacity>
+
+            {appleAvailable && (
               <TouchableOpacity
-                style={styles.googleBtn}
-                onPress={handleGoogleSignIn}
-                disabled={googleLoading}
+                style={styles.appleBtn}
+                onPress={handleAppleSignIn}
+                disabled={appleLoading}
               >
-                {googleLoading ? (
-                  <ActivityIndicator size="small" color={BaseColors.gold} />
+                {appleLoading ? (
+                  <ActivityIndicator size="small" color={BaseColors.white} />
                 ) : (
                   <>
-                    <Ionicons name="logo-google" size={18} color={BaseColors.white} />
-                    <Text style={styles.googleText}>Google</Text>
+                    <Ionicons name="logo-apple" size={22} color={BaseColors.white} />
+                    <Text style={styles.appleText}>Continue with Apple</Text>
                   </>
                 )}
               </TouchableOpacity>
+            )}
+          </View>
 
-              {appleAvailable && (
-                <TouchableOpacity
-                  style={styles.appleBtn}
-                  onPress={handleAppleSignIn}
-                  disabled={appleLoading}
-                >
-                  {appleLoading ? (
-                    <ActivityIndicator size="small" color={BaseColors.white} />
-                  ) : (
-                    <>
-                      <Ionicons name="logo-apple" size={20} color={BaseColors.white} />
-                      <Text style={styles.appleText}>Apple</Text>
-                    </>
-                  )}
-                </TouchableOpacity>
-              )}
-            </View>
-
-            <View style={styles.dividerRow}>
-              <View style={styles.divider} />
-              <Text style={styles.dividerText}>{t('orContinueWithEmail', locale)}</Text>
-              <View style={styles.divider} />
-            </View>
-
-            {authError ? (
-              <View style={styles.authErrorBanner}>
-                <Ionicons name="alert-circle" size={16} color={BaseColors.red600} />
-                <Text style={styles.authErrorText}>{authError}</Text>
-              </View>
-            ) : null}
-
-            <View style={styles.inputWrap}>
-              <Text style={styles.label}>{t('emailAddress', locale)}</Text>
-              <TextInput
-                style={[styles.input, errors.email ? styles.inputError : null]}
-                value={email}
-                onChangeText={(t) => {
-                  setEmail(t);
-                  if (errors.email) setErrors({ ...errors, email: undefined });
-                }}
-                placeholder={t('emailPlaceholder', locale)}
-                placeholderTextColor={BaseColors.brown400}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                selectionColor={BaseColors.gold}
-              />
-              {renderInputError(errors.email)}
-            </View>
-
-            <View style={styles.inputWrap}>
-              <Text style={styles.label}>{t('password', locale)}</Text>
-              <View style={[styles.passWrap, errors.password ? styles.inputError : null]}>
-                <TextInput
-                  style={[styles.input, { flex: 1, borderWidth: 0, paddingHorizontal: 0 }]}
-                  value={password}
-                  onChangeText={(t) => {
-                    setPassword(t);
-                    if (errors.password) setErrors({ ...errors, password: undefined });
-                  }}
-                  placeholder={t('passwordPlaceholder', locale)}
-                  placeholderTextColor={BaseColors.brown400}
-                  secureTextEntry={!showPass}
-                  selectionColor={BaseColors.gold}
-                />
-                <TouchableOpacity
-                  onPress={() => setShowPass(!showPass)}
-                  style={styles.eyeBtn}
-                  accessibilityRole="button"
-                  accessibilityLabel={showPass ? 'Hide password' : 'Show password'}
-                >
-                  <Ionicons name={showPass ? 'eye-off' : 'eye'} size={18} color={BaseColors.gold} />
-                </TouchableOpacity>
-              </View>
-              {renderInputError(errors.password)}
-            </View>
-
-            <TouchableOpacity
-              style={styles.submitBtn}
-              onPress={handleLogin}
-              disabled={loading}
-              activeOpacity={0.9}
-            >
-              <LinearGradient
-                colors={[BaseColors.gold, BaseColors.goldDeep]}
-                style={styles.submitGradient}
-              >
-                {loading ? (
-                  <ActivityIndicator color={BaseColors.white} />
-                ) : (
-                  <Text style={styles.submitText}>{t('signInBtn', locale)}</Text>
-                )}
-              </LinearGradient>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => navigation.navigate('Register')}
-              style={styles.registerLink}
-              accessibilityRole="button"
-              accessibilityLabel={t('createAccount', locale)}
-            >
-              <Text style={styles.registerText}>
-                {t('newToGather', locale)}{'  '}<Text style={styles.registerHighlight}>{t('createAccount', locale)}</Text>
-              </Text>
-            </TouchableOpacity>
-          </ScrollView>
+          <View style={styles.footerInfo}>
+            <Text style={styles.footerText}>
+              By continuing, you agree to our Terms of Service and Privacy Policy.
+            </Text>
+          </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </View>
@@ -297,31 +135,27 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   safe: { flex: 1 },
-  scroll: { flexGrow: 1, padding: Spacing.xl, paddingTop: Spacing.lg, paddingBottom: Spacing['2xl'] },
-  header: { marginBottom: Spacing.xl, alignItems: 'center' },
-  title: { fontFamily: Typography.serif, fontSize: 32, color: BaseColors.white, marginBottom: 4 },
-  subtitle: { fontFamily: Typography.sans, fontSize: 14, color: BaseColors.brown300 },
-  socialButtons: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: Spacing.md,
-    marginBottom: Spacing.xl
+  scroll: { flex: 1, padding: Spacing.xl, justifyContent: 'center', paddingBottom: Spacing['4xl'] },
+  header: { marginBottom: Spacing['3xl'], alignItems: 'center' },
+  title: { fontFamily: Typography.serif, fontSize: 32, color: BaseColors.white, marginBottom: 8, textAlign: 'center' },
+  subtitle: { fontFamily: Typography.sans, fontSize: 16, color: BaseColors.brown300, textAlign: 'center', lineHeight: 22, paddingHorizontal: 20 },
+  socialButtonsContainer: {
+    gap: Spacing.lg,
+    marginBottom: Spacing.xl,
+    width: '100%'
   },
   googleBtn: {
-    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12,
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: Radius.md,
-    paddingVertical: 12, backgroundColor: 'rgba(255,255,255,0.05)',
+    paddingVertical: 16, backgroundColor: 'rgba(255,255,255,0.05)',
   },
-  googleText: { fontFamily: Typography.sansSemiBold, fontSize: 14, color: BaseColors.white },
+  googleText: { fontFamily: Typography.sansSemiBold, fontSize: 16, color: BaseColors.white },
   appleBtn: {
-    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
     borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)', borderRadius: Radius.md,
-    paddingVertical: 12, backgroundColor: BaseColors.black,
+    paddingVertical: 16, backgroundColor: BaseColors.black,
   },
-  appleText: { fontFamily: Typography.sansSemiBold, fontSize: 14, color: BaseColors.white },
-  dividerRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, marginBottom: Spacing.xl },
-  divider: { flex: 1, height: 1, backgroundColor: 'rgba(255,255,255,0.05)' },
-  dividerText: { fontFamily: Typography.sans, fontSize: 12, color: BaseColors.brown400, letterSpacing: 0.5 },
+  appleText: { fontFamily: Typography.sansSemiBold, fontSize: 16, color: BaseColors.white },
   authErrorBanner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -341,64 +175,13 @@ const styles = StyleSheet.create({
     color: '#fca5a5',
     lineHeight: 18,
   },
-  inputWrap: { marginBottom: Spacing.lg },
-  label: {
-    fontFamily: Typography.sansSemiBold, fontSize: 11,
-    letterSpacing: 1, textTransform: 'uppercase', color: BaseColors.brown300, marginBottom: 8,
-  },
-  input: {
-    backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.08)', borderRadius: Radius.md,
-    paddingHorizontal: 16, paddingVertical: 14,
-    fontFamily: Typography.sans, fontSize: 16, color: BaseColors.white,
-  },
-  inputError: { borderColor: BaseColors.red700 },
-  errorContainer: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 6 },
-  errorText: { fontFamily: Typography.sans, fontSize: 11, color: BaseColors.red500 },
-  passWrap: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.03)',
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: Radius.md, paddingHorizontal: 16,
-  },
-  eyeBtn: { padding: Spacing.sm },
-  forgotBtn: { alignSelf: 'flex-end', marginBottom: Spacing.xl },
-  forgotText: { fontFamily: Typography.sansMedium, fontSize: 13, color: BaseColors.gold },
-  submitBtn: {
-    borderRadius: Radius.md,
-    overflow: 'hidden',
-    marginBottom: Spacing.xl,
-    shadowColor: BaseColors.gold,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  submitGradient: {
-    paddingVertical: 18,
-    alignItems: 'center',
-  },
-  submitText: {
-    fontFamily: Typography.sansSemiBold, fontSize: 15,
-    color: BaseColors.white, letterSpacing: 2
-  },
-  registerLink: { alignItems: 'center', marginTop: 'auto', paddingVertical: Spacing.lg },
-  registerText: { fontFamily: Typography.sans, fontSize: 14, color: BaseColors.brown300 },
-  registerHighlight: { fontFamily: Typography.sansSemiBold, color: BaseColors.gold },
-  // Modal styles remain similar but updated with theme colors
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.8)', justifyContent: 'center', alignItems: 'center', padding: Spacing['2xl'] },
-  modalCard: { width: '100%', backgroundColor: '#1a140e', borderRadius: Radius.lg, padding: Spacing.xl, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
-  modalHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.md },
-  modalTitle: { fontFamily: Typography.serif, fontSize: 24, color: BaseColors.white },
-  modalCloseBtn: { padding: 4 },
-  modalSubtitle: { fontFamily: Typography.sans, fontSize: 14, color: BaseColors.brown300, marginBottom: Spacing.lg, lineHeight: 20 },
-  modalInput: { backgroundColor: 'rgba(255,255,255,0.03)', borderWidth: 1, borderColor: 'rgba(255,255,255,0.08)', borderRadius: Radius.md, paddingHorizontal: 16, paddingVertical: 14, fontFamily: Typography.sans, fontSize: 16, color: BaseColors.white, marginBottom: Spacing.lg },
-  modalSubmitBtn: { borderRadius: Radius.md, overflow: 'hidden' },
-  modalSubmitGradient: { paddingVertical: 14, alignItems: 'center' },
-  modalSubmitText: { fontFamily: Typography.sansSemiBold, fontSize: 14, color: BaseColors.white, letterSpacing: 1 },
-  resetSentWrap: { alignItems: 'center', paddingVertical: Spacing.lg },
-  resetSentTitle: { fontFamily: Typography.serif, fontSize: 24, color: BaseColors.white, marginBottom: Spacing.sm },
-  resetSentSub: { fontFamily: Typography.sans, fontSize: 14, color: BaseColors.brown300, textAlign: 'center', lineHeight: 22, marginBottom: Spacing.xl },
-  resetSentEmail: { color: BaseColors.white, fontFamily: Typography.sansSemiBold },
-  resetDoneBtn: { borderRadius: Radius.md, overflow: 'hidden', paddingHorizontal: 40 },
-  resetDoneBtnGradient: { paddingVertical: 14, alignItems: 'center' },
-  resetDoneBtnText: { fontFamily: Typography.sansSemiBold, fontSize: 14, color: BaseColors.white },
+  footerInfo: { marginTop: Spacing.xl, paddingHorizontal: 20 },
+  footerText: {
+    fontFamily: Typography.sans,
+    fontSize: 12,
+    color: BaseColors.brown400,
+    textAlign: 'center',
+    lineHeight: 18,
+    opacity: 0.6
+  }
 });
