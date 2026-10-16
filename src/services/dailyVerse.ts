@@ -1,13 +1,23 @@
 // src/services/dailyVerse.ts
-import { supabase } from './supabase';
 import { DAILY_VERSE as FALLBACK_VERSE, VERSE_BACKGROUNDS } from '../constants/theme';
-import { BIBLE_BOOKS, fetchChapter, getChapterCount } from './bibleApi';
-import { format } from 'date-fns';
+import { getDayOfYear, isLeapYear } from 'date-fns';
+import DAILY_SCRIPTURES from '../constants/dailyScriptures.json';
 
 export interface DailyVerse {
   text: string;
   reference: string;
   backgroundImage?: string;
+}
+
+function getScriptureDay(date: Date): number {
+  let day = getDayOfYear(date);
+  const isLeapDay = date.getMonth() === 1 && date.getDate() === 29;
+
+  if (isLeapYear(date) && (date.getMonth() > 1 || isLeapDay)) {
+    day -= 1;
+  }
+
+  return day;
 }
 
 /**
@@ -22,69 +32,18 @@ function getDailyBackground(): string {
   return VERSE_BACKGROUNDS[index];
 }
 
-function createDailyRandom(seedText: string): () => number {
-  let seed = 0;
-  for (const character of seedText) {
-    seed = (Math.imul(seed, 31) + character.charCodeAt(0)) >>> 0;
-  }
-
-  return () => {
-    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
-    return seed / 0x100000000;
-  };
-}
-
-/**
- * Selects a stable random Bible verse for the current date.
- * Falls back to the stored or hardcoded verse if the Bible API is unavailable.
- */
+/** Selects the scripture assigned to the current calendar day. */
 export async function fetchDailyVerse(): Promise<DailyVerse> {
-  const today = format(new Date(), 'yyyy-MM-dd');
+  const scriptureDay = getScriptureDay(new Date());
+  const scripture = DAILY_SCRIPTURES[scriptureDay - 1];
 
-  try {
-    const random = createDailyRandom(today);
-    const book = BIBLE_BOOKS[Math.floor(random() * BIBLE_BOOKS.length)];
-    const chapterNumber = Math.floor(random() * getChapterCount(book)) + 1;
-    const chapter = await fetchChapter(book, chapterNumber);
-
-    if (chapter?.verses.length) {
-      const verse = chapter.verses[Math.floor(random() * chapter.verses.length)];
-      return {
-        text: verse.text,
-        reference: `${chapter.book} ${chapter.chapter}:${verse.num}`,
-        backgroundImage: getDailyBackground(),
-      };
-    }
-  } catch (err) {
-    if (__DEV__) {
-      console.error('Unexpected error fetching random Bible verse:', err);
-    }
+  if (!scripture) {
+    return { ...FALLBACK_VERSE, backgroundImage: getDailyBackground() };
   }
 
-  try {
-    const { data, error } = await supabase
-      .from('daily_verses')
-      .select('text, reference')
-      .eq('publish_date', today)
-      .maybeSingle();
-
-    if (error) {
-      if (__DEV__) {
-        console.error('Error fetching daily verse:', error);
-      }
-    } else if (data && typeof data === 'object' && 'text' in data && 'reference' in data) {
-      const verse = data as { text: string; reference: string };
-      return {
-        text: verse.text,
-        reference: verse.reference,
-        backgroundImage: getDailyBackground(),
-      };
-    }
-  } catch (err) {
-    if (__DEV__) {
-      console.error('Unexpected error fetching stored daily verse:', err);
-    }
-  }
-
-  return { ...FALLBACK_VERSE, backgroundImage: getDailyBackground() };
+  return {
+    text: scripture.text,
+    reference: scripture.reference,
+    backgroundImage: getDailyBackground(),
+  };
 }

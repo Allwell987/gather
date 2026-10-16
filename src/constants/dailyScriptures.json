@@ -1,0 +1,2557 @@
+[
+  {
+    "day": 1,
+    "reference": "Genesis 1:1",
+    "theme": "Beginnings",
+    "text": "In the beginning God created the heaven and the earth.",
+    "version": "KJV"
+  },
+  {
+    "day": 2,
+    "reference": "Psalm 118:24",
+    "theme": "Gratitude",
+    "text": "This is the day which the LORD hath made; we will rejoice and be glad in it.",
+    "version": "KJV"
+  },
+  {
+    "day": 3,
+    "reference": "Lamentations 3:22-23",
+    "theme": "Faithfulness",
+    "text": "It is of the LORD'S mercies that we are not consumed, because his compassions fail not. They are new every morning: great is thy faithfulness.",
+    "version": "KJV"
+  },
+  {
+    "day": 4,
+    "reference": "Proverbs 3:5-6",
+    "theme": "Trust",
+    "text": "Trust in the LORD with all thine heart; and lean not unto thine own understanding. In all thy ways acknowledge him, and he shall direct thy paths.",
+    "version": "KJV"
+  },
+  {
+    "day": 5,
+    "reference": "Jeremiah 29:11",
+    "theme": "Hope",
+    "text": "For I know the thoughts that I think toward you, saith the LORD, thoughts of peace, and not of evil, to give you an expected end.",
+    "version": "KJV"
+  },
+  {
+    "day": 6,
+    "reference": "Philippians 4:13",
+    "theme": "Strength",
+    "text": "I can do all things through Christ which strengtheneth me.",
+    "version": "KJV"
+  },
+  {
+    "day": 7,
+    "reference": "Isaiah 41:10",
+    "theme": "Courage",
+    "text": "Fear thou not; for I am with thee: be not dismayed; for I am thy God: I will strengthen thee; yea, I will help thee; yea, I will uphold thee with the right hand of my righteousness.",
+    "version": "KJV"
+  },
+  {
+    "day": 8,
+    "reference": "Psalm 23:1",
+    "theme": "Provision",
+    "text": "The LORD is my shepherd; I shall not want.",
+    "version": "KJV"
+  },
+  {
+    "day": 9,
+    "reference": "John 3:16",
+    "theme": "Love",
+    "text": "For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life.",
+    "version": "KJV"
+  },
+  {
+    "day": 10,
+    "reference": "Romans 8:28",
+    "theme": "Purpose",
+    "text": "And we know that all things work together for good to them that love God, to them who are the called according to his purpose.",
+    "version": "KJV"
+  },
+  {
+    "day": 11,
+    "reference": "Joshua 1:9",
+    "theme": "Courage",
+    "text": "Have not I commanded thee? Be strong and of a good courage; be not afraid, neither be thou dismayed: for the LORD thy God is with thee whithersoever thou goest.",
+    "version": "KJV"
+  },
+  {
+    "day": 12,
+    "reference": "Psalm 46:1",
+    "theme": "Refuge",
+    "text": "God is our refuge and strength, a very present help in trouble.",
+    "version": "KJV"
+  },
+  {
+    "day": 13,
+    "reference": "Matthew 6:33",
+    "theme": "Priorities",
+    "text": "But seek ye first the kingdom of God, and his righteousness; and all these things shall be added unto you.",
+    "version": "KJV"
+  },
+  {
+    "day": 14,
+    "reference": "Isaiah 40:31",
+    "theme": "Renewal",
+    "text": "But they that wait upon the LORD shall renew their strength; they shall mount up with wings as eagles; they shall run, and not be weary; and they shall walk, and not faint.",
+    "version": "KJV"
+  },
+  {
+    "day": 15,
+    "reference": "Philippians 4:6-7",
+    "theme": "Peace",
+    "text": "Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God. And the peace of God, which passeth all understanding, shall keep your hearts and minds through Christ Jesus.",
+    "version": "KJV"
+  },
+  {
+    "day": 16,
+    "reference": "Psalm 119:105",
+    "theme": "Guidance",
+    "text": "Thy word is a lamp unto my feet, and a light unto my path.",
+    "version": "KJV"
+  },
+  {
+    "day": 17,
+    "reference": "Romans 12:2",
+    "theme": "Transformation",
+    "text": "And be not conformed to this world: but be ye transformed by the renewing of your mind, that ye may prove what is that good, and acceptable, and perfect, will of God.",
+    "version": "KJV"
+  },
+  {
+    "day": 18,
+    "reference": "2 Corinthians 5:7",
+    "theme": "Faith",
+    "text": "(For we walk by faith, not by sight:)",
+    "version": "KJV"
+  },
+  {
+    "day": 19,
+    "reference": "Hebrews 11:1",
+    "theme": "Faith",
+    "text": "Now faith is the substance of things hoped for, the evidence of things not seen.",
+    "version": "KJV"
+  },
+  {
+    "day": 20,
+    "reference": "Matthew 11:28",
+    "theme": "Rest",
+    "text": "Come unto me, all ye that labour and are heavy laden, and I will give you rest.",
+    "version": "KJV"
+  },
+  {
+    "day": 21,
+    "reference": "Psalm 27:1",
+    "theme": "Light",
+    "text": "The LORD is my light and my salvation; whom shall I fear? the LORD is the strength of my life; of whom shall I be afraid?",
+    "version": "KJV"
+  },
+  {
+    "day": 22,
+    "reference": "John 14:27",
+    "theme": "Peace",
+    "text": "Peace I leave with you, my peace I give unto you: not as the world giveth, give I unto you. Let not your heart be troubled, neither let it be afraid.",
+    "version": "KJV"
+  },
+  {
+    "day": 23,
+    "reference": "1 Corinthians 13:13",
+    "theme": "Love",
+    "text": "And now abideth faith, hope, charity, these three; but the greatest of these is charity.",
+    "version": "KJV"
+  },
+  {
+    "day": 24,
+    "reference": "Galatians 5:22-23",
+    "theme": "Fruit of the Spirit",
+    "text": "But the fruit of the Spirit is love, joy, peace, longsuffering, gentleness, goodness, faith, Meekness, temperance: against such there is no law.",
+    "version": "KJV"
+  },
+  {
+    "day": 25,
+    "reference": "Psalm 121:1-2",
+    "theme": "Help",
+    "text": "I will lift up mine eyes unto the hills, from whence cometh my help. My help cometh from the LORD, which made heaven and earth.",
+    "version": "KJV"
+  },
+  {
+    "day": 26,
+    "reference": "Ephesians 2:8-9",
+    "theme": "Grace",
+    "text": "For by grace are ye saved through faith; and that not of yourselves: it is the gift of God: Not of works, lest any man should boast.",
+    "version": "KJV"
+  },
+  {
+    "day": 27,
+    "reference": "1 John 4:19",
+    "theme": "Love",
+    "text": "We love him, because he first loved us.",
+    "version": "KJV"
+  },
+  {
+    "day": 28,
+    "reference": "Proverbs 16:3",
+    "theme": "Commitment",
+    "text": "Commit thy works unto the LORD, and thy thoughts shall be established.",
+    "version": "KJV"
+  },
+  {
+    "day": 29,
+    "reference": "Psalm 37:4",
+    "theme": "Delight",
+    "text": "Delight thyself also in the LORD; and he shall give thee the desires of thine heart.",
+    "version": "KJV"
+  },
+  {
+    "day": 30,
+    "reference": "Psalm 34:8",
+    "theme": "Goodness",
+    "text": "O taste and see that the LORD is good: blessed is the man that trusteth in him.",
+    "version": "KJV"
+  },
+  {
+    "day": 31,
+    "reference": "Micah 6:8",
+    "theme": "Justice",
+    "text": "He hath shewed thee, O man, what is good; and what doth the LORD require of thee, but to do justly, and to love mercy, and to walk humbly with thy God?",
+    "version": "KJV"
+  },
+  {
+    "day": 32,
+    "reference": "Psalm 91:1",
+    "theme": "Shelter",
+    "text": "He that dwelleth in the secret place of the most High shall abide under the shadow of the Almighty.",
+    "version": "KJV"
+  },
+  {
+    "day": 33,
+    "reference": "Psalm 91:11",
+    "theme": "Protection",
+    "text": "For he shall give his angels charge over thee, to keep thee in all thy ways.",
+    "version": "KJV"
+  },
+  {
+    "day": 34,
+    "reference": "Isaiah 26:3",
+    "theme": "Peace",
+    "text": "Thou wilt keep him in perfect peace, whose mind is stayed on thee: because he trusteth in thee.",
+    "version": "KJV"
+  },
+  {
+    "day": 35,
+    "reference": "Isaiah 43:2",
+    "theme": "Presence",
+    "text": "When thou passest through the waters, I will be with thee; and through the rivers, they shall not overflow thee: when thou walkest through the fire, thou shalt not be burned; neither shall the flame kindle upon thee.",
+    "version": "KJV"
+  },
+  {
+    "day": 36,
+    "reference": "Isaiah 55:8",
+    "theme": "Wisdom",
+    "text": "For my thoughts are not your thoughts, neither are your ways my ways, saith the LORD.",
+    "version": "KJV"
+  },
+  {
+    "day": 37,
+    "reference": "Isaiah 55:11",
+    "theme": "The Word",
+    "text": "So shall my word be that goeth forth out of my mouth: it shall not return unto me void, but it shall accomplish that which I please, and it shall prosper in the thing whereto I sent it.",
+    "version": "KJV"
+  },
+  {
+    "day": 38,
+    "reference": "Isaiah 53:5",
+    "theme": "Healing",
+    "text": "But he was wounded for our transgressions, he was bruised for our iniquities: the chastisement of our peace was upon him; and with his stripes we are healed.",
+    "version": "KJV"
+  },
+  {
+    "day": 39,
+    "reference": "Isaiah 9:6",
+    "theme": "Hope",
+    "text": "For unto us a child is born, unto us a son is given: and the government shall be upon his shoulder: and his name shall be called Wonderful, Counsellor, The mighty God, The everlasting Father, The Prince of Peace.",
+    "version": "KJV"
+  },
+  {
+    "day": 40,
+    "reference": "Jeremiah 33:3",
+    "theme": "Prayer",
+    "text": "Call unto me, and I will answer thee, and shew thee great and mighty things, which thou knowest not.",
+    "version": "KJV"
+  },
+  {
+    "day": 41,
+    "reference": "Jeremiah 17:7",
+    "theme": "Trust",
+    "text": "Blessed is the man that trusteth in the LORD, and whose hope the LORD is.",
+    "version": "KJV"
+  },
+  {
+    "day": 42,
+    "reference": "Psalm 1:1-2",
+    "theme": "Delight in the Word",
+    "text": "Blessed is the man that walketh not in the counsel of the ungodly, nor standeth in the way of sinners, nor sitteth in the seat of the scornful. But his delight is in the law of the LORD; and in his law doth he meditate day and night.",
+    "version": "KJV"
+  },
+  {
+    "day": 43,
+    "reference": "Psalm 19:14",
+    "theme": "Words",
+    "text": "Let the words of my mouth, and the meditation of my heart, be acceptable in thy sight, O LORD, my strength, and my redeemer.",
+    "version": "KJV"
+  },
+  {
+    "day": 44,
+    "reference": "Psalm 23:4",
+    "theme": "Comfort",
+    "text": "Yea, though I walk through the valley of the shadow of death, I will fear no evil: for thou art with me; thy rod and thy staff they comfort me.",
+    "version": "KJV"
+  },
+  {
+    "day": 45,
+    "reference": "Psalm 30:5",
+    "theme": "Joy",
+    "text": "For his anger endureth but a moment; in his favour is life: weeping may endure for a night, but joy cometh in the morning.",
+    "version": "KJV"
+  },
+  {
+    "day": 46,
+    "reference": "Psalm 32:8",
+    "theme": "Guidance",
+    "text": "I will instruct thee and teach thee in the way which thou shalt go: I will guide thee with mine eye.",
+    "version": "KJV"
+  },
+  {
+    "day": 47,
+    "reference": "Psalm 34:18",
+    "theme": "Comfort",
+    "text": "The LORD is nigh unto them that are of a broken heart; and saveth such as be of a contrite spirit.",
+    "version": "KJV"
+  },
+  {
+    "day": 48,
+    "reference": "Psalm 37:5",
+    "theme": "Trust",
+    "text": "Commit thy way unto the LORD; trust also in him; and he shall bring it to pass.",
+    "version": "KJV"
+  },
+  {
+    "day": 49,
+    "reference": "Psalm 37:7",
+    "theme": "Patience",
+    "text": "Rest in the LORD, and wait patiently for him.",
+    "version": "KJV"
+  },
+  {
+    "day": 50,
+    "reference": "Psalm 46:10",
+    "theme": "Stillness",
+    "text": "Be still, and know that I am God.",
+    "version": "KJV"
+  },
+  {
+    "day": 51,
+    "reference": "Psalm 51:10",
+    "theme": "Renewal",
+    "text": "Create in me a clean heart, O God; and renew a right spirit within me.",
+    "version": "KJV"
+  },
+  {
+    "day": 52,
+    "reference": "Psalm 55:22",
+    "theme": "Burdens",
+    "text": "Cast thy burden upon the LORD, and he shall sustain thee: he shall never suffer the righteous to be moved.",
+    "version": "KJV"
+  },
+  {
+    "day": 53,
+    "reference": "Psalm 56:3",
+    "theme": "Fear",
+    "text": "What time I am afraid, I will trust in thee.",
+    "version": "KJV"
+  },
+  {
+    "day": 54,
+    "reference": "Psalm 62:1",
+    "theme": "Rest",
+    "text": "Truly my soul waiteth upon God: from him cometh my salvation.",
+    "version": "KJV"
+  },
+  {
+    "day": 55,
+    "reference": "Psalm 62:8",
+    "theme": "Trust",
+    "text": "Trust in him at all times; ye people, pour out your heart before him: God is a refuge for us.",
+    "version": "KJV"
+  },
+  {
+    "day": 56,
+    "reference": "Psalm 63:1",
+    "theme": "Longing",
+    "text": "O God, thou art my God; early will I seek thee: my soul thirsteth for thee, my flesh longeth for thee in a dry and thirsty land, where no water is.",
+    "version": "KJV"
+  },
+  {
+    "day": 57,
+    "reference": "Psalm 90:12",
+    "theme": "Wisdom",
+    "text": "So teach us to number our days, that we may apply our hearts unto wisdom.",
+    "version": "KJV"
+  },
+  {
+    "day": 58,
+    "reference": "Psalm 100:4",
+    "theme": "Thanksgiving",
+    "text": "Enter into his gates with thanksgiving, and into his courts with praise: be thankful unto him, and bless his name.",
+    "version": "KJV"
+  },
+  {
+    "day": 59,
+    "reference": "Psalm 103:2",
+    "theme": "Gratitude",
+    "text": "Bless the LORD, O my soul, and forget not all his benefits.",
+    "version": "KJV"
+  },
+  {
+    "day": 60,
+    "reference": "Psalm 103:12",
+    "theme": "Forgiveness",
+    "text": "As far as the east is from the west, so far hath he removed our transgressions from us.",
+    "version": "KJV"
+  },
+  {
+    "day": 61,
+    "reference": "Psalm 107:1",
+    "theme": "Thanksgiving",
+    "text": "O give thanks unto the LORD, for he is good: for his mercy endureth for ever.",
+    "version": "KJV"
+  },
+  {
+    "day": 62,
+    "reference": "Psalm 118:6",
+    "theme": "Courage",
+    "text": "The LORD is on my side; I will not fear: what can man do unto me?",
+    "version": "KJV"
+  },
+  {
+    "day": 63,
+    "reference": "Psalm 119:11",
+    "theme": "The Word",
+    "text": "Thy word have I hid in mine heart, that I might not sin against thee.",
+    "version": "KJV"
+  },
+  {
+    "day": 64,
+    "reference": "Psalm 119:130",
+    "theme": "Understanding",
+    "text": "The entrance of thy words giveth light; it giveth understanding unto the simple.",
+    "version": "KJV"
+  },
+  {
+    "day": 65,
+    "reference": "Psalm 127:1",
+    "theme": "Dependence",
+    "text": "Except the LORD build the house, they labour in vain that build it: except the LORD keep the city, the watchman waketh but in vain.",
+    "version": "KJV"
+  },
+  {
+    "day": 66,
+    "reference": "Psalm 138:8",
+    "theme": "Purpose",
+    "text": "The LORD will perfect that which concerneth me: thy mercy, O LORD, endureth for ever: forsake not the works of thine own hands.",
+    "version": "KJV"
+  },
+  {
+    "day": 67,
+    "reference": "Psalm 139:14",
+    "theme": "Identity",
+    "text": "I will praise thee; for I am fearfully and wonderfully made: marvellous are thy works; and that my soul knoweth right well.",
+    "version": "KJV"
+  },
+  {
+    "day": 68,
+    "reference": "Psalm 143:8",
+    "theme": "Morning",
+    "text": "Cause me to hear thy lovingkindness in the morning; for in thee do I trust: cause me to know the way wherein I should walk; for I lift up my soul unto thee.",
+    "version": "KJV"
+  },
+  {
+    "day": 69,
+    "reference": "Psalm 145:18",
+    "theme": "Nearness",
+    "text": "The LORD is nigh unto all them that call upon him, to all that call upon him in truth.",
+    "version": "KJV"
+  },
+  {
+    "day": 70,
+    "reference": "Psalm 147:3",
+    "theme": "Healing",
+    "text": "He healeth the broken in heart, and bindeth up their wounds.",
+    "version": "KJV"
+  },
+  {
+    "day": 71,
+    "reference": "Psalm 150:6",
+    "theme": "Praise",
+    "text": "Let every thing that hath breath praise the LORD. Praise ye the LORD.",
+    "version": "KJV"
+  },
+  {
+    "day": 72,
+    "reference": "Proverbs 4:23",
+    "theme": "Heart",
+    "text": "Keep thy heart with all diligence; for out of it are the issues of life.",
+    "version": "KJV"
+  },
+  {
+    "day": 73,
+    "reference": "Proverbs 11:25",
+    "theme": "Generosity",
+    "text": "The liberal soul shall be made fat: and he that watereth shall be watered also himself.",
+    "version": "KJV"
+  },
+  {
+    "day": 74,
+    "reference": "Proverbs 12:25",
+    "theme": "Encouragement",
+    "text": "Heaviness in the heart of man maketh it stoop: but a good word maketh it glad.",
+    "version": "KJV"
+  },
+  {
+    "day": 75,
+    "reference": "Proverbs 14:12",
+    "theme": "Wisdom",
+    "text": "There is a way which seemeth right unto a man, but the end thereof are the ways of death.",
+    "version": "KJV"
+  },
+  {
+    "day": 76,
+    "reference": "Proverbs 15:1",
+    "theme": "Gentleness",
+    "text": "A soft answer turneth away wrath: but grievous words stir up anger.",
+    "version": "KJV"
+  },
+  {
+    "day": 77,
+    "reference": "Proverbs 16:9",
+    "theme": "Planning",
+    "text": "A man's heart deviseth his way: but the LORD directeth his steps.",
+    "version": "KJV"
+  },
+  {
+    "day": 78,
+    "reference": "Proverbs 17:17",
+    "theme": "Friendship",
+    "text": "A friend loveth at all times, and a brother is born for adversity.",
+    "version": "KJV"
+  },
+  {
+    "day": 79,
+    "reference": "Proverbs 18:10",
+    "theme": "Refuge",
+    "text": "The name of the LORD is a strong tower: the righteous runneth into it, and is safe.",
+    "version": "KJV"
+  },
+  {
+    "day": 80,
+    "reference": "Proverbs 18:21",
+    "theme": "Words",
+    "text": "Death and life are in the power of the tongue: and they that love it shall eat the fruit thereof.",
+    "version": "KJV"
+  },
+  {
+    "day": 81,
+    "reference": "Proverbs 19:21",
+    "theme": "Purpose",
+    "text": "There are many devices in a man's heart; nevertheless the counsel of the LORD, that shall stand.",
+    "version": "KJV"
+  },
+  {
+    "day": 82,
+    "reference": "Proverbs 22:6",
+    "theme": "Parenting",
+    "text": "Train up a child in the way he should go: and when he is old, he will not depart from it.",
+    "version": "KJV"
+  },
+  {
+    "day": 83,
+    "reference": "Proverbs 27:17",
+    "theme": "Friendship",
+    "text": "Iron sharpeneth iron; so a man sharpeneth the countenance of his friend.",
+    "version": "KJV"
+  },
+  {
+    "day": 84,
+    "reference": "Proverbs 31:25",
+    "theme": "Strength",
+    "text": "Strength and honour are her clothing; and she shall rejoice in time to come.",
+    "version": "KJV"
+  },
+  {
+    "day": 85,
+    "reference": "Ecclesiastes 3:1",
+    "theme": "Seasons",
+    "text": "To every thing there is a season, and a time to every purpose under the heaven.",
+    "version": "KJV"
+  },
+  {
+    "day": 86,
+    "reference": "Ecclesiastes 4:9-10",
+    "theme": "Community",
+    "text": "Two are better than one; because they have a good reward for their labour. For if they fall, the one will lift up his fellow.",
+    "version": "KJV"
+  },
+  {
+    "day": 87,
+    "reference": "Ecclesiastes 12:13",
+    "theme": "Reverence",
+    "text": "Let us hear the conclusion of the whole matter: Fear God, and keep his commandments: for this is the whole duty of man.",
+    "version": "KJV"
+  },
+  {
+    "day": 88,
+    "reference": "Isaiah 6:8",
+    "theme": "Calling",
+    "text": "Also I heard the voice of the Lord, saying, Whom shall I send, and who will go for us? Then said I, Here am I; send me.",
+    "version": "KJV"
+  },
+  {
+    "day": 89,
+    "reference": "Isaiah 30:15",
+    "theme": "Quietness",
+    "text": "In returning and rest shall ye be saved; in quietness and in confidence shall be your strength.",
+    "version": "KJV"
+  },
+  {
+    "day": 90,
+    "reference": "Isaiah 30:21",
+    "theme": "Guidance",
+    "text": "And thine ears shall hear a word behind thee, saying, This is the way, walk ye in it, when ye turn to the right hand, and when ye turn to the left.",
+    "version": "KJV"
+  },
+  {
+    "day": 91,
+    "reference": "Isaiah 40:8",
+    "theme": "The Word",
+    "text": "The grass withereth, the flower fadeth: but the word of our God shall stand for ever.",
+    "version": "KJV"
+  },
+  {
+    "day": 92,
+    "reference": "Isaiah 40:29",
+    "theme": "Strength",
+    "text": "He giveth power to the faint; and to them that have no might he increaseth strength.",
+    "version": "KJV"
+  },
+  {
+    "day": 93,
+    "reference": "Isaiah 41:13",
+    "theme": "Help",
+    "text": "For I the LORD thy God will hold thy right hand, saying unto thee, Fear not; I will help thee.",
+    "version": "KJV"
+  },
+  {
+    "day": 94,
+    "reference": "Isaiah 43:1",
+    "theme": "Belonging",
+    "text": "But now thus saith the LORD that created thee, O Jacob, and he that formed thee, O Israel, Fear not: for I have redeemed thee, I have called thee by thy name; thou art mine.",
+    "version": "KJV"
+  },
+  {
+    "day": 95,
+    "reference": "Isaiah 43:19",
+    "theme": "New Things",
+    "text": "Behold, I will do a new thing; now it shall spring forth; shall ye not know it? I will even make a way in the wilderness, and rivers in the desert.",
+    "version": "KJV"
+  },
+  {
+    "day": 96,
+    "reference": "Isaiah 54:17",
+    "theme": "Protection",
+    "text": "No weapon that is formed against thee shall prosper; and every tongue that shall rise against thee in judgment thou shalt condemn.",
+    "version": "KJV"
+  },
+  {
+    "day": 97,
+    "reference": "Isaiah 58:11",
+    "theme": "Guidance",
+    "text": "And the LORD shall guide thee continually, and satisfy thy soul in drought, and make fat thy bones: and thou shalt be like a watered garden, and like a spring of water, whose waters fail not.",
+    "version": "KJV"
+  },
+  {
+    "day": 98,
+    "reference": "Isaiah 61:3",
+    "theme": "Beauty",
+    "text": "To give unto them beauty for ashes, the oil of joy for mourning, the garment of praise for the spirit of heaviness.",
+    "version": "KJV"
+  },
+  {
+    "day": 99,
+    "reference": "Jeremiah 1:5",
+    "theme": "Calling",
+    "text": "Before I formed thee in the belly I knew thee; and before thou camest forth out of the womb I sanctified thee.",
+    "version": "KJV"
+  },
+  {
+    "day": 100,
+    "reference": "Jeremiah 29:13",
+    "theme": "Seeking",
+    "text": "And ye shall seek me, and find me, when ye shall search for me with all your heart.",
+    "version": "KJV"
+  },
+  {
+    "day": 101,
+    "reference": "Jeremiah 31:3",
+    "theme": "Love",
+    "text": "The LORD hath appeared of old unto me, saying, Yea, I have loved thee with an everlasting love: therefore with lovingkindness have I drawn thee.",
+    "version": "KJV"
+  },
+  {
+    "day": 102,
+    "reference": "Lamentations 3:25",
+    "theme": "Waiting",
+    "text": "The LORD is good unto them that wait for him, to the soul that seeketh him.",
+    "version": "KJV"
+  },
+  {
+    "day": 103,
+    "reference": "Ezekiel 36:26",
+    "theme": "New Heart",
+    "text": "A new heart also will I give you, and a new spirit will I put within you: and I will take away the stony heart out of your flesh, and I will give you an heart of flesh.",
+    "version": "KJV"
+  },
+  {
+    "day": 104,
+    "reference": "Daniel 12:3",
+    "theme": "Shining",
+    "text": "And they that be wise shall shine as the brightness of the firmament; and they that turn many to righteousness as the stars for ever and ever.",
+    "version": "KJV"
+  },
+  {
+    "day": 105,
+    "reference": "Hosea 6:3",
+    "theme": "Pursuit",
+    "text": "Then shall we know, if we follow on to know the LORD: his going forth is prepared as the morning.",
+    "version": "KJV"
+  },
+  {
+    "day": 106,
+    "reference": "Joel 2:25",
+    "theme": "Restoration",
+    "text": "And I will restore to you the years that the locust hath eaten.",
+    "version": "KJV"
+  },
+  {
+    "day": 107,
+    "reference": "Joel 2:28",
+    "theme": "The Spirit",
+    "text": "And it shall come to pass afterward, that I will pour out my spirit upon all flesh; and your sons and your daughters shall prophesy, your old men shall dream dreams, your young men shall see visions.",
+    "version": "KJV"
+  },
+  {
+    "day": 108,
+    "reference": "Habakkuk 2:3",
+    "theme": "Waiting",
+    "text": "For the vision is yet for an appointed time, but at the end it shall speak, and not lie: though it tarry, wait for it; because it will surely come, it will not tarry.",
+    "version": "KJV"
+  },
+  {
+    "day": 109,
+    "reference": "Habakkuk 3:19",
+    "theme": "Strength",
+    "text": "The LORD God is my strength, and he will make my feet like hinds' feet, and he will make me to walk upon mine high places.",
+    "version": "KJV"
+  },
+  {
+    "day": 110,
+    "reference": "Zephaniah 3:17",
+    "theme": "Rejoicing",
+    "text": "The LORD thy God in the midst of thee is mighty; he will save, he will rejoice over thee with joy; he will rest in his love, he will joy over thee with singing.",
+    "version": "KJV"
+  },
+  {
+    "day": 111,
+    "reference": "Nahum 1:7",
+    "theme": "Goodness",
+    "text": "The LORD is good, a strong hold in the day of trouble; and he knoweth them that trust in him.",
+    "version": "KJV"
+  },
+  {
+    "day": 112,
+    "reference": "Zechariah 4:6",
+    "theme": "The Spirit",
+    "text": "Not by might, nor by power, but by my spirit, saith the LORD of hosts.",
+    "version": "KJV"
+  },
+  {
+    "day": 113,
+    "reference": "Malachi 3:10",
+    "theme": "Giving",
+    "text": "Bring ye all the tithes into the storehouse, that there may be meat in mine house, and prove me now herewith, saith the LORD of hosts, if I will not open you the windows of heaven, and pour you out a blessing, that there shall not be room enough to receive it.",
+    "version": "KJV"
+  },
+  {
+    "day": 114,
+    "reference": "Deuteronomy 31:6",
+    "theme": "Courage",
+    "text": "Be strong and of a good courage, fear not, nor be afraid of them: for the LORD thy God, he it is that doth go with thee; he will not fail thee, nor forsake thee.",
+    "version": "KJV"
+  },
+  {
+    "day": 115,
+    "reference": "Deuteronomy 6:5",
+    "theme": "Love",
+    "text": "And thou shalt love the LORD thy God with all thine heart, and with all thy soul, and with all thy might.",
+    "version": "KJV"
+  },
+  {
+    "day": 116,
+    "reference": "Deuteronomy 33:27",
+    "theme": "Security",
+    "text": "The eternal God is thy refuge, and underneath are the everlasting arms.",
+    "version": "KJV"
+  },
+  {
+    "day": 117,
+    "reference": "Numbers 6:24-26",
+    "theme": "Blessing",
+    "text": "The LORD bless thee, and keep thee: The LORD make his face shine upon thee, and be gracious unto thee: The LORD lift up his countenance upon thee, and give thee peace.",
+    "version": "KJV"
+  },
+  {
+    "day": 118,
+    "reference": "Exodus 14:14",
+    "theme": "Stillness",
+    "text": "The LORD shall fight for you, and ye shall hold your peace.",
+    "version": "KJV"
+  },
+  {
+    "day": 119,
+    "reference": "Exodus 33:14",
+    "theme": "Presence",
+    "text": "And he said, My presence shall go with thee, and I will give thee rest.",
+    "version": "KJV"
+  },
+  {
+    "day": 120,
+    "reference": "Joshua 24:15",
+    "theme": "Choice",
+    "text": "But as for me and my house, we will serve the LORD.",
+    "version": "KJV"
+  },
+  {
+    "day": 121,
+    "reference": "1 Samuel 16:7",
+    "theme": "Heart",
+    "text": "For the LORD seeth not as man seeth; for man looketh on the outward appearance, but the LORD looketh on the heart.",
+    "version": "KJV"
+  },
+  {
+    "day": 122,
+    "reference": "1 Samuel 12:24",
+    "theme": "Gratitude",
+    "text": "Only fear the LORD, and serve him in truth with all your heart: for consider how great things he hath done for you.",
+    "version": "KJV"
+  },
+  {
+    "day": 123,
+    "reference": "2 Chronicles 7:14",
+    "theme": "Humility",
+    "text": "If my people, which are called by my name, shall humble themselves, and pray, and seek my face, and turn from their wicked ways; then will I hear from heaven, and will forgive their sin, and will heal their land.",
+    "version": "KJV"
+  },
+  {
+    "day": 124,
+    "reference": "2 Chronicles 16:9",
+    "theme": "Support",
+    "text": "For the eyes of the LORD run to and fro throughout the whole earth, to shew himself strong in the behalf of them whose heart is perfect toward him.",
+    "version": "KJV"
+  },
+  {
+    "day": 125,
+    "reference": "1 Chronicles 16:34",
+    "theme": "Thanksgiving",
+    "text": "O give thanks unto the LORD; for he is good; for his mercy endureth for ever.",
+    "version": "KJV"
+  },
+  {
+    "day": 126,
+    "reference": "Nehemiah 8:10",
+    "theme": "Joy",
+    "text": "Neither be ye sorry; for the joy of the LORD is your strength.",
+    "version": "KJV"
+  },
+  {
+    "day": 127,
+    "reference": "Esther 4:14",
+    "theme": "Purpose",
+    "text": "And who knoweth whether thou art come to the kingdom for such a time as this?",
+    "version": "KJV"
+  },
+  {
+    "day": 128,
+    "reference": "Job 19:25",
+    "theme": "Redeemer",
+    "text": "For I know that my redeemer liveth, and that he shall stand at the latter day upon the earth.",
+    "version": "KJV"
+  },
+  {
+    "day": 129,
+    "reference": "Job 23:10",
+    "theme": "Testing",
+    "text": "But he knoweth the way that I take: when he hath tried me, I shall come forth as gold.",
+    "version": "KJV"
+  },
+  {
+    "day": 130,
+    "reference": "Ruth 1:16",
+    "theme": "Loyalty",
+    "text": "Intreat me not to leave thee, or to return from following after thee: for whither thou goest, I will go; and where thou lodgest, I will lodge: thy people shall be my people, and thy God my God.",
+    "version": "KJV"
+  },
+  {
+    "day": 131,
+    "reference": "1 Kings 19:12",
+    "theme": "The Still Small Voice",
+    "text": "And after the earthquake a fire; but the LORD was not in the fire: and after the fire a still small voice.",
+    "version": "KJV"
+  },
+  {
+    "day": 132,
+    "reference": "Psalm 16:11",
+    "theme": "Joy",
+    "text": "Thou wilt shew me the path of life: in thy presence is fulness of joy; at thy right hand there are pleasures for evermore.",
+    "version": "KJV"
+  },
+  {
+    "day": 133,
+    "reference": "Psalm 18:2",
+    "theme": "Rock",
+    "text": "The LORD is my rock, and my fortress, and my deliverer; my God, my strength, in whom I will trust; my buckler, and the horn of my salvation, and my high tower.",
+    "version": "KJV"
+  },
+  {
+    "day": 134,
+    "reference": "Psalm 20:7",
+    "theme": "Trust",
+    "text": "Some trust in chariots, and some in horses: but we will remember the name of the LORD our God.",
+    "version": "KJV"
+  },
+  {
+    "day": 135,
+    "reference": "Psalm 25:4-5",
+    "theme": "Teaching",
+    "text": "Shew me thy ways, O LORD; teach me thy paths. Lead me in thy truth, and teach me: for thou art the God of my salvation; on thee do I wait all the day.",
+    "version": "KJV"
+  },
+  {
+    "day": 136,
+    "reference": "Psalm 27:14",
+    "theme": "Waiting",
+    "text": "Wait on the LORD: be of good courage, and he shall strengthen thine heart: wait, I say, on the LORD.",
+    "version": "KJV"
+  },
+  {
+    "day": 137,
+    "reference": "Psalm 28:7",
+    "theme": "Strength",
+    "text": "The LORD is my strength and my shield; my heart trusted in him, and I am helped: therefore my heart greatly rejoiceth; and with my song will I praise him.",
+    "version": "KJV"
+  },
+  {
+    "day": 138,
+    "reference": "Psalm 29:11",
+    "theme": "Peace",
+    "text": "The LORD will give strength unto his people; the LORD will bless his people with peace.",
+    "version": "KJV"
+  },
+  {
+    "day": 139,
+    "reference": "Psalm 31:24",
+    "theme": "Hope",
+    "text": "Be of good courage, and he shall strengthen your heart, all ye that hope in the LORD.",
+    "version": "KJV"
+  },
+  {
+    "day": 140,
+    "reference": "Psalm 33:4",
+    "theme": "Truth",
+    "text": "For the word of the LORD is right; and all his works are done in truth.",
+    "version": "KJV"
+  },
+  {
+    "day": 141,
+    "reference": "Psalm 34:4",
+    "theme": "Deliverance",
+    "text": "I sought the LORD, and he heard me, and delivered me from all my fears.",
+    "version": "KJV"
+  },
+  {
+    "day": 142,
+    "reference": "Psalm 40:1-2",
+    "theme": "Patience",
+    "text": "I waited patiently for the LORD; and he inclined unto me, and heard my cry. He brought me up also out of an horrible pit, out of the miry clay, and set my feet upon a rock, and established my goings.",
+    "version": "KJV"
+  },
+  {
+    "day": 143,
+    "reference": "Psalm 42:11",
+    "theme": "Hope",
+    "text": "Why art thou cast down, O my soul? and why art thou disquieted within me? hope thou in God: for I shall yet praise him, who is the health of my countenance, and my God.",
+    "version": "KJV"
+  },
+  {
+    "day": 144,
+    "reference": "Psalm 48:14",
+    "theme": "Guide",
+    "text": "For this God is our God for ever and ever: he will be our guide even unto death.",
+    "version": "KJV"
+  },
+  {
+    "day": 145,
+    "reference": "Psalm 61:2",
+    "theme": "Rock",
+    "text": "From the end of the earth will I cry unto thee, when my heart is overwhelmed: lead me to the rock that is higher than I.",
+    "version": "KJV"
+  },
+  {
+    "day": 146,
+    "reference": "Psalm 73:26",
+    "theme": "Portion",
+    "text": "My flesh and my heart faileth: but God is the strength of my heart, and my portion for ever.",
+    "version": "KJV"
+  },
+  {
+    "day": 147,
+    "reference": "Psalm 84:11",
+    "theme": "Favor",
+    "text": "For the LORD God is a sun and shield: the LORD will give grace and glory: no good thing will he withhold from them that walk uprightly.",
+    "version": "KJV"
+  },
+  {
+    "day": 148,
+    "reference": "Psalm 86:5",
+    "theme": "Mercy",
+    "text": "For thou, Lord, art good, and ready to forgive; and plenteous in mercy unto all them that call upon thee.",
+    "version": "KJV"
+  },
+  {
+    "day": 149,
+    "reference": "Psalm 94:19",
+    "theme": "Comfort",
+    "text": "In the multitude of my thoughts within me thy comforts delight my soul.",
+    "version": "KJV"
+  },
+  {
+    "day": 150,
+    "reference": "Psalm 96:1-2",
+    "theme": "Song",
+    "text": "O sing unto the LORD a new song: sing unto the LORD, all the earth. Sing unto the LORD, bless his name; shew forth his salvation from day to day.",
+    "version": "KJV"
+  },
+  {
+    "day": 151,
+    "reference": "Psalm 103:8",
+    "theme": "Mercy",
+    "text": "The LORD is merciful and gracious, slow to anger, and plenteous in mercy.",
+    "version": "KJV"
+  },
+  {
+    "day": 152,
+    "reference": "Psalm 105:4",
+    "theme": "Seeking",
+    "text": "Seek the LORD, and his strength: seek his face evermore.",
+    "version": "KJV"
+  },
+  {
+    "day": 153,
+    "reference": "Psalm 116:7",
+    "theme": "Rest",
+    "text": "Return unto thy rest, O my soul; for the LORD hath dealt bountifully with thee.",
+    "version": "KJV"
+  },
+  {
+    "day": 154,
+    "reference": "Psalm 119:50",
+    "theme": "Comfort",
+    "text": "This is my comfort in my affliction: for thy word hath quickened me.",
+    "version": "KJV"
+  },
+  {
+    "day": 155,
+    "reference": "Psalm 119:165",
+    "theme": "Peace",
+    "text": "Great peace have they which love thy law: and nothing shall offend them.",
+    "version": "KJV"
+  },
+  {
+    "day": 156,
+    "reference": "Psalm 121:7-8",
+    "theme": "Keeping",
+    "text": "The LORD shall preserve thee from all evil: he shall preserve thy soul. The LORD shall preserve thy going out and thy coming in from this time forth, and even for evermore.",
+    "version": "KJV"
+  },
+  {
+    "day": 157,
+    "reference": "Psalm 126:5",
+    "theme": "Hope",
+    "text": "They that sow in tears shall reap in joy.",
+    "version": "KJV"
+  },
+  {
+    "day": 158,
+    "reference": "Psalm 133:1",
+    "theme": "Unity",
+    "text": "Behold, how good and how pleasant it is for brethren to dwell together in unity!",
+    "version": "KJV"
+  },
+  {
+    "day": 159,
+    "reference": "Psalm 136:1",
+    "theme": "Mercy",
+    "text": "O give thanks unto the LORD; for he is good: for his mercy endureth for ever.",
+    "version": "KJV"
+  },
+  {
+    "day": 160,
+    "reference": "Psalm 139:23-24",
+    "theme": "Searching",
+    "text": "Search me, O God, and know my heart: try me, and know my thoughts: And see if there be any wicked way in me, and lead me in the way everlasting.",
+    "version": "KJV"
+  },
+  {
+    "day": 161,
+    "reference": "Psalm 145:3",
+    "theme": "Greatness",
+    "text": "Great is the LORD, and greatly to be praised; and his greatness is unsearchable.",
+    "version": "KJV"
+  },
+  {
+    "day": 162,
+    "reference": "Psalm 145:8-9",
+    "theme": "Compassion",
+    "text": "The LORD is gracious, and full of compassion; slow to anger, and of great mercy. The LORD is good to all: and his tender mercies are over all his works.",
+    "version": "KJV"
+  },
+  {
+    "day": 163,
+    "reference": "Psalm 146:5",
+    "theme": "Hope",
+    "text": "Happy is he that hath the God of Jacob for his help, whose hope is in the LORD his God.",
+    "version": "KJV"
+  },
+  {
+    "day": 164,
+    "reference": "Matthew 5:3",
+    "theme": "Humility",
+    "text": "Blessed are the poor in spirit: for theirs is the kingdom of heaven.",
+    "version": "KJV"
+  },
+  {
+    "day": 165,
+    "reference": "Matthew 5:4",
+    "theme": "Comfort",
+    "text": "Blessed are they that mourn: for they shall be comforted.",
+    "version": "KJV"
+  },
+  {
+    "day": 166,
+    "reference": "Matthew 5:5",
+    "theme": "Meekness",
+    "text": "Blessed are the meek: for they shall inherit the earth.",
+    "version": "KJV"
+  },
+  {
+    "day": 167,
+    "reference": "Matthew 5:6",
+    "theme": "Hunger for Righteousness",
+    "text": "Blessed are they which do hunger and thirst after righteousness: for they shall be filled.",
+    "version": "KJV"
+  },
+  {
+    "day": 168,
+    "reference": "Matthew 5:7",
+    "theme": "Mercy",
+    "text": "Blessed are the merciful: for they shall obtain mercy.",
+    "version": "KJV"
+  },
+  {
+    "day": 169,
+    "reference": "Matthew 5:8",
+    "theme": "Purity",
+    "text": "Blessed are the pure in heart: for they shall see God.",
+    "version": "KJV"
+  },
+  {
+    "day": 170,
+    "reference": "Matthew 5:9",
+    "theme": "Peacemaking",
+    "text": "Blessed are the peacemakers: for they shall be called the children of God.",
+    "version": "KJV"
+  },
+  {
+    "day": 171,
+    "reference": "Matthew 5:16",
+    "theme": "Light",
+    "text": "Let your light so shine before men, that they may see your good works, and glorify your Father which is in heaven.",
+    "version": "KJV"
+  },
+  {
+    "day": 172,
+    "reference": "Matthew 5:44",
+    "theme": "Love",
+    "text": "But I say unto you, Love your enemies, bless them that curse you, do good to them that hate you, and pray for them which despitefully use you, and persecute you.",
+    "version": "KJV"
+  },
+  {
+    "day": 173,
+    "reference": "Matthew 6:21",
+    "theme": "Treasure",
+    "text": "For where your treasure is, there will your heart be also.",
+    "version": "KJV"
+  },
+  {
+    "day": 174,
+    "reference": "Matthew 6:34",
+    "theme": "Worry",
+    "text": "Take therefore no thought for the morrow: for the morrow shall take thought for the things of itself. Sufficient unto the day is the evil thereof.",
+    "version": "KJV"
+  },
+  {
+    "day": 175,
+    "reference": "Matthew 7:7",
+    "theme": "Asking",
+    "text": "Ask, and it shall be given you; seek, and ye shall find; knock, and it shall be opened unto you.",
+    "version": "KJV"
+  },
+  {
+    "day": 176,
+    "reference": "Matthew 7:12",
+    "theme": "Golden Rule",
+    "text": "Therefore all things whatsoever ye would that men should do to you, do ye even so to them: for this is the law and the prophets.",
+    "version": "KJV"
+  },
+  {
+    "day": 177,
+    "reference": "Matthew 11:29-30",
+    "theme": "Rest",
+    "text": "Take my yoke upon you, and learn of me; for I am meek and lowly in heart: and ye shall find rest unto your souls. For my yoke is easy, and my burden is light.",
+    "version": "KJV"
+  },
+  {
+    "day": 178,
+    "reference": "Matthew 14:27",
+    "theme": "Fear",
+    "text": "But straightway Jesus spake unto them, saying, Be of good cheer; it is I; be not afraid.",
+    "version": "KJV"
+  },
+  {
+    "day": 179,
+    "reference": "Matthew 17:20",
+    "theme": "Faith",
+    "text": "If ye have faith as a grain of mustard seed, ye shall say unto this mountain, Remove hence to yonder place; and it shall remove; and nothing shall be impossible unto you.",
+    "version": "KJV"
+  },
+  {
+    "day": 180,
+    "reference": "Matthew 18:20",
+    "theme": "Fellowship",
+    "text": "For where two or three are gathered together in my name, there am I in the midst of them.",
+    "version": "KJV"
+  },
+  {
+    "day": 181,
+    "reference": "Matthew 19:26",
+    "theme": "Possibility",
+    "text": "But Jesus beheld them, and said unto them, With men this is impossible; but with God all things are possible.",
+    "version": "KJV"
+  },
+  {
+    "day": 182,
+    "reference": "Matthew 22:37-39",
+    "theme": "The Great Commandment",
+    "text": "Jesus said unto him, Thou shalt love the Lord thy God with all thy heart, and with all thy soul, and with all thy mind. This is the first and great commandment. And the second is like unto it, Thou shalt love thy neighbour as thyself.",
+    "version": "KJV"
+  },
+  {
+    "day": 183,
+    "reference": "Matthew 28:20",
+    "theme": "Presence",
+    "text": "And, lo, I am with you alway, even unto the end of the world. Amen.",
+    "version": "KJV"
+  },
+  {
+    "day": 184,
+    "reference": "Mark 9:23",
+    "theme": "Belief",
+    "text": "Jesus said unto him, If thou canst believe, all things are possible to him that believeth.",
+    "version": "KJV"
+  },
+  {
+    "day": 185,
+    "reference": "Mark 11:24",
+    "theme": "Prayer",
+    "text": "Therefore I say unto you, What things soever ye desire, when ye pray, believe that ye receive them, and ye shall have them.",
+    "version": "KJV"
+  },
+  {
+    "day": 186,
+    "reference": "Mark 16:15",
+    "theme": "Mission",
+    "text": "And he said unto them, Go ye into all the world, and preach the gospel to every creature.",
+    "version": "KJV"
+  },
+  {
+    "day": 187,
+    "reference": "Luke 1:37",
+    "theme": "Possibility",
+    "text": "For with God nothing shall be impossible.",
+    "version": "KJV"
+  },
+  {
+    "day": 188,
+    "reference": "Luke 1:45",
+    "theme": "Belief",
+    "text": "And blessed is she that believed: for there shall be a performance of those things which were told her from the Lord.",
+    "version": "KJV"
+  },
+  {
+    "day": 189,
+    "reference": "Luke 2:10-11",
+    "theme": "Good News",
+    "text": "And the angel said unto them, Fear not: for, behold, I bring you good tidings of great joy, which shall be to all people. For unto you is born this day in the city of David a Saviour, which is Christ the Lord.",
+    "version": "KJV"
+  },
+  {
+    "day": 190,
+    "reference": "Luke 6:37",
+    "theme": "Forgiveness",
+    "text": "Judge not, and ye shall not be judged: condemn not, and ye shall not be condemned: forgive, and ye shall be forgiven.",
+    "version": "KJV"
+  },
+  {
+    "day": 191,
+    "reference": "Luke 6:38",
+    "theme": "Giving",
+    "text": "Give, and it shall be given unto you; good measure, pressed down, and shaken together, and running over, shall men give into your bosom. For with the same measure that ye mete withal it shall be measured to you again.",
+    "version": "KJV"
+  },
+  {
+    "day": 192,
+    "reference": "Luke 12:7",
+    "theme": "Worth",
+    "text": "But even the very hairs of your head are all numbered. Fear not therefore: ye are of more value than many sparrows.",
+    "version": "KJV"
+  },
+  {
+    "day": 193,
+    "reference": "Luke 15:7",
+    "theme": "Repentance",
+    "text": "I say unto you, that likewise joy shall be in heaven over one sinner that repenteth, more than over ninety and nine just persons, which need no repentance.",
+    "version": "KJV"
+  },
+  {
+    "day": 194,
+    "reference": "Luke 18:1",
+    "theme": "Persistence",
+    "text": "And he spake a parable unto them to this end, that men ought always to pray, and not to faint.",
+    "version": "KJV"
+  },
+  {
+    "day": 195,
+    "reference": "Luke 19:10",
+    "theme": "Salvation",
+    "text": "For the Son of man is come to seek and to save that which was lost.",
+    "version": "KJV"
+  },
+  {
+    "day": 196,
+    "reference": "John 1:5",
+    "theme": "Light",
+    "text": "And the light shineth in darkness; and the darkness comprehended it not.",
+    "version": "KJV"
+  },
+  {
+    "day": 197,
+    "reference": "John 1:12",
+    "theme": "Children of God",
+    "text": "But as many as received him, to them gave he power to become the sons of God, even to them that believe on his name.",
+    "version": "KJV"
+  },
+  {
+    "day": 198,
+    "reference": "John 1:14",
+    "theme": "The Word",
+    "text": "And the Word was made flesh, and dwelt among us, (and we beheld his glory, the glory as of the only begotten of the Father,) full of grace and truth.",
+    "version": "KJV"
+  },
+  {
+    "day": 199,
+    "reference": "John 4:24",
+    "theme": "Worship",
+    "text": "God is a Spirit: and they that worship him must worship him in spirit and in truth.",
+    "version": "KJV"
+  },
+  {
+    "day": 200,
+    "reference": "John 6:35",
+    "theme": "Bread of Life",
+    "text": "And Jesus said unto them, I am the bread of life: he that cometh to me shall never hunger; and he that believeth on me shall never thirst.",
+    "version": "KJV"
+  },
+  {
+    "day": 201,
+    "reference": "John 8:12",
+    "theme": "Light",
+    "text": "Then spake Jesus again unto them, saying, I am the light of the world: he that followeth me shall not walk in darkness, but shall have the light of life.",
+    "version": "KJV"
+  },
+  {
+    "day": 202,
+    "reference": "John 8:32",
+    "theme": "Freedom",
+    "text": "And ye shall know the truth, and the truth shall make you free.",
+    "version": "KJV"
+  },
+  {
+    "day": 203,
+    "reference": "John 10:10",
+    "theme": "Abundance",
+    "text": "The thief cometh not, but for to steal, and to kill, and to destroy: I am come that they might have life, and that they might have it more abundantly.",
+    "version": "KJV"
+  },
+  {
+    "day": 204,
+    "reference": "John 10:11",
+    "theme": "Shepherd",
+    "text": "I am the good shepherd: the good shepherd giveth his life for the sheep.",
+    "version": "KJV"
+  },
+  {
+    "day": 205,
+    "reference": "John 11:25",
+    "theme": "Resurrection",
+    "text": "Jesus said unto her, I am the resurrection, and the life: he that believeth in me, though he were dead, yet shall he live.",
+    "version": "KJV"
+  },
+  {
+    "day": 206,
+    "reference": "John 13:34",
+    "theme": "Love",
+    "text": "A new commandment I give unto you, That ye love one another; as I have loved you, that ye also love one another.",
+    "version": "KJV"
+  },
+  {
+    "day": 207,
+    "reference": "John 14:1",
+    "theme": "Trust",
+    "text": "Let not your heart be troubled: ye believe in God, believe also in me.",
+    "version": "KJV"
+  },
+  {
+    "day": 208,
+    "reference": "John 14:6",
+    "theme": "The Way",
+    "text": "Jesus saith unto him, I am the way, the truth, and the life: no man cometh unto the Father, but by me.",
+    "version": "KJV"
+  },
+  {
+    "day": 209,
+    "reference": "John 15:5",
+    "theme": "Abiding",
+    "text": "I am the vine, ye are the branches: He that abideth in me, and I in him, the same bringeth forth much fruit: for without me ye can do nothing.",
+    "version": "KJV"
+  },
+  {
+    "day": 210,
+    "reference": "John 15:7",
+    "theme": "Abiding",
+    "text": "If ye abide in me, and my words abide in you, ye shall ask what ye will, and it shall be done unto you.",
+    "version": "KJV"
+  },
+  {
+    "day": 211,
+    "reference": "John 15:13",
+    "theme": "Sacrifice",
+    "text": "Greater love hath no man than this, that a man lay down his life for his friends.",
+    "version": "KJV"
+  },
+  {
+    "day": 212,
+    "reference": "John 16:33",
+    "theme": "Overcoming",
+    "text": "These things I have spoken unto you, that in me ye might have peace. In the world ye shall have tribulation: but be of good cheer; I have overcome the world.",
+    "version": "KJV"
+  },
+  {
+    "day": 213,
+    "reference": "John 20:29",
+    "theme": "Faith",
+    "text": "Jesus saith unto him, Thomas, because thou hast seen me, thou hast believed: blessed are they that have not seen, and yet have believed.",
+    "version": "KJV"
+  },
+  {
+    "day": 214,
+    "reference": "Acts 1:8",
+    "theme": "Witness",
+    "text": "But ye shall receive power, after that the Holy Ghost is come upon you: and ye shall be witnesses unto me both in Jerusalem, and in all Judaea, and in Samaria, and unto the uttermost part of the earth.",
+    "version": "KJV"
+  },
+  {
+    "day": 215,
+    "reference": "Acts 4:12",
+    "theme": "Salvation",
+    "text": "Neither is there salvation in any other: for there is none other name under heaven given among men, whereby we must be saved.",
+    "version": "KJV"
+  },
+  {
+    "day": 216,
+    "reference": "Acts 16:31",
+    "theme": "Belief",
+    "text": "And they said, Believe on the Lord Jesus Christ, and thou shalt be saved, and thy house.",
+    "version": "KJV"
+  },
+  {
+    "day": 217,
+    "reference": "Acts 20:35",
+    "theme": "Giving",
+    "text": "It is more blessed to give than to receive.",
+    "version": "KJV"
+  },
+  {
+    "day": 218,
+    "reference": "Romans 1:16",
+    "theme": "The Gospel",
+    "text": "For I am not ashamed of the gospel of Christ: for it is the power of God unto salvation to every one that believeth; to the Jew first, and also to the Greek.",
+    "version": "KJV"
+  },
+  {
+    "day": 219,
+    "reference": "Romans 3:23",
+    "theme": "Grace",
+    "text": "For all have sinned, and come short of the glory of God.",
+    "version": "KJV"
+  },
+  {
+    "day": 220,
+    "reference": "Romans 5:1",
+    "theme": "Peace",
+    "text": "Therefore being justified by faith, we have peace with God through our Lord Jesus Christ.",
+    "version": "KJV"
+  },
+  {
+    "day": 221,
+    "reference": "Romans 5:3-4",
+    "theme": "Perseverance",
+    "text": "And not only so, but we glory in tribulations also: knowing that tribulation worketh patience; And patience, experience; and experience, hope.",
+    "version": "KJV"
+  },
+  {
+    "day": 222,
+    "reference": "Romans 5:8",
+    "theme": "Love",
+    "text": "But God commendeth his love toward us, in that, while we were yet sinners, Christ died for us.",
+    "version": "KJV"
+  },
+  {
+    "day": 223,
+    "reference": "Romans 6:23",
+    "theme": "The Gift",
+    "text": "For the wages of sin is death; but the gift of God is eternal life through Jesus Christ our Lord.",
+    "version": "KJV"
+  },
+  {
+    "day": 224,
+    "reference": "Romans 8:1",
+    "theme": "No Condemnation",
+    "text": "There is therefore now no condemnation to them which are in Christ Jesus, who walk not after the flesh, but after the Spirit.",
+    "version": "KJV"
+  },
+  {
+    "day": 225,
+    "reference": "Romans 8:18",
+    "theme": "Glory",
+    "text": "For I reckon that the sufferings of this present time are not worthy to be compared with the glory which shall be revealed in us.",
+    "version": "KJV"
+  },
+  {
+    "day": 226,
+    "reference": "Romans 8:31",
+    "theme": "Confidence",
+    "text": "What shall we then say to these things? If God be for us, who can be against us?",
+    "version": "KJV"
+  },
+  {
+    "day": 227,
+    "reference": "Romans 8:38-39",
+    "theme": "Love",
+    "text": "For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come, Nor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord.",
+    "version": "KJV"
+  },
+  {
+    "day": 228,
+    "reference": "Romans 10:9",
+    "theme": "Salvation",
+    "text": "That if thou shalt confess with thy mouth the Lord Jesus, and shalt believe in thine heart that God hath raised him from the dead, thou shalt be saved.",
+    "version": "KJV"
+  },
+  {
+    "day": 229,
+    "reference": "Romans 10:17",
+    "theme": "Faith",
+    "text": "So then faith cometh by hearing, and hearing by the word of God.",
+    "version": "KJV"
+  },
+  {
+    "day": 230,
+    "reference": "Romans 12:1",
+    "theme": "Surrender",
+    "text": "I beseech you therefore, brethren, by the mercies of God, that ye present your bodies a living sacrifice, holy, acceptable unto God, which is your reasonable service.",
+    "version": "KJV"
+  },
+  {
+    "day": 231,
+    "reference": "Romans 12:12",
+    "theme": "Hope",
+    "text": "Rejoicing in hope; patient in tribulation; continuing instant in prayer.",
+    "version": "KJV"
+  },
+  {
+    "day": 232,
+    "reference": "Romans 12:21",
+    "theme": "Overcoming",
+    "text": "Be not overcome of evil, but overcome evil with good.",
+    "version": "KJV"
+  },
+  {
+    "day": 233,
+    "reference": "Romans 15:13",
+    "theme": "Hope",
+    "text": "Now the God of hope fill you with all joy and peace in believing, that ye may abound in hope, through the power of the Holy Ghost.",
+    "version": "KJV"
+  },
+  {
+    "day": 234,
+    "reference": "1 Corinthians 2:9",
+    "theme": "Promise",
+    "text": "But as it is written, Eye hath not seen, nor ear heard, neither have entered into the heart of man, the things which God hath prepared for them that love him.",
+    "version": "KJV"
+  },
+  {
+    "day": 235,
+    "reference": "1 Corinthians 10:13",
+    "theme": "Escape",
+    "text": "There hath no temptation taken you but such as is common to man: but God is faithful, who will not suffer you to be tempted above that ye are able; but will with the temptation also make a way to escape, that ye may be able to bear it.",
+    "version": "KJV"
+  },
+  {
+    "day": 236,
+    "reference": "1 Corinthians 13:4",
+    "theme": "Love",
+    "text": "Charity suffereth long, and is kind; charity envieth not; charity vaunteth not itself, is not puffed up.",
+    "version": "KJV"
+  },
+  {
+    "day": 237,
+    "reference": "1 Corinthians 15:57",
+    "theme": "Victory",
+    "text": "But thanks be to God, which giveth us the victory through our Lord Jesus Christ.",
+    "version": "KJV"
+  },
+  {
+    "day": 238,
+    "reference": "1 Corinthians 15:58",
+    "theme": "Steadfastness",
+    "text": "Therefore, my beloved brethren, be ye stedfast, unmoveable, always abounding in the work of the Lord, forasmuch as ye know that your labour is not in vain in the Lord.",
+    "version": "KJV"
+  },
+  {
+    "day": 239,
+    "reference": "1 Corinthians 16:13-14",
+    "theme": "Courage",
+    "text": "Watch ye, stand fast in the faith, quit you like men, be strong. Let all your things be done with charity.",
+    "version": "KJV"
+  },
+  {
+    "day": 240,
+    "reference": "2 Corinthians 4:16",
+    "theme": "Renewal",
+    "text": "For which cause we faint not; but though our outward man perish, yet the inward man is renewed day by day.",
+    "version": "KJV"
+  },
+  {
+    "day": 241,
+    "reference": "2 Corinthians 4:18",
+    "theme": "Eternal Perspective",
+    "text": "While we look not at the things which are seen, but at the things which are not seen: for the things which are seen are temporal; but the things which are not seen are eternal.",
+    "version": "KJV"
+  },
+  {
+    "day": 242,
+    "reference": "2 Corinthians 5:17",
+    "theme": "New Creation",
+    "text": "Therefore if any man be in Christ, he is a new creature: old things are passed away; behold, all things are become new.",
+    "version": "KJV"
+  },
+  {
+    "day": 243,
+    "reference": "2 Corinthians 9:7",
+    "theme": "Giving",
+    "text": "Every man according as he purposeth in his heart, so let him give; not grudgingly, or of necessity: for God loveth a cheerful giver.",
+    "version": "KJV"
+  },
+  {
+    "day": 244,
+    "reference": "2 Corinthians 12:9",
+    "theme": "Grace",
+    "text": "And he said unto me, My grace is sufficient for thee: for my strength is made perfect in weakness.",
+    "version": "KJV"
+  },
+  {
+    "day": 245,
+    "reference": "Galatians 2:20",
+    "theme": "Life in Christ",
+    "text": "I am crucified with Christ: nevertheless I live; yet not I, but Christ liveth in me: and the life which I now live in the flesh I live by the faith of the Son of God, who loved me, and gave himself for me.",
+    "version": "KJV"
+  },
+  {
+    "day": 246,
+    "reference": "Galatians 5:1",
+    "theme": "Freedom",
+    "text": "Stand fast therefore in the liberty wherewith Christ hath made us free, and be not entangled again with the yoke of bondage.",
+    "version": "KJV"
+  },
+  {
+    "day": 247,
+    "reference": "Galatians 6:9",
+    "theme": "Perseverance",
+    "text": "And let us not be weary in well doing: for in due season we shall reap, if we faint not.",
+    "version": "KJV"
+  },
+  {
+    "day": 248,
+    "reference": "Ephesians 1:3",
+    "theme": "Blessing",
+    "text": "Blessed be the God and Father of our Lord Jesus Christ, who hath blessed us with all spiritual blessings in heavenly places in Christ.",
+    "version": "KJV"
+  },
+  {
+    "day": 249,
+    "reference": "Ephesians 2:10",
+    "theme": "Purpose",
+    "text": "For we are his workmanship, created in Christ Jesus unto good works, which God hath before ordained that we should walk in them.",
+    "version": "KJV"
+  },
+  {
+    "day": 250,
+    "reference": "Ephesians 3:20",
+    "theme": "Power",
+    "text": "Now unto him that is able to do exceeding abundantly above all that we ask or think, according to the power that worketh in us.",
+    "version": "KJV"
+  },
+  {
+    "day": 251,
+    "reference": "Ephesians 4:2-3",
+    "theme": "Unity",
+    "text": "With all lowliness and meekness, with longsuffering, forbearing one another in love; Endeavouring to keep the unity of the Spirit in the bond of peace.",
+    "version": "KJV"
+  },
+  {
+    "day": 252,
+    "reference": "Ephesians 4:32",
+    "theme": "Kindness",
+    "text": "And be ye kind one to another, tenderhearted, forgiving one another, even as God for Christ's sake hath forgiven you.",
+    "version": "KJV"
+  },
+  {
+    "day": 253,
+    "reference": "Ephesians 6:10",
+    "theme": "Strength",
+    "text": "Finally, my brethren, be strong in the Lord, and in the power of his might.",
+    "version": "KJV"
+  },
+  {
+    "day": 254,
+    "reference": "Ephesians 6:11",
+    "theme": "Armor of God",
+    "text": "Put on the whole armour of God, that ye may be able to stand against the wiles of the devil.",
+    "version": "KJV"
+  },
+  {
+    "day": 255,
+    "reference": "Philippians 1:6",
+    "theme": "Confidence",
+    "text": "Being confident of this very thing, that he which hath begun a good work in you will perform it until the day of Jesus Christ.",
+    "version": "KJV"
+  },
+  {
+    "day": 256,
+    "reference": "Philippians 2:3",
+    "theme": "Humility",
+    "text": "Let nothing be done through strife or vainglory; but in lowliness of mind let each esteem other better than themselves.",
+    "version": "KJV"
+  },
+  {
+    "day": 257,
+    "reference": "Philippians 3:13-14",
+    "theme": "Pressing On",
+    "text": "Brethren, I count not myself to have apprehended: but this one thing I do, forgetting those things which are behind, and reaching forth unto those things which are before, I press toward the mark for the prize of the high calling of God in Christ Jesus.",
+    "version": "KJV"
+  },
+  {
+    "day": 258,
+    "reference": "Philippians 4:4",
+    "theme": "Rejoicing",
+    "text": "Rejoice in the Lord alway: and again I say, Rejoice.",
+    "version": "KJV"
+  },
+  {
+    "day": 259,
+    "reference": "Philippians 4:8",
+    "theme": "Thoughts",
+    "text": "Finally, brethren, whatsoever things are true, whatsoever things are honest, whatsoever things are just, whatsoever things are pure, whatsoever things are lovely, whatsoever things are of good report; if there be any virtue, and if there be any praise, think on these things.",
+    "version": "KJV"
+  },
+  {
+    "day": 260,
+    "reference": "Philippians 4:19",
+    "theme": "Provision",
+    "text": "But my God shall supply all your need according to his riches in glory by Christ Jesus.",
+    "version": "KJV"
+  },
+  {
+    "day": 261,
+    "reference": "Colossians 3:2",
+    "theme": "Focus",
+    "text": "Set your affection on things above, not on things on the earth.",
+    "version": "KJV"
+  },
+  {
+    "day": 262,
+    "reference": "Colossians 3:12",
+    "theme": "Compassion",
+    "text": "Put on therefore, as the elect of God, holy and beloved, bowels of mercies, kindness, humbleness of mind, meekness, longsuffering.",
+    "version": "KJV"
+  },
+  {
+    "day": 263,
+    "reference": "Colossians 3:15",
+    "theme": "Peace",
+    "text": "And let the peace of God rule in your hearts, to the which also ye are called in one body; and be ye thankful.",
+    "version": "KJV"
+  },
+  {
+    "day": 264,
+    "reference": "Colossians 3:23",
+    "theme": "Work",
+    "text": "And whatsoever ye do, do it heartily, as to the Lord, and not unto men.",
+    "version": "KJV"
+  },
+  {
+    "day": 265,
+    "reference": "Colossians 4:6",
+    "theme": "Speech",
+    "text": "Let your speech be alway with grace, seasoned with salt, that ye may know how ye ought to answer every man.",
+    "version": "KJV"
+  },
+  {
+    "day": 266,
+    "reference": "1 Thessalonians 5:16-18",
+    "theme": "Gratitude",
+    "text": "Rejoice evermore. Pray without ceasing. In every thing give thanks: for this is the will of God in Christ Jesus concerning you.",
+    "version": "KJV"
+  },
+  {
+    "day": 267,
+    "reference": "1 Thessalonians 5:11",
+    "theme": "Encouragement",
+    "text": "Wherefore comfort yourselves together, and edify one another, even as also ye do.",
+    "version": "KJV"
+  },
+  {
+    "day": 268,
+    "reference": "2 Thessalonians 3:3",
+    "theme": "Faithfulness",
+    "text": "But the Lord is faithful, who shall stablish you, and keep you from evil.",
+    "version": "KJV"
+  },
+  {
+    "day": 269,
+    "reference": "2 Thessalonians 3:16",
+    "theme": "Peace",
+    "text": "Now the Lord of peace himself give you peace always by all means. The Lord be with you all.",
+    "version": "KJV"
+  },
+  {
+    "day": 270,
+    "reference": "1 Timothy 4:12",
+    "theme": "Example",
+    "text": "Let no man despise thy youth; but be thou an example of the believers, in word, in conversation, in charity, in spirit, in faith, in purity.",
+    "version": "KJV"
+  },
+  {
+    "day": 271,
+    "reference": "1 Timothy 6:6",
+    "theme": "Contentment",
+    "text": "But godliness with contentment is great gain.",
+    "version": "KJV"
+  },
+  {
+    "day": 272,
+    "reference": "2 Timothy 1:7",
+    "theme": "Courage",
+    "text": "For God hath not given us the spirit of fear; but of power, and of love, and of a sound mind.",
+    "version": "KJV"
+  },
+  {
+    "day": 273,
+    "reference": "2 Timothy 2:15",
+    "theme": "Study",
+    "text": "Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth.",
+    "version": "KJV"
+  },
+  {
+    "day": 274,
+    "reference": "2 Timothy 3:16",
+    "theme": "Scripture",
+    "text": "All scripture is given by inspiration of God, and is profitable for doctrine, for reproof, for correction, for instruction in righteousness.",
+    "version": "KJV"
+  },
+  {
+    "day": 275,
+    "reference": "2 Timothy 4:7",
+    "theme": "Finishing Well",
+    "text": "I have fought a good fight, I have finished my course, I have kept the faith.",
+    "version": "KJV"
+  },
+  {
+    "day": 276,
+    "reference": "Titus 2:11",
+    "theme": "Grace",
+    "text": "For the grace of God that bringeth salvation hath appeared to all men.",
+    "version": "KJV"
+  },
+  {
+    "day": 277,
+    "reference": "Hebrews 4:12",
+    "theme": "The Word",
+    "text": "For the word of God is quick, and powerful, and sharper than any twoedged sword, piercing even to the dividing asunder of soul and spirit, and of the joints and marrow, and is a discerner of the thoughts and intents of the heart.",
+    "version": "KJV"
+  },
+  {
+    "day": 278,
+    "reference": "Hebrews 4:16",
+    "theme": "Grace",
+    "text": "Let us therefore come boldly unto the throne of grace, that we may obtain mercy, and find grace to help in time of need.",
+    "version": "KJV"
+  },
+  {
+    "day": 279,
+    "reference": "Hebrews 10:23",
+    "theme": "Hope",
+    "text": "Let us hold fast the profession of our faith without wavering; (for he is faithful that promised;)",
+    "version": "KJV"
+  },
+  {
+    "day": 280,
+    "reference": "Hebrews 10:24-25",
+    "theme": "Fellowship",
+    "text": "And let us consider one another to provoke unto love and to good works: Not forsaking the assembling of ourselves together, as the manner of some is; but exhorting one another: and so much the more, as ye see the day approaching.",
+    "version": "KJV"
+  },
+  {
+    "day": 281,
+    "reference": "Hebrews 11:6",
+    "theme": "Faith",
+    "text": "But without faith it is impossible to please him: for he that cometh to God must believe that he is, and that he is a rewarder of them that diligently seek him.",
+    "version": "KJV"
+  },
+  {
+    "day": 282,
+    "reference": "Hebrews 12:1-2",
+    "theme": "Endurance",
+    "text": "Wherefore seeing we also are compassed about with so great a cloud of witnesses, let us lay aside every weight, and the sin which doth so easily beset us, and let us run with patience the race that is set before us; Looking unto Jesus the author and finisher of our faith;",
+    "version": "KJV"
+  },
+  {
+    "day": 283,
+    "reference": "Hebrews 13:5",
+    "theme": "Presence",
+    "text": "For he hath said, I will never leave thee, nor forsake thee.",
+    "version": "KJV"
+  },
+  {
+    "day": 284,
+    "reference": "Hebrews 13:8",
+    "theme": "Unchanging",
+    "text": "Jesus Christ the same yesterday, and to day, and for ever.",
+    "version": "KJV"
+  },
+  {
+    "day": 285,
+    "reference": "James 1:2-3",
+    "theme": "Trials",
+    "text": "My brethren, count it all joy when ye fall into divers temptations; Knowing this, that the trying of your faith worketh patience.",
+    "version": "KJV"
+  },
+  {
+    "day": 286,
+    "reference": "James 1:5",
+    "theme": "Wisdom",
+    "text": "If any of you lack wisdom, let him ask of God, that giveth to all men liberally, and upbraideth not; and it shall be given him.",
+    "version": "KJV"
+  },
+  {
+    "day": 287,
+    "reference": "James 1:19",
+    "theme": "Listening",
+    "text": "Wherefore, my beloved brethren, let every man be swift to hear, slow to speak, slow to wrath.",
+    "version": "KJV"
+  },
+  {
+    "day": 288,
+    "reference": "James 1:22",
+    "theme": "Doing",
+    "text": "But be ye doers of the word, and not hearers only, deceiving your own selves.",
+    "version": "KJV"
+  },
+  {
+    "day": 289,
+    "reference": "James 4:7-8",
+    "theme": "Submission",
+    "text": "Submit yourselves therefore to God. Resist the devil, and he will flee from you. Draw nigh to God, and he will draw nigh to you.",
+    "version": "KJV"
+  },
+  {
+    "day": 290,
+    "reference": "James 4:10",
+    "theme": "Humility",
+    "text": "Humble yourselves in the sight of the Lord, and he shall lift you up.",
+    "version": "KJV"
+  },
+  {
+    "day": 291,
+    "reference": "James 5:16",
+    "theme": "Prayer",
+    "text": "The effectual fervent prayer of a righteous man availeth much.",
+    "version": "KJV"
+  },
+  {
+    "day": 292,
+    "reference": "1 Peter 2:9",
+    "theme": "Chosen",
+    "text": "But ye are a chosen generation, a royal priesthood, an holy nation, a peculiar people; that ye should shew forth the praises of him who hath called you out of darkness into his marvellous light.",
+    "version": "KJV"
+  },
+  {
+    "day": 293,
+    "reference": "1 Peter 4:8",
+    "theme": "Love",
+    "text": "And above all things have fervent charity among yourselves: for charity shall cover the multitude of sins.",
+    "version": "KJV"
+  },
+  {
+    "day": 294,
+    "reference": "1 Peter 5:6-7",
+    "theme": "Anxiety",
+    "text": "Humble yourselves therefore under the mighty hand of God, that he may exalt you in due time: Casting all your care upon him; for he careth for you.",
+    "version": "KJV"
+  },
+  {
+    "day": 295,
+    "reference": "1 Peter 5:10",
+    "theme": "Restoration",
+    "text": "But the God of all grace, who hath called us unto his eternal glory by Christ Jesus, after that ye have suffered a while, make you perfect, stablish, strengthen, settle you.",
+    "version": "KJV"
+  },
+  {
+    "day": 296,
+    "reference": "2 Peter 1:3",
+    "theme": "Provision",
+    "text": "According as his divine power hath given unto us all things that pertain unto life and godliness, through the knowledge of him that hath called us to glory and virtue.",
+    "version": "KJV"
+  },
+  {
+    "day": 297,
+    "reference": "2 Peter 3:9",
+    "theme": "Patience",
+    "text": "The Lord is not slack concerning his promise, as some men count slackness; but is longsuffering to us-ward, not willing that any should perish, but that all should come to repentance.",
+    "version": "KJV"
+  },
+  {
+    "day": 298,
+    "reference": "1 John 1:9",
+    "theme": "Forgiveness",
+    "text": "If we confess our sins, he is faithful and just to forgive us our sins, and to cleanse us from all unrighteousness.",
+    "version": "KJV"
+  },
+  {
+    "day": 299,
+    "reference": "1 John 3:1",
+    "theme": "Belonging",
+    "text": "Behold, what manner of love the Father hath bestowed upon us, that we should be called the sons of God.",
+    "version": "KJV"
+  },
+  {
+    "day": 300,
+    "reference": "1 John 3:18",
+    "theme": "Action",
+    "text": "My little children, let us not love in word, neither in tongue; but in deed and in truth.",
+    "version": "KJV"
+  },
+  {
+    "day": 301,
+    "reference": "1 John 4:4",
+    "theme": "Victory",
+    "text": "Ye are of God, little children, and have overcome them: because greater is he that is in you, than he that is in the world.",
+    "version": "KJV"
+  },
+  {
+    "day": 302,
+    "reference": "1 John 4:8",
+    "theme": "Love",
+    "text": "He that loveth not knoweth not God; for God is love.",
+    "version": "KJV"
+  },
+  {
+    "day": 303,
+    "reference": "1 John 4:18",
+    "theme": "Fearless Love",
+    "text": "There is no fear in love; but perfect love casteth out fear.",
+    "version": "KJV"
+  },
+  {
+    "day": 304,
+    "reference": "1 John 5:4",
+    "theme": "Overcoming",
+    "text": "For whatsoever is born of God overcometh the world: and this is the victory that overcometh the world, even our faith.",
+    "version": "KJV"
+  },
+  {
+    "day": 305,
+    "reference": "1 John 5:14",
+    "theme": "Confidence",
+    "text": "And this is the confidence that we have in him, that, if we ask any thing according to his will, he heareth us.",
+    "version": "KJV"
+  },
+  {
+    "day": 306,
+    "reference": "Jude 1:24",
+    "theme": "Keeping",
+    "text": "Now unto him that is able to keep you from falling, and to present you faultless before the presence of his glory with exceeding joy.",
+    "version": "KJV"
+  },
+  {
+    "day": 307,
+    "reference": "Revelation 3:20",
+    "theme": "Invitation",
+    "text": "Behold, I stand at the door, and knock: if any man hear my voice, and open the door, I will come in to him, and will sup with him, and he with me.",
+    "version": "KJV"
+  },
+  {
+    "day": 308,
+    "reference": "Revelation 21:4",
+    "theme": "Hope",
+    "text": "And God shall wipe away all tears from their eyes; and there shall be no more death, neither sorrow, nor crying, neither shall there be any more pain: for the former things are passed away.",
+    "version": "KJV"
+  },
+  {
+    "day": 309,
+    "reference": "Revelation 21:5",
+    "theme": "Renewal",
+    "text": "And he that sat upon the throne said, Behold, I make all things new.",
+    "version": "KJV"
+  },
+  {
+    "day": 310,
+    "reference": "Revelation 1:8",
+    "theme": "The Eternal",
+    "text": "I am Alpha and Omega, the beginning and the ending, saith the Lord, which is, and which was, and which is to come, the Almighty.",
+    "version": "KJV"
+  },
+  {
+    "day": 311,
+    "reference": "Genesis 12:2",
+    "theme": "Blessing",
+    "text": "And I will make of thee a great nation, and I will bless thee, and make thy name great; and thou shalt be a blessing.",
+    "version": "KJV"
+  },
+  {
+    "day": 312,
+    "reference": "Genesis 28:15",
+    "theme": "Presence",
+    "text": "And, behold, I am with thee, and will keep thee in all places whither thou goest, and will bring thee again into this land; for I will not leave thee, until I have done that which I have spoken to thee of.",
+    "version": "KJV"
+  },
+  {
+    "day": 313,
+    "reference": "Genesis 50:20",
+    "theme": "Redemption",
+    "text": "But as for you, ye thought evil against me; but God meant it unto good, to bring to pass, as it is this day, to save much people alive.",
+    "version": "KJV"
+  },
+  {
+    "day": 314,
+    "reference": "Genesis 1:27",
+    "theme": "Identity",
+    "text": "So God created man in his own image, in the image of God created he him; male and female created he them.",
+    "version": "KJV"
+  },
+  {
+    "day": 315,
+    "reference": "Exodus 15:2",
+    "theme": "Song",
+    "text": "The LORD is my strength and song, and he is become my salvation: he is my God, and I will prepare him an habitation; my father's God, and I will exalt him.",
+    "version": "KJV"
+  },
+  {
+    "day": 316,
+    "reference": "Exodus 23:25",
+    "theme": "Provision",
+    "text": "And ye shall serve the LORD your God, and he shall bless thy bread, and thy water; and I will take sickness away from the midst of thee.",
+    "version": "KJV"
+  },
+  {
+    "day": 317,
+    "reference": "Leviticus 19:18",
+    "theme": "Love",
+    "text": "Thou shalt love thy neighbour as thyself: I am the LORD.",
+    "version": "KJV"
+  },
+  {
+    "day": 318,
+    "reference": "Numbers 23:19",
+    "theme": "Faithfulness",
+    "text": "God is not a man, that he should lie; neither the son of man, that he should repent: hath he said, and shall he not do it? or hath he spoken, and shall he not make it good?",
+    "version": "KJV"
+  },
+  {
+    "day": 319,
+    "reference": "Deuteronomy 4:29",
+    "theme": "Seeking",
+    "text": "But if from thence thou shalt seek the LORD thy God, thou shalt find him, if thou seek him with all thy heart and with all thy soul.",
+    "version": "KJV"
+  },
+  {
+    "day": 320,
+    "reference": "Deuteronomy 8:18",
+    "theme": "Remembrance",
+    "text": "But thou shalt remember the LORD thy God: for it is he that giveth thee power to get wealth, that he may establish his covenant which he sware unto thy fathers, as it is this day.",
+    "version": "KJV"
+  },
+  {
+    "day": 321,
+    "reference": "Deuteronomy 7:9",
+    "theme": "Faithfulness",
+    "text": "Know therefore that the LORD thy God, he is God, the faithful God, which keepeth covenant and mercy with them that love him and keep his commandments to a thousand generations.",
+    "version": "KJV"
+  },
+  {
+    "day": 322,
+    "reference": "Joshua 1:8",
+    "theme": "Meditation",
+    "text": "This book of the law shall not depart out of thy mouth; but thou shalt meditate therein day and night, that thou mayest observe to do according to all that is written therein: for then thou shalt make thy way prosperous, and then thou shalt have good success.",
+    "version": "KJV"
+  },
+  {
+    "day": 323,
+    "reference": "Judges 6:12",
+    "theme": "Valor",
+    "text": "And the angel of the LORD appeared unto him, and said unto him, The LORD is with thee, thou mighty man of valour.",
+    "version": "KJV"
+  },
+  {
+    "day": 324,
+    "reference": "1 Samuel 2:2",
+    "theme": "Holiness",
+    "text": "There is none holy as the LORD: for there is none beside thee: neither is there any rock like our God.",
+    "version": "KJV"
+  },
+  {
+    "day": 325,
+    "reference": "1 Samuel 7:12",
+    "theme": "Remembrance",
+    "text": "Hitherto hath the LORD helped us.",
+    "version": "KJV"
+  },
+  {
+    "day": 326,
+    "reference": "2 Samuel 22:31",
+    "theme": "Trust",
+    "text": "As for God, his way is perfect; the word of the LORD is tried: he is a buckler to all them that trust in him.",
+    "version": "KJV"
+  },
+  {
+    "day": 327,
+    "reference": "2 Kings 6:16",
+    "theme": "Perspective",
+    "text": "And he answered, Fear not: for they that be with us are more than they that be with them.",
+    "version": "KJV"
+  },
+  {
+    "day": 328,
+    "reference": "1 Chronicles 28:20",
+    "theme": "Courage",
+    "text": "Be strong and of good courage, and do it: fear not, nor be dismayed: for the LORD God, even my God, will be with thee; he will not fail thee, nor forsake thee, until thou hast finished all the work for the service of the house of the LORD.",
+    "version": "KJV"
+  },
+  {
+    "day": 329,
+    "reference": "1 Chronicles 29:11",
+    "theme": "Majesty",
+    "text": "Thine, O LORD, is the greatness, and the power, and the glory, and the victory, and the majesty: for all that is in the heaven and in the earth is thine.",
+    "version": "KJV"
+  },
+  {
+    "day": 330,
+    "reference": "2 Chronicles 15:7",
+    "theme": "Perseverance",
+    "text": "Be ye strong therefore, and let not your hands be weak: for your work shall be rewarded.",
+    "version": "KJV"
+  },
+  {
+    "day": 331,
+    "reference": "Job 42:2",
+    "theme": "Sovereignty",
+    "text": "I know that thou canst do every thing, and that no thought can be withholden from thee.",
+    "version": "KJV"
+  },
+  {
+    "day": 332,
+    "reference": "Job 8:7",
+    "theme": "Increase",
+    "text": "Though thy beginning was small, yet thy latter end should greatly increase.",
+    "version": "KJV"
+  },
+  {
+    "day": 333,
+    "reference": "Job 33:4",
+    "theme": "Life",
+    "text": "The Spirit of God hath made me, and the breath of the Almighty hath given me life.",
+    "version": "KJV"
+  },
+  {
+    "day": 334,
+    "reference": "Psalm 3:3",
+    "theme": "Shield",
+    "text": "But thou, O LORD, art a shield for me; my glory, and the lifter up of mine head.",
+    "version": "KJV"
+  },
+  {
+    "day": 335,
+    "reference": "Psalm 4:8",
+    "theme": "Rest",
+    "text": "I will both lay me down in peace, and sleep: for thou, LORD, only makest me dwell in safety.",
+    "version": "KJV"
+  },
+  {
+    "day": 336,
+    "reference": "Psalm 5:3",
+    "theme": "Morning",
+    "text": "My voice shalt thou hear in the morning, O LORD; in the morning will I direct my prayer unto thee, and will look up.",
+    "version": "KJV"
+  },
+  {
+    "day": 337,
+    "reference": "Psalm 8:3-4",
+    "theme": "Wonder",
+    "text": "When I consider thy heavens, the work of thy fingers, the moon and the stars, which thou hast ordained; What is man, that thou art mindful of him? and the son of man, that thou visitest him?",
+    "version": "KJV"
+  },
+  {
+    "day": 338,
+    "reference": "Psalm 9:10",
+    "theme": "Trust",
+    "text": "And they that know thy name will put their trust in thee: for thou, LORD, hast not forsaken them that seek thee.",
+    "version": "KJV"
+  },
+  {
+    "day": 339,
+    "reference": "Psalm 13:5",
+    "theme": "Salvation",
+    "text": "But I have trusted in thy mercy; my heart shall rejoice in thy salvation.",
+    "version": "KJV"
+  },
+  {
+    "day": 340,
+    "reference": "Psalm 16:8",
+    "theme": "Steadfastness",
+    "text": "I have set the LORD always before me: because he is at my right hand, I shall not be moved.",
+    "version": "KJV"
+  },
+  {
+    "day": 341,
+    "reference": "Psalm 17:8",
+    "theme": "Care",
+    "text": "Keep me as the apple of the eye, hide me under the shadow of thy wings.",
+    "version": "KJV"
+  },
+  {
+    "day": 342,
+    "reference": "Psalm 18:32",
+    "theme": "Strength",
+    "text": "It is God that girdeth me with strength, and maketh my way perfect.",
+    "version": "KJV"
+  },
+  {
+    "day": 343,
+    "reference": "Psalm 19:1",
+    "theme": "Creation",
+    "text": "The heavens declare the glory of God; and the firmament sheweth his handywork.",
+    "version": "KJV"
+  },
+  {
+    "day": 344,
+    "reference": "Psalm 24:1",
+    "theme": "Ownership",
+    "text": "The earth is the LORD'S, and the fulness thereof; the world, and they that dwell therein.",
+    "version": "KJV"
+  },
+  {
+    "day": 345,
+    "reference": "Psalm 26:3",
+    "theme": "Walking in Truth",
+    "text": "For thy lovingkindness is before mine eyes: and I have walked in thy truth.",
+    "version": "KJV"
+  },
+  {
+    "day": 346,
+    "reference": "Psalm 33:20-21",
+    "theme": "Help",
+    "text": "Our soul waiteth for the LORD: he is our help and our shield. For our heart shall rejoice in him, because we have trusted in his holy name.",
+    "version": "KJV"
+  },
+  {
+    "day": 347,
+    "reference": "Psalm 34:1",
+    "theme": "Praise",
+    "text": "I will bless the LORD at all times: his praise shall continually be in my mouth.",
+    "version": "KJV"
+  },
+  {
+    "day": 348,
+    "reference": "Psalm 34:19",
+    "theme": "Deliverance",
+    "text": "Many are the afflictions of the righteous: but the LORD delivereth him out of them all.",
+    "version": "KJV"
+  },
+  {
+    "day": 349,
+    "reference": "Psalm 36:9",
+    "theme": "Source of Life",
+    "text": "For with thee is the fountain of life: in thy light shall we see light.",
+    "version": "KJV"
+  },
+  {
+    "day": 350,
+    "reference": "Psalm 37:23-24",
+    "theme": "Steps",
+    "text": "The steps of a good man are ordered by the LORD: and he delighteth in his way. Though he fall, he shall not be utterly cast down: for the LORD upholdeth him with his hand.",
+    "version": "KJV"
+  },
+  {
+    "day": 351,
+    "reference": "Psalm 39:7",
+    "theme": "Hope",
+    "text": "And now, Lord, what wait I for? my hope is in thee.",
+    "version": "KJV"
+  },
+  {
+    "day": 352,
+    "reference": "Psalm 50:15",
+    "theme": "Calling on God",
+    "text": "And call upon me in the day of trouble: I will deliver thee, and thou shalt glorify me.",
+    "version": "KJV"
+  },
+  {
+    "day": 353,
+    "reference": "Psalm 57:1",
+    "theme": "Refuge",
+    "text": "Be merciful unto me, O God, be merciful unto me: for my soul trusteth in thee: yea, in the shadow of thy wings will I make my refuge, until these calamities be overpast.",
+    "version": "KJV"
+  },
+  {
+    "day": 354,
+    "reference": "Psalm 59:16",
+    "theme": "Song",
+    "text": "But I will sing of thy power; yea, I will sing aloud of thy mercy in the morning: for thou hast been my defence and refuge in the day of my trouble.",
+    "version": "KJV"
+  },
+  {
+    "day": 355,
+    "reference": "Psalm 65:11",
+    "theme": "Abundance",
+    "text": "Thou crownest the year with thy goodness; and thy paths drop fatness.",
+    "version": "KJV"
+  },
+  {
+    "day": 356,
+    "reference": "Psalm 68:19",
+    "theme": "Daily Benefits",
+    "text": "Blessed be the Lord, who daily loadeth us with benefits, even the God of our salvation.",
+    "version": "KJV"
+  },
+  {
+    "day": 357,
+    "reference": "Psalm 71:5",
+    "theme": "Hope",
+    "text": "For thou art my hope, O Lord GOD: thou art my trust from my youth.",
+    "version": "KJV"
+  },
+  {
+    "day": 358,
+    "reference": "Psalm 89:1",
+    "theme": "Faithfulness",
+    "text": "I will sing of the mercies of the LORD for ever: with my mouth will I make known thy faithfulness to all generations.",
+    "version": "KJV"
+  },
+  {
+    "day": 359,
+    "reference": "Psalm 90:17",
+    "theme": "Work",
+    "text": "And let the beauty of the LORD our God be upon us: and establish thou the work of our hands upon us; yea, the work of our hands establish thou it.",
+    "version": "KJV"
+  },
+  {
+    "day": 360,
+    "reference": "Psalm 92:1-2",
+    "theme": "Thanksgiving",
+    "text": "It is a good thing to give thanks unto the LORD, and to sing praises unto thy name, O most High: To shew forth thy lovingkindness in the morning, and thy faithfulness every night.",
+    "version": "KJV"
+  },
+  {
+    "day": 361,
+    "reference": "Psalm 112:7",
+    "theme": "Steadfastness",
+    "text": "He shall not be afraid of evil tidings: his heart is fixed, trusting in the LORD.",
+    "version": "KJV"
+  },
+  {
+    "day": 362,
+    "reference": "Psalm 119:114",
+    "theme": "Hope",
+    "text": "Thou art my hiding place and my shield: I hope in thy word.",
+    "version": "KJV"
+  },
+  {
+    "day": 363,
+    "reference": "Psalm 130:5",
+    "theme": "Waiting",
+    "text": "I wait for the LORD, my soul doth wait, and in his word do I hope.",
+    "version": "KJV"
+  },
+  {
+    "day": 364,
+    "reference": "Psalm 139:9-10",
+    "theme": "Presence",
+    "text": "If I take the wings of the morning, and dwell in the uttermost parts of the sea; Even there shall thy hand lead me, and thy right hand shall hold me.",
+    "version": "KJV"
+  },
+  {
+    "day": 365,
+    "reference": "Psalm 67:1",
+    "theme": "Blessing",
+    "text": "God be merciful unto us, and bless us; and cause his face to shine upon us; Selah.",
+    "version": "KJV"
+  }
+]

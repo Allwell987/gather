@@ -1,86 +1,40 @@
 import { fetchDailyVerse } from '../dailyVerse';
-import { supabase } from '../supabase';
-import { fetchChapter } from '../bibleApi';
-import { DAILY_VERSE as FALLBACK_VERSE } from '../../constants/theme';
-
-jest.mock('../supabase', () => ({
-  supabase: {
-    from: jest.fn().mockReturnThis(),
-    select: jest.fn().mockReturnThis(),
-    eq: jest.fn().mockReturnThis(),
-    lte: jest.fn().mockReturnThis(),
-    order: jest.fn().mockReturnThis(),
-    limit: jest.fn().mockReturnThis(),
-    maybeSingle: jest.fn(),
-  },
-}));
-
-jest.mock('../bibleApi', () => ({
-  ...jest.requireActual('../bibleApi'),
-  fetchChapter: jest.fn(),
-}));
 
 describe('fetchDailyVerse', () => {
-  const fromMock = supabase.from as jest.Mock;
-  const fetchChapterMock = fetchChapter as jest.Mock;
-
-  const getMaybeSingleMock = () => (supabase as any).maybeSingle as jest.Mock;
-
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.useFakeTimers();
   });
 
-  it('selects a verse from a random Bible chapter and keeps it stable for the day', async () => {
-    fetchChapterMock.mockResolvedValue({
-      book: 'John',
-      chapter: 3,
-      verses: [
-        { num: 16, text: 'For God so loved the world.' },
-        { num: 17, text: 'For God sent not his Son.' },
-      ],
-    });
-
-    const firstResult = await fetchDailyVerse();
-    const secondResult = await fetchDailyVerse();
-
-    expect(firstResult).toEqual(secondResult);
-    expect(firstResult).toEqual(expect.objectContaining({
-      reference: expect.stringMatching(/^John 3:(16|17)$/),
-      text: expect.any(String),
-      backgroundImage: expect.any(String),
-    }));
-    expect(fetchChapterMock).toHaveBeenCalledWith(expect.any(String), expect.any(Number));
-    expect(fromMock).not.toHaveBeenCalled();
+  afterEach(() => {
+    jest.useRealTimers();
   });
 
-  it('falls back to daily_verses if the Bible API returns no chapter', async () => {
-    fetchChapterMock.mockResolvedValue(null);
-    getMaybeSingleMock().mockResolvedValue({
-      data: { text: 'I can do all things through Christ.', reference: 'Philippians 4:13' },
-      error: null,
-    });
-
+  it('uses the scripture assigned to the current day of the year', async () => {
+    jest.setSystemTime(new Date(2026, 0, 1, 12));
     const result = await fetchDailyVerse();
 
     expect(result).toEqual({
-      text: 'I can do all things through Christ.',
-      reference: 'Philippians 4:13',
+      text: 'In the beginning God created the heaven and the earth.',
+      reference: 'Genesis 1:1',
       backgroundImage: expect.any(String),
     });
   });
 
-  it('falls back to hardcoded verse if everything fails', async () => {
-    fetchChapterMock.mockResolvedValue(null);
-    getMaybeSingleMock().mockResolvedValue({
-      data: null,
-      error: { message: 'DB Error' },
-    });
-
+  it('uses day 365 on the final day of a non-leap year', async () => {
+    jest.setSystemTime(new Date(2026, 11, 31, 12));
     const result = await fetchDailyVerse();
 
-    expect(result).toEqual({
-      ...FALLBACK_VERSE,
-      backgroundImage: expect.any(String),
-    });
+    expect(result.reference).toBe('Psalm 67:1');
+  });
+
+  it('keeps March 1 aligned to day 60 in leap years', async () => {
+    jest.setSystemTime(new Date(2024, 1, 29, 12));
+    const leapDay = await fetchDailyVerse();
+
+    jest.setSystemTime(new Date(2024, 2, 1, 12));
+    const marchFirst = await fetchDailyVerse();
+
+    expect(leapDay.reference).toBe('Psalm 103:2');
+    expect(marchFirst.reference).toBe('Psalm 103:12');
   });
 });
