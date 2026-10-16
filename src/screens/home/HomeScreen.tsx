@@ -73,7 +73,7 @@ function QuickAccessItem({ item, navigation }: QuickAccessItemProps) {
       >
         <Ionicons name={item.icon as any} size={20} color={item.color} />
         <Text style={{ color: item.color, fontSize: 11, fontWeight: '600' }}>
-          {item.id === 'give' ? t('supportLegal', locale).split(' ')[0] : t(item.labelKey as any, locale)}
+          {t(item.labelKey, locale)}
         </Text>
       </TouchableOpacity>
     </Animated.View>

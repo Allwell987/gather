@@ -37,6 +37,8 @@ export type CommunityStackParamList = {
 
 export type ProfileStackParamList = {
   Profile: undefined;
+  Giving: undefined;
+  ChurchGiving: undefined;
   ThemePicker: { fromOnboarding: boolean; activeTab?: 'theme' | 'font' | 'appearance' };
 };
 

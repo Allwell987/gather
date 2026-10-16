@@ -71,6 +71,7 @@ import {
 } from './src/services/notifications';
 import { flushOfflineActions } from './src/services/offlineActionQueue';
 import { ensureProfileForSession } from './src/services/profile';
+import { useUpdates } from './src/hooks/useUpdates';
 
 // Initialize Sentry
 initSentry();
@@ -82,6 +83,7 @@ const queryClient = new QueryClient({
 });
 
 function App() {
+  useUpdates();
   const [fontsLoaded, setFontsLoaded] = React.useState(false);
   const {
     setUser,
@@ -345,7 +347,10 @@ function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
-          <PaystackProvider publicKey={process.env.EXPO_PUBLIC_PAYSTACK_PUBLIC_KEY ?? ''}>
+          <PaystackProvider
+            publicKey={process.env.EXPO_PUBLIC_PAYSTACK_PUBLIC_KEY ?? ''}
+            defaultChannels={['card', 'bank', 'ussd', 'bank_transfer']}
+          >
             <NavigationContainer
               ref={navigationRef}
               onReady={() => {

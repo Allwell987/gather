@@ -2,7 +2,14 @@ import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../../../services/supabase';
 import { useAuthStore } from '../../../store/authStore';
-import type { Campaign, Giving } from '../../../types/database';
+import type { Campaign, Giving, GivingCategory } from '../../../types/database';
+
+type DonationInput = {
+  amount: number;
+  reference: string;
+  transaction_id?: string;
+  category: GivingCategory;
+};
 
 export function useGiving() {
   const { user } = useAuthStore();
@@ -29,13 +36,13 @@ export function useGiving() {
   const totalGiving = useMemo(() => history.reduce((sum, r) => sum + Number(r.amount || 0), 0), [history]);
 
   const saveDonation = useMutation({
-    mutationFn: async (donation: any) => {
+    mutationFn: async (donation: DonationInput) => {
       if (!user?.id) return;
       await supabase.from('giving').insert({
         user_id: user.id,
         amount: donation.amount,
         currency: 'NGN',
-        category: 'app_maintenance',
+        category: donation.category,
         payment_reference: donation.reference,
         transaction_id: donation.transaction_id ?? null,
         status: 'success',

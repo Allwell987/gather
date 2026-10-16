@@ -24,6 +24,8 @@ export type TranslationKey =
   | 'home'
   | 'bible'
   | 'prayer'
+  | 'give'
+  | 'giving'
   | 'community'
   | 'profile'
   | 'chapter'
@@ -143,10 +145,38 @@ export type TranslationKey =
   | 'noPendingRequests'
   | 'allCaughtUpRequests'
   | 'decline'
+  | 'churchGiving'
+  | 'churchGivingDescription'
+  | 'churchGivingReceived'
+  | 'tithe'
+  | 'offering'
+  | 'buildingProject'
+  | 'chooseGivingType'
+  | 'buildingProjectBankTransfer'
+  | 'nairaBankTransfer'
+  | 'bankTransferNotTracked'
+  | 'manualTransferNotTracked'
+  | 'nairaAccount'
+  | 'foreignCurrencyAccounts'
+  | 'bank'
+  | 'bankAddress'
+  | 'sortCode'
+  | 'swiftAddress'
+  | 'iban'
+  | 'accountNumber'
+  | 'accountName'
+  | 'zenithBankSwift'
+  | 'copy'
+  | 'copied'
+  | 'copyFailed'
+  | 'totalChurchGiving'
+  | 'giveNaira'
+  | 'giveViaPaystack'
+  | 'recentChurchGiving'
   | 'supportAppMaintenance'
+  | 'appMaintenanceDescription'
   | 'totalAppSupport'
   | 'chooseAmount'
-  | 'supportNaira'
   | 'recentAppSupport'
   | 'thankYou'
   | 'supportReceived'
@@ -238,6 +268,8 @@ const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {
     home: 'Home',
     bible: 'Bible',
     prayer: 'Prayer',
+    give: 'Give',
+    giving: 'Giving',
     community: 'Community',
     profile: 'Profile',
     chapter: 'Chapter',
@@ -357,10 +389,38 @@ const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {
     noPendingRequests: 'No pending requests',
     allCaughtUpRequests: 'All caught up! New requests to join this private group will appear here.',
     decline: 'Decline',
+    churchGiving: 'Church Giving',
+    churchGivingDescription: 'Give your tithe, offering, or support the building project.',
+    churchGivingReceived: 'Your church giving has been received.',
+    tithe: 'Tithe',
+    offering: 'Offering',
+    buildingProject: 'Building Project',
+    chooseGivingType: 'Choose where to give',
+    buildingProjectBankTransfer: 'Building project bank transfer',
+    nairaBankTransfer: 'Tithe and offering bank transfer',
+    bankTransferNotTracked: 'Bank transfers are not automatically verified or added to your giving history.',
+    manualTransferNotTracked: 'Manual transfers are not automatically verified or added to your giving history.',
+    nairaAccount: 'Naira account',
+    foreignCurrencyAccounts: 'Foreign domiciliary accounts',
+    bank: 'Bank',
+    bankAddress: 'Bank address',
+    sortCode: 'Sort code',
+    swiftAddress: 'SWIFT address',
+    iban: 'IBAN',
+    accountNumber: 'Account number',
+    accountName: 'Account name',
+    zenithBankSwift: 'Zenith Bank SWIFT',
+    copy: 'Copy',
+    copied: 'Copied to clipboard',
+    copyFailed: 'Could not copy this detail',
+    totalChurchGiving: 'Total Church Giving',
+    giveNaira: 'Give ₦{amount}',
+    giveViaPaystack: 'Give ₦{amount} via Paystack',
+    recentChurchGiving: 'Recent Church Giving',
     supportAppMaintenance: 'Support App Maintenance',
+    appMaintenanceDescription: 'Help maintain and improve the Gather app.',
     totalAppSupport: 'Total App Support',
     chooseAmount: 'Choose amount',
-    supportNaira: 'Support ₦{amount}',
     recentAppSupport: 'Recent App Support',
     thankYou: 'Thank you!',
     supportReceived: 'Your support for app maintenance has been received.',
@@ -446,6 +506,8 @@ const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {
     home: 'Accueil',
     bible: 'Bible',
     prayer: 'Prière',
+    give: 'Donner',
+    giving: 'Dons',
     community: 'Communauté',
     profile: 'Profil',
     chapter: 'Chapitre',
@@ -565,10 +627,38 @@ const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {
     noPendingRequests: 'Aucune demande en attente',
     allCaughtUpRequests: 'Tout est à jour ! Les nouvelles demandes apparaîtront ici.',
     decline: 'Refuser',
+    churchGiving: 'Dons à l’église',
+    churchGivingDescription: 'Donnez votre dîme, votre offrande ou soutenez le projet de construction.',
+    churchGivingReceived: 'Votre don à l’église a bien été reçu.',
+    tithe: 'Dîme',
+    offering: 'Offrande',
+    buildingProject: 'Projet de construction',
+    chooseGivingType: 'Choisissez un type de don',
+    buildingProjectBankTransfer: 'Virement bancaire pour le projet de construction',
+    nairaBankTransfer: 'Virement bancaire pour la dîme et l’offrande',
+    bankTransferNotTracked: 'Les virements bancaires ne sont pas automatiquement vérifiés ni ajoutés à votre historique de dons.',
+    manualTransferNotTracked: 'Les virements manuels ne sont pas automatiquement vérifiés ni ajoutés à votre historique de dons.',
+    nairaAccount: 'Compte en nairas',
+    foreignCurrencyAccounts: 'Comptes de domiciliation en devises',
+    bank: 'Banque',
+    bankAddress: 'Adresse de la banque',
+    sortCode: 'Code de tri',
+    swiftAddress: 'Adresse SWIFT',
+    iban: 'IBAN',
+    accountNumber: 'Numéro de compte',
+    accountName: 'Nom du compte',
+    zenithBankSwift: 'Code SWIFT de Zenith Bank',
+    copy: 'Copier',
+    copied: 'Copié dans le presse-papiers',
+    copyFailed: 'Impossible de copier cette information',
+    totalChurchGiving: 'Total des dons à l’église',
+    giveNaira: 'Donner ₦{amount}',
+    giveViaPaystack: 'Donner ₦{amount} avec Paystack',
+    recentChurchGiving: 'Dons récents à l’église',
     supportAppMaintenance: 'Soutenir la maintenance de l’application',
+    appMaintenanceDescription: 'Aidez à maintenir et à améliorer l’application Gather.',
     totalAppSupport: 'Soutien total à l’application',
     chooseAmount: 'Choisir le montant',
-    supportNaira: 'Soutenir ₦{amount}',
     recentAppSupport: 'Soutien récent à l’application',
     thankYou: 'Merci !',
     supportReceived: 'Votre soutien pour la maintenance de l’application a été reçu.',

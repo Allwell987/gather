@@ -14,6 +14,7 @@ import { t, getDeviceLocale } from '../../services/locale';
 import { SettingRow, GuestProfilePrompt, EditableAvatar, VerificationBadge } from './components/ProfileComponents';
 import PolicyWebModal from '../../components/common/PolicyWebModal';
 import { ProfileEditor, PreferencesEditor } from './components/ProfileModals';
+import { useUpdates } from '../../hooks/useUpdates';
 import type { ProfileScreenNavigationProp } from '../../types/navigation';
 
 export default function ProfileScreen() {
@@ -24,6 +25,7 @@ export default function ProfileScreen() {
   const { user, isSaving, hasPendingVerification, handlePickAvatar, updatePersonalInfo, updatePreferences, handleSignOut } = useProfile();
   const { requests, isLoading, fetchRequests, refresh, reviewRequest, openCertificate } = useAdminVerification(user?.role === 'admin');
 
+  const { isChecking, checkManualUpdate } = useUpdates();
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
   const [activeEditor, setEditor] = useState<string | null>(null);
@@ -82,6 +84,13 @@ export default function ProfileScreen() {
           <SettingRow icon="color-palette-outline" label={t('themeLabel', locale)} value={theme.name} onPress={() => navigation.navigate('ThemePicker', { fromOnboarding: false })} colors={colors} iconColor={theme.accent} />
           <SettingRow icon="moon-outline" label={t('appearance', locale)} value={themeMode === 'system' ? t('systemDefault', locale) : themeMode === 'dark' ? t('dark', locale) : t('light', locale)} onPress={() => navigation.navigate('ThemePicker', { fromOnboarding: false, activeTab: 'appearance' })} colors={colors} iconColor={theme.accent} />
           <SettingRow icon="notifications-outline" label={t('dailyVerseReminder', locale)} value={notificationsEnabled ? user.reminder_time : t('off', locale)} onPress={() => setEditor('preferences')} colors={colors} />
+          <SettingRow icon="cloud-download-outline" label="Check for Live Updates" value={isChecking ? 'Checking...' : 'v2.0.0'} onPress={checkManualUpdate} colors={colors} iconColor={theme.accent} />
+        </View>
+
+        <Text style={[styles.groupHeader, { color: colors.textSecondary }]}>{t('giving', locale)}</Text>
+        <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <SettingRow icon="phone-portrait-outline" label={t('supportAppMaintenance', locale)} value={t('appMaintenanceDescription', locale)} onPress={() => navigation.navigate('Giving')} colors={colors} iconColor={theme.accent} />
+          <SettingRow icon="heart-outline" label={t('churchGiving', locale)} value={t('churchGivingDescription', locale)} onPress={() => navigation.navigate('ChurchGiving')} colors={colors} iconColor={theme.accent} />
         </View>
 
         <Text style={[styles.groupHeader, { color: colors.textSecondary }]}>{t('supportLegal', locale)}</Text>

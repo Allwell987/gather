@@ -25,6 +25,7 @@ import BibleScreen from '../screens/bible/BibleScreen';
 import CommunityScreen from '../screens/community/CommunityScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
 import GivingScreen from '../screens/giving/GivingScreen';
+import ChurchGivingScreen from '../screens/giving/ChurchGivingScreen';
 import EventDetailScreen from '../screens/events/EventDetailScreen';
 import PrayerGeneratorScreen from '../screens/prayer/PrayerGeneratorScreen';
 import ThemePickerScreen from '../screens/auth/ThemePickerScreen';
@@ -95,6 +96,8 @@ function ProfileStackNavigator() {
       }}
     >
       <ProfileStack.Screen name="Profile" component={ProfileScreen} />
+      <ProfileStack.Screen name="Giving" component={GivingScreen} />
+      <ProfileStack.Screen name="ChurchGiving" component={ChurchGivingScreen} />
       <ProfileStack.Screen name="ThemePicker" component={ThemePickerScreen} />
     </ProfileStack.Navigator>
   );

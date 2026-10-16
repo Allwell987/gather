@@ -39,7 +39,8 @@ export default function GivingScreen() {
       amount,
       reference,
       transaction_id: response.transaction ?? response.trans ?? response.reference,
-    } as any);
+      category: 'app_maintenance',
+    });
 
     Alert.alert(t('thankYou', locale), t('supportReceived', locale));
   };
@@ -106,7 +107,7 @@ export default function GivingScreen() {
           </View>
 
           <TouchableOpacity style={[styles.giveBtn, { backgroundColor: theme.accent }]} onPress={handleGive} disabled={isSaving}>
-            {isSaving ? <ActivityIndicator color="#fff" /> : <Text style={styles.giveBtnText}>{t('supportNaira', locale).replace('{amount}', amount.toLocaleString())}</Text>}
+            {isSaving ? <ActivityIndicator color="#fff" /> : <Text style={styles.giveBtnText}>{t('giveNaira', locale).replace('{amount}', amount.toLocaleString())}</Text>}
           </TouchableOpacity>
 
           <Text style={[styles.sectionTitle, { color: colors.text }]}>{t('recentAppSupport', locale)}</Text>
