@@ -79,7 +79,7 @@ Step 3: Update Local Code
 - [ ] In Supabase Dashboard -> Authentication -> URL Configuration, add your mobile deep link redirect URL: `gather://auth/callback`
 - [ ] **Google Cloud Console**: 
     - Enable **YouTube Data API v3**
-    - Set up **OAuth Consent Screen** with Privacy Policy: `https://allwell987.github.io/gather/PRIVACY.md`
+    - Set up **OAuth Consent Screen** with Privacy Policy: `https://allwell987.github.io/gather-privacy/privacy.html`
     - Create a **Web Client ID** and add it to Supabase
     - Create an **Android Client ID** with package `com.wealthrealitychurch.gather`
 - [ ] Ensure Google OAuth client credentials are configured in Supabase Auth provider settings
