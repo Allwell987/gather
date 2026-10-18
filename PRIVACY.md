@@ -10,8 +10,6 @@ Gather ("we", "our", "us") provides a mobile application that helps users organi
 
 If you have questions about this policy or want to exercise your rights, contact: alexallwell.am@gmail.com
 
-(This email was populated from the repository git config. Change it if you prefer a different support address.)
-
 3. Data We Collect
 
 - Account Information: name, email address, phone number, username, and password when you create an account.
@@ -69,7 +67,7 @@ The app is not intended for children under 13 (or higher age where required). We
 
 11. Your Rights and Choices
 
-Depending on your jurisdiction, you may have rights including access, correction, deletion, data portability, restriction of processing, and objection to processing. To exercise rights, contact: support@yourdomain.com. We may ask for information to verify your identity before fulfilling requests.
+Depending on your jurisdiction, you may have rights including access, correction, deletion, data portability, restriction of processing, and objection to processing. To exercise rights, contact: alexallwell.am@gmail.com. We may ask for information to verify your identity before fulfilling requests.
 
 You can also:
 
@@ -90,16 +88,6 @@ We may update this policy from time to time. Material changes will be posted wit
 
 15. How to Contact Us
 
-For privacy questions or to exercise your rights, contact: support@yourdomain.com
-
-16. Additional Notes for App Stores
-
-- iOS App Store / Google Play: Provide a link to this Privacy Policy in the storefront listing and include any required data disclosure info (e.g., data collected categories for Apple’s App Privacy section).
-- In-app: add a Settings > Privacy or About > Privacy link that opens this document (hosted on your website or bundled in the app).
-
-17. Legal Disclaimer
-
-This privacy policy is a template and does not constitute legal advice. If your app processes sensitive data or operates in regulated markets (GDPR, CCPA, HIPAA, etc.), consult legal counsel to ensure full compliance.
-
+For privacy questions or to exercise your rights, contact: alexallwell.am@gmail.com
 
 — End of policy —
