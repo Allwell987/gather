@@ -54,3 +54,11 @@ android/app/src/main/assets/modules.json
 
 
 .env.local
+
+# Local build caches
+android/.gradle_home/
+android/.gradle/
+android/build/
+android/app/build/
+android/app/.cxx/
+dist-smoke/
