@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -89,6 +90,7 @@ export default function ChurchGivingScreen() {
   const { popup } = usePaystack();
 
   const [amount, setAmount] = useState(10000);
+  const [customAmountText, setCustomAmountText] = useState('');
   const [category, setCategory] = useState<GivingCategory>('tithe');
 
   const churchHistory = useMemo(
@@ -142,6 +144,15 @@ export default function ChurchGivingScreen() {
       Alert.alert(t('emailRequired', locale), t('emailRequiredForGiving', locale));
       return;
     }
+    if (!amount || amount < 100) {
+      Alert.alert(t('invalidAmount', locale), t('enterValidAmount', locale));
+      return;
+    }
+    const paystackKey = process.env.EXPO_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_live_944f67d7bc59d38e9e291723a2229efe20cb0309';
+    if (!paystackKey) {
+      Alert.alert(t('paymentError', locale), 'Paystack public key is not configured.');
+      return;
+    }
 
     const reference = createPaymentReference(user.id);
     const purpose = t(selectedOption.label, locale);
@@ -157,7 +168,12 @@ export default function ChurchGivingScreen() {
         ],
       },
       onSuccess: response => {
-        saveDonation({ amount, category, reference, transaction_id: response.transaction });
+        saveDonation({
+          amount,
+          category,
+          reference,
+          transaction_id: response.transaction ?? response.trans ?? response.reference,
+        });
         Alert.alert(t('thankYou', locale), t('churchGivingReceived', locale));
       },
       onCancel: () => {
@@ -223,19 +239,38 @@ export default function ChurchGivingScreen() {
               <TouchableOpacity
                 key={value}
                 accessibilityRole="radio"
-                accessibilityState={{ selected: amount === value }}
+                accessibilityState={{ selected: amount === value && !customAmountText }}
                 style={[
                   styles.amountButton,
                   { borderColor: colors.border },
-                  amount === value && { backgroundColor: theme.accent, borderColor: theme.accent },
+                  amount === value && !customAmountText && { backgroundColor: theme.accent, borderColor: theme.accent },
                 ]}
-                onPress={() => setAmount(value)}
+                onPress={() => {
+                  setAmount(value);
+                  setCustomAmountText('');
+                }}
               >
-                <Text style={[styles.amountText, { color: colors.text }, amount === value && styles.selectedAmountText]}>
+                <Text style={[styles.amountText, { color: colors.text }, amount === value && !customAmountText && styles.selectedAmountText]}>
                   ₦{value.toLocaleString()}
                 </Text>
               </TouchableOpacity>
             ))}
+          </View>
+
+          <View style={[styles.customAmountContainer, { borderColor: customAmountText ? theme.accent : colors.border, backgroundColor: colors.card }]}>
+            <Text style={[styles.currencyPrefix, { color: colors.textSecondary }]}>₦</Text>
+            <TextInput
+              style={[styles.customAmountInput, { color: colors.text }]}
+              placeholder={t('customAmount', locale)}
+              placeholderTextColor={colors.textSecondary}
+              keyboardType="numeric"
+              value={customAmountText}
+              onChangeText={text => {
+                const cleaned = text.replace(/[^0-9]/g, '');
+                setCustomAmountText(cleaned);
+                setAmount(cleaned ? parseInt(cleaned, 10) : 0);
+              }}
+            />
           </View>
 
           {(category === 'tithe' || category === 'offering') && (
@@ -359,6 +394,17 @@ const styles = StyleSheet.create({
   },
   amountText: { fontWeight: 'bold' },
   selectedAmountText: { color: '#fff' },
+  customAmountContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderRadius: Radius.md,
+    marginTop: 10,
+    paddingHorizontal: Spacing.md,
+    height: 52,
+  },
+  currencyPrefix: { fontSize: 16, fontWeight: 'bold', marginRight: 8 },
+  customAmountInput: { flex: 1, fontSize: 15, height: '100%' },
   transferSection: { marginTop: 10 },
   transferNote: { fontSize: 13, lineHeight: 19, marginBottom: 12 },
   foreignAccountsTitle: { fontSize: 15, fontWeight: 'bold', marginTop: 20, marginBottom: 10 },

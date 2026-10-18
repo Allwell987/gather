@@ -177,6 +177,9 @@ export type TranslationKey =
   | 'appMaintenanceDescription'
   | 'totalAppSupport'
   | 'chooseAmount'
+  | 'customAmount'
+  | 'invalidAmount'
+  | 'enterValidAmount'
   | 'recentAppSupport'
   | 'thankYou'
   | 'supportReceived'
@@ -421,6 +424,9 @@ const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {
     appMaintenanceDescription: 'Help maintain and improve the Gather app.',
     totalAppSupport: 'Total App Support',
     chooseAmount: 'Choose amount',
+    customAmount: 'Or enter custom amount (₦)',
+    invalidAmount: 'Invalid Amount',
+    enterValidAmount: 'Please enter a valid amount (minimum ₦100).',
     recentAppSupport: 'Recent App Support',
     thankYou: 'Thank you!',
     supportReceived: 'Your support for app maintenance has been received.',
@@ -659,6 +665,9 @@ const TRANSLATIONS: Record<AppLocale, Record<TranslationKey, string>> = {
     appMaintenanceDescription: 'Aidez à maintenir et à améliorer l’application Gather.',
     totalAppSupport: 'Soutien total à l’application',
     chooseAmount: 'Choisir le montant',
+    customAmount: 'Ou saisissez un montant personnalisé (₦)',
+    invalidAmount: 'Montant invalide',
+    enterValidAmount: 'Veuillez saisir un montant valide (minimum ₦100).',
     recentAppSupport: 'Soutien récent à l’application',
     thankYou: 'Merci !',
     supportReceived: 'Votre soutien pour la maintenance de l’application a été reçu.',

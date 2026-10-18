@@ -348,7 +348,7 @@ function App() {
       <SafeAreaProvider>
         <QueryClientProvider client={queryClient}>
           <PaystackProvider
-            publicKey={process.env.EXPO_PUBLIC_PAYSTACK_PUBLIC_KEY ?? ''}
+            publicKey={process.env.EXPO_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_live_944f67d7bc59d38e9e291723a2229efe20cb0309'}
             defaultChannels={['card', 'bank', 'ussd', 'bank_transfer']}
           >
             <NavigationContainer

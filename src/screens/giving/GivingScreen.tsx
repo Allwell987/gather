@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView, TouchableOpacity,
-  ActivityIndicator, Alert
+  ActivityIndicator, Alert, TextInput
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
@@ -29,6 +29,7 @@ export default function GivingScreen() {
   const { popup } = usePaystack();
 
   const [amount, setAmount] = useState(10000);
+  const [customAmountText, setCustomAmountText] = useState('');
 
   const formatCategory = (category: string) => category === 'app_maintenance' ? t('appMaintenance', locale) : t('appSupport', locale);
 
@@ -53,6 +54,17 @@ export default function GivingScreen() {
 
     if (!user.email) {
       Alert.alert(t('emailRequired', locale), t('emailRequiredForGiving', locale));
+      return;
+    }
+
+    if (!amount || amount < 100) {
+      Alert.alert(t('invalidAmount', locale), t('enterValidAmount', locale));
+      return;
+    }
+
+    const paystackKey = process.env.EXPO_PUBLIC_PAYSTACK_PUBLIC_KEY || 'pk_live_944f67d7bc59d38e9e291723a2229efe20cb0309';
+    if (!paystackKey) {
+      Alert.alert(t('paymentError', locale), 'Paystack public key is not configured.');
       return;
     }
 
@@ -97,13 +109,32 @@ export default function GivingScreen() {
                 style={[
                   styles.amtBtn,
                   { borderColor: colors.border },
-                  amount === amt && { backgroundColor: theme.accent, borderColor: theme.accent }
+                  amount === amt && !customAmountText && { backgroundColor: theme.accent, borderColor: theme.accent }
                 ]}
-                onPress={() => setAmount(amt)}
+                onPress={() => {
+                  setAmount(amt);
+                  setCustomAmountText('');
+                }}
               >
-                <Text style={[styles.amtText, { color: colors.text }, amount === amt && { color: '#fff' }]}>₦{amt.toLocaleString()}</Text>
+                <Text style={[styles.amtText, { color: colors.text }, amount === amt && !customAmountText && { color: '#fff' }]}>₦{amt.toLocaleString()}</Text>
               </TouchableOpacity>
             ))}
+          </View>
+
+          <View style={[styles.customAmountContainer, { borderColor: customAmountText ? theme.accent : colors.border, backgroundColor: colors.card }]}>
+            <Text style={[styles.currencyPrefix, { color: colors.textSecondary }]}>₦</Text>
+            <TextInput
+              style={[styles.customAmountInput, { color: colors.text }]}
+              placeholder={t('customAmount', locale)}
+              placeholderTextColor={colors.textSecondary}
+              keyboardType="numeric"
+              value={customAmountText}
+              onChangeText={text => {
+                const cleaned = text.replace(/[^0-9]/g, '');
+                setCustomAmountText(cleaned);
+                setAmount(cleaned ? parseInt(cleaned, 10) : 0);
+              }}
+            />
           </View>
 
           <TouchableOpacity style={[styles.giveBtn, { backgroundColor: theme.accent }]} onPress={handleGive} disabled={isSaving}>
@@ -136,6 +167,17 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   amtBtn: { flex: 1, minWidth: '45%', paddingVertical: 14, borderRadius: Radius.md, borderWidth: 1.5, borderColor: BaseColors.brown100, alignItems: 'center' },
   amtText: { fontWeight: 'bold' },
+  customAmountContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderRadius: Radius.md,
+    marginTop: 10,
+    paddingHorizontal: Spacing.md,
+    height: 52,
+  },
+  currencyPrefix: { fontSize: 16, fontWeight: 'bold', marginRight: 8 },
+  customAmountInput: { flex: 1, fontSize: 15, height: '100%' },
   giveBtn: { width: '100%', paddingVertical: 16, borderRadius: Radius.md, alignItems: 'center', marginTop: 24 },
   giveBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
   history: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderRadius: Radius.lg, borderWidth: 1, marginBottom: 10 },
