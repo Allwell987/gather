@@ -1,93 +1,48 @@
-Privacy Policy — Gather
+# Gather Privacy Policy
 
-Effective date: June 1, 2026
+**Effective date: November 20, 2026**
 
-1. Introduction
+Gather is the community app provided by The Wealth Reality Church in Warri, Delta State, Nigeria (“the Church,” “we,” “us”). This policy explains what information the app handles, why it is used, and how you can contact us about it.
 
-Gather ("we", "our", "us") provides a mobile application that helps users organize and participate in events and community features. This Privacy Policy explains what information we collect, how we use it, with whom we share it, and your choices regarding that information.
+## Information we handle
 
-2. Contact
+- **Account and sign-in information:** your email address, account identifier, name, and profile image supplied by you or by Google or Apple when you choose one of those sign-in methods. Authentication is provided through Supabase.
+- **Profile and preferences:** information you choose to add, such as your name, profile photo, address, birthday, preferred Bible version, and reminder time.
+- **Church community content:** prayer requests and responses, group memberships and messages, reactions, event RSVPs, devotional activity and saved Bible highlights, and any photos or verification documents you choose to upload. Content is available to other users or church administrators as needed for the feature and their roles.
+- **Giving records:** if you make a payment through Gather, Paystack processes the payment. Gather receives and stores the donation amount, category or purpose, payment reference, transaction identifier, and status. The checkout receives your email address and payment details; Gather does not store your full card number or security code.
+- **Notifications:** if you grant notification permission, the app may receive and store an Expo push token to deliver notifications. Daily verse reminders can be scheduled locally on your device.
+- **Technical and diagnostic information:** the app and its service providers may process device and app details, network information such as IP address, and error or performance diagnostics to provide the service and troubleshoot failures. Sentry error reporting is used when configured for the app.
 
-If you have questions about this policy or want to exercise your rights, contact: alexallwell.am@gmail.com
+Some app preferences and cached content may also be stored locally on your device.
 
-3. Data We Collect
+## How we use information
 
-- Account Information: name, email address, phone number, username, and password when you create an account.
-- Profile Data: avatar/profile photos and profile fields you choose to provide.
-- Content You Provide: messages, posts, event details, images, and other content you upload or submit through the app (including chat messages and comments).
-- Usage and Device Data: device type, operating system, app version, crash logs, IP address, language, time zone, and app usage analytics.
-- Metadata and Logs: timestamps, referral/source information, and metrics about how you use features.
-- Location: approximate location if you enable location-based features (only with your permission).
+We use this information to create and secure accounts; operate profiles, Bible and devotional features, groups, prayer requests, events, notifications, and giving; display content to the intended community; respond to support and privacy requests; and maintain, troubleshoot, and protect the app.
 
-4. How We Use Your Data
+We do not sell personal information or use it to deliver third-party advertising.
 
-We use collected data to:
+## Service providers and sharing
 
-- Provide, operate, maintain, and improve the app and its features.
-- Authenticate accounts and provide account recovery.
-- Process and store content you submit (e.g., chats, images) so other users can view/interact as intended.
-- Communicate with you about account activity, updates, and support.
-- Monitor and fix bugs and crashes; analyze usage to improve performance.
-- Enforce our Terms of Service and protect against abuse.
+We use service providers to operate Gather. Supabase provides authentication, database, and storage services; Google or Apple handles sign-in when selected; Expo supports push notifications; Paystack processes payments; and Sentry may receive diagnostics when error reporting is configured. Bible content may be requested from Bible content providers, and video links may open YouTube. These providers process information under their own privacy terms.
 
-5. Legal Basis (where applicable)
+Information is also visible to other users or church administrators where necessary for the feature (for example, group messages, prayer requests, and event participation). We may disclose information when required by law or when necessary to protect users, the Church, or the service.
 
-If you are in the EU or other jurisdictions that require a legal basis for processing, we rely on consent, contract performance, legitimate interests (app operation and security), and compliance with legal obligations, as applicable.
+## Permissions and choices
 
-6. Third-Party Services and SDKs
+You can choose what profile information and community content to provide, and you can deny or later revoke notification and photo-library permissions in your device settings. You can ask us to access, correct, or delete information associated with your account by emailing [alexallwell.am@gmail.com](mailto:alexallwell.am@gmail.com). Please contact us from the account email where possible so we can verify the request. Some records may need to be retained where required by law or for legitimate operational reasons.
 
-We use third-party service providers to host infrastructure, store data, and provide analytics and monitoring. Examples used by Gather include:
+## Retention and security
 
-- Supabase or other backend/database providers for user accounts and data storage.
-- Firebase (may include Crashlytics, Cloud Messaging) for notifications and crash reporting.
-- Sentry or similar for error monitoring and diagnostics.
-- Third-party analytics providers for aggregated usage statistics.
+We keep information for as long as needed to provide Gather and meet operational or legal obligations. Retention periods may differ by information type and provider. We use access controls and other safeguards appropriate to the service, but no internet transmission or storage method can be guaranteed completely secure.
 
-Those third parties may receive certain data (such as logs, crash data, and identifiers). Their processing is governed by their own privacy policies. We do not control their practices; review their privacy pages for details.
+## Children
 
-7. Data Sharing and Disclosure
+Gather is not directed to children under 13, and we do not knowingly collect personal information from children under 13. A parent or guardian who believes a child has provided information can contact us to request its review and deletion.
 
-We may share data with:
+## International processing
 
-- Service providers and vendors who perform services on our behalf (hosting, analytics, messaging).
-- Other users: information you post or share publicly or within groups (e.g., event details, messages, profile data).
-- Legal and safety: when required by law, to respond to lawful requests, or to protect rights, property, or safety.
+Our service providers may process or store information in countries other than the one where you live. The privacy laws in those countries may differ from those in your location.
 
-8. Data Retention
+## Changes and contact
 
-We retain personal data as long as necessary to provide services and for legitimate business purposes (e.g., account maintenance, dispute resolution, abuse prevention). You can request deletion of your account and data — see Section 11.
-
-9. Security
-
-We use industry-standard technical and organizational measures to protect data (encryption in transit, access controls). No system is completely secure; we encourage you to use a unique password and enable device security measures.
-
-10. Children
-
-The app is not intended for children under 13 (or higher age where required). We do not knowingly collect personal information from children. If we learn that a child under the applicable age has provided personal information, we will take steps to delete it.
-
-11. Your Rights and Choices
-
-Depending on your jurisdiction, you may have rights including access, correction, deletion, data portability, restriction of processing, and objection to processing. To exercise rights, contact: alexallwell.am@gmail.com. We may ask for information to verify your identity before fulfilling requests.
-
-You can also:
-
-- Manage or delete account data from within app settings (if available).
-- Opt out of marketing communications by following unsubscribe links or contacting support.
-
-12. Cookies and Similar Technologies
-
-We (and our partners) may use cookies, local storage, and similar technologies to operate the app and collect analytics. Mobile apps typically use local storage and device identifiers rather than browser cookies.
-
-13. International Transfers
-
-Your data may be stored and processed in countries other than your own. We take steps to ensure adequate protections, but by using the app you consent to such transfers.
-
-14. Changes to This Policy
-
-We may update this policy from time to time. Material changes will be posted with an updated effective date. Continued use after changes constitutes acceptance of the updated policy.
-
-15. How to Contact Us
-
-For privacy questions or to exercise your rights, contact: alexallwell.am@gmail.com
-
-— End of policy —
+We may update this policy when the app or its practices change. We will post the current version here and revise the effective date. Questions, access or deletion requests can be sent to [alexallwell.am@gmail.com](mailto:alexallwell.am@gmail.com).
