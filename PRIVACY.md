@@ -2,60 +2,79 @@
 
 **Effective date: November 25, 2026**
 
-Gather is a faith-based community app operated by The Wealth Reality Church in Warri, Delta State, Nigeria (“the Church,” “we,” “us”). The app supports Bible reading, devotionals, prayer, church groups, events, notifications, and giving. This policy explains the information Gather accesses, receives, stores, uses, and shares, including data returned when you choose Google sign-in.
+Gather is a faith-based community mobile application operated by **The Wealth Reality Church** in Warri, Delta State, Nigeria (“the Church,” “we,” “us”). The app supports Bible reading, daily devotionals, prayer requests, church groups, events, push notifications, and giving. This Privacy Policy explains what information Gather accesses, receives, collects, uses, shares, and stores, including data processed when you choose Google Sign-In or other authentication methods.
 
-Privacy questions or requests can be sent to [alexallwell.am@gmail.com](mailto:alexallwell.am@gmail.com).
+If you have any questions or privacy-related requests, please contact us at [alexallwell.am@gmail.com](mailto:alexallwell.am@gmail.com).
 
-## Information we collect or receive
+## 1. Information We Collect or Receive
 
-- **Account and sign-in information:** When you create an account or sign in, Gather processes your account ID and email address, and your name and profile image if supplied by you or returned by Google or Apple. Supabase Auth manages account authentication and sessions.
-- **Profile and preferences:** Information you choose to provide, such as your name, profile photo, address, birthday, church affiliation, preferred Bible version, and reminder time.
-- **Community and faith-related content:** Prayer requests and replies, group memberships and messages, reactions, event RSVPs, devotional activity, saved Bible highlights, and photos or verification documents you choose to upload. Prayer requests and messages can contain sensitive personal information. Share only information you are comfortable making available to the relevant members or church administrators.
-- **Giving information:** If you make a payment, Paystack handles checkout and payment details. Gather receives and stores the donation amount, category or purpose, payment reference, transaction identifier, and payment status. Gather does not store your full card number or card security code.
-- **Notifications:** If you allow push notifications, Gather obtains an Expo push token and associates it with your account to send relevant notifications. Daily verse reminders may be scheduled locally on your device.
-- **Device, network, and diagnostic information:** Gather and its service providers may process app version, device and operating system details, IP address and other request/network information, and error or performance diagnostics. Sentry receives diagnostics only when error reporting is configured for the app.
-- **Local app data:** Preferences, Bible content, cached data, and pending offline actions may be stored on your device so features can work or sync when you reconnect.
+We collect information to provide, maintain, and improve Gather's features and community experience. The types of data collected include:
 
-## Google data and Google API use
+- **Account & Sign-In Information:** When you register or sign in, Gather processes your account ID, email address, and (if supplied by you or returned by authentication providers like Google or Apple) your name and profile photo. Supabase Auth securely manages user authentication and active sessions.
+- **Profile & Preferences:** Information you choose to add to your profile, such as your display name, profile photo, contact details, birthday, church affiliation, preferred Bible translations, and reminder schedules.
+- **Community & Faith Content:** Prayer requests, prayer replies, group memberships, group messages, event RSVPs, devotional notes, saved Bible highlights, and uploaded photos or verification documents. *(Note: Prayer requests and messages may contain personal or sensitive details; share only what you are comfortable making available to fellow group members or church administrators.)*
+- **Giving & Payment Records:** Financial transactions are processed securely via Paystack. Gather receives and stores donation metadata including amount, category/purpose, payment reference, transaction ID, and payment status. *(Gather never stores your full credit card number, CVV, or banking credentials.)*
+- **Push Notifications:** If enabled, Gather obtains an Expo push notification token associated with your account to deliver devotion reminders and announcements.
+- **Device, Network & Diagnostics:** App version, operating system, device identifiers, IP address, network state, and error logs. Sentry receives crash reports and performance diagnostics when error reporting is active.
+- **Local App Data:** Cached Bible text, offline actions, and user preferences stored locally on your device for offline accessibility.
 
-**Google sign-in:** If you choose “Continue with Google,” Google provides basic account identity information to authenticate you, including your Google account identifier and, when available, your email address, name, and profile image. Gather does not request access to Gmail, Google Drive, Calendar, or Contacts. Supabase processes the sign-in response and stores the account identity needed to create and maintain your Gather account. We use this Google data only for sign-in, account security and support, and to display your chosen name or profile image in relevant Gather community features.
+## 2. Google User Data & Google API Compliance
 
-Google sign-in data is stored in Supabase Auth and, where needed to operate your account, in your Gather profile. Your name and profile image may be visible to members or church administrators in the app, as described above. We share this data with Supabase to provide authentication, database, and storage services, and with Google as needed to complete sign-in. We do not sell Google user data, use it for advertising, profiling, credit decisions, or train generalized AI or machine-learning models with it. We do not otherwise transfer or disclose it except to provide Gather, at your direction, when required by law, or to protect users and the service.
+Gather complies fully with the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including the Limited Use requirements:
 
-**YouTube Data API:** When the YouTube feature is enabled, Gather requests public video information from the YouTube channel configured by the Church, such as video IDs, titles, thumbnails, and publication dates. The request uses the channel identifier and the app’s API key; it does not send your Gather profile, prayer requests, messages, or other community content. Google may process the request’s IP address and technical information under Google’s own terms and privacy policy. Opening a video takes you to YouTube, which then handles your activity under its own policies.
+- **Google Sign-In:** When you choose “Continue with Google,” Google provides basic account identity details (account ID, email address, name, profile image) to authenticate your login. Gather does not request or access sensitive Google scopes (such as Gmail, Google Drive, Google Calendar, or Contacts).
+- **YouTube Data API:** When the YouTube media feature is enabled, Gather requests public video information (video IDs, titles, thumbnails, publish dates) from the Church's authorized YouTube channel using API keys. No user profile data or private community content is transmitted to YouTube.
+- **Use and Transfer of Google Data:** Google profile data is used solely to authenticate your account, secure your session, and display your chosen name/avatar within Gather community features. We do not sell Google user data, use it for third-party advertising, profiling, credit eligibility, or train generalized machine learning or AI models with it. Data is shared with Supabase (backend database/auth provider) solely to maintain your account.
+- **Strict Prohibition of AI-Generated NCII:** Gather **does not** use Google APIs or Google user data to create, request, store, or distribute AI-generated non-consensual intimate imagery (AI NCII). Gather features no AI image generation capabilities.
 
-Gather does not use Google APIs to create, request, or distribute AI-generated non-consensual intimate imagery. Gather does not offer AI image generation and does not use Google user data to develop, improve, or train AI or machine-learning models.
+## 3. How We Use Information
 
-## How we use information
+We use collected information for the following purposes:
+- Creating, authenticating, and securing user accounts and profiles.
+- Delivering core app functionality: Bible study, devotionals, prayer sharing, group messaging, event coordination, and giving.
+- Displaying community content to intended recipients and church administrators for moderation.
+- Processing donations and payment recordkeeping via Paystack.
+- Sending push notifications and reminders.
+- Responding to user support inquiries, feedback, and privacy requests.
+- Monitoring app performance, diagnosing bugs with Sentry, and protecting the security and integrity of Gather.
 
-We use information to create and secure accounts; provide profiles, Bible and devotional features, groups, prayer requests, events, notifications, and giving; display content to the people for whom it is intended; process payments; respond to support and privacy requests; and maintain, troubleshoot, and protect Gather. We do not sell personal information or use it for third-party advertising.
+## 4. Data Sharing & Third-Party Service Providers
 
-## Who can see information and service providers
+We do not sell, rent, or trade your personal information. Information is shared with third-party service providers only as necessary to operate Gather:
+- **Supabase:** Backend authentication, database storage, and file hosting.
+- **Google & Apple:** Secure OAuth authentication providers (if selected by user) and YouTube Data API.
+- **Paystack:** Secure payment gateway processing contributions and donations.
+- **Expo:** Push notification delivery infrastructure.
+- **Sentry:** Crash reporting and error diagnostics.
 
-Information is available to other users where you share it through a community feature and to church administrators where needed to operate or moderate that feature. For example, group messages are available to group participants, and event participation may be visible to organizers. Profile information may appear to members in the app.
+We may also disclose information if required by law, court order, or governmental regulation, or when reasonably necessary to protect the rights, property, safety, or security of The Wealth Reality Church, Gather users, or the public.
 
-Our providers process information for the services they provide: Supabase for authentication, database, and file storage; Google for Google sign-in and YouTube Data API requests; Apple if you choose Apple sign-in; Expo for push notifications; Paystack for payments; and Sentry for error diagnostics when configured. Bible content providers may receive requests for the passage or translation you select. These providers may process information in accordance with their own privacy terms. We may also disclose information when legally required or when reasonably necessary to protect users, the Church, or Gather.
+## 5. Data Security, Storage & Retention
 
-## Security, storage, and retention
+- **Security:** All data transmitted between the Gather app and our backend servers is encrypted in transit using HTTPS (TLS 1.2/1.3). We enforce strict database access controls and role-based permissions.
+- **Retention:** We retain account and profile data for as long as your account is active or needed to provide services, comply with legal obligations, resolve disputes, and enforce agreements. Payment records are retained as required by financial and tax regulations.
 
-Account and app data is stored in Supabase services and, for selected preferences and cached content, on your device. Gather uses HTTPS for data sent between the app and online services, and access controls are used to limit access to account and community information. Service providers may also apply their own security safeguards. No method of internet transmission or storage can be guaranteed completely secure.
+## 6. User Choices, Privacy Rights & Account Deletion
 
-We retain account and profile information while your account is active and as long as needed to provide Gather, meet legal obligations, resolve disputes, and protect the service. When you request account deletion and we verify your request, we delete or de-identify personal information from active systems unless it must be retained for legal, payment, safety, or operational reasons. Copies in provider backups and technical logs may remain until those systems’ normal deletion cycles. Payment records may be retained as required for accounting or legal purposes.
+### Account & Data Deletion Instructions
+You have full control over your data. You may at any time request the complete deletion of your Gather account and associated personal data by emailing us at [alexallwell.am@gmail.com](mailto:alexallwell.am@gmail.com) from your registered account email address. Upon verifying your identity, we will permanently delete or anonymize your personal data from active systems within 30 days (excluding records retained for mandatory legal or financial compliance).
 
-## Your choices and privacy requests
+You can also revoke notification permissions or photo access at any time through your mobile device's system settings.
 
-You can choose whether to use Google or Apple sign-in and what optional profile or community information to provide. You can deny or revoke notification and photo-library permissions in your device settings. Revoking Google access does not by itself delete your Gather account or its stored data; contact us to request account or data deletion.
+## 7. Children's Privacy
 
-You may ask to access, correct, or delete information associated with your account by emailing [alexallwell.am@gmail.com](mailto:alexallwell.am@gmail.com). Contact us from your account email where possible so we can verify your identity. We will respond to verified requests and explain if specific information must be retained by law or for the purposes described above.
+Gather is not directed to children under the age of 13. We do not knowingly collect personal data from children under 13. If you are a parent or guardian and believe your child has provided personal information, please contact us immediately so we can remove such data.
 
-## Children
+## 8. International Data Transfers
 
-Gather is not directed to children under 13, and we do not knowingly collect personal information from children under 13. A parent or guardian who believes a child has provided personal information can contact us to request its review and deletion.
+Information collected by Gather may be stored and processed on cloud servers operated by our service providers (such as Supabase and AWS/Google Cloud infrastructure) located in regions outside your home country, where data protection standards may differ.
 
-## International processing
+## 9. Changes to This Privacy Policy
 
-Our providers may process or store information in countries other than the one where you live. Privacy laws in those countries may differ from those in your location.
+We may update this Privacy Policy periodically to reflect changes in our practices or legal requirements. When we update it, we will revise the effective date above and publish the updated policy on this page. We encourage you to review this policy regularly.
 
-## Changes to this policy
+## 10. Contact Us
 
-We may update this policy when Gather or its data practices change. We will publish the current version here and update the effective date. If changes affect how Google user data is handled, we will update this disclosure before using that data in a new way.
+If you have questions, concerns, or requests regarding this Privacy Policy or our data practices, please reach out to us:
+- **Entity:** The Wealth Reality Church, Warri, Delta State, Nigeria
+- **Email:** [alexallwell.am@gmail.com](mailto:alexallwell.am@gmail.com)

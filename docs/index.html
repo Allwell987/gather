@@ -4,54 +4,85 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google-site-verification" content="RYPKWx3jVruipsbJvMVfiKB5vCU5rxX9kMuY5DyFUsA">
-  <meta name="description" content="Gather is the community app for The Wealth Reality Church in Warri, Nigeria.">
-  <title>Gather</title>
+  <meta name="description" content="Gather is the community app for The Wealth Reality Church in Warri, Nigeria, supporting Bible reading, devotionals, prayer requests, church groups, events, and giving.">
+  <title>Gather | The Wealth Reality Church Community App</title>
   <style>
     :root {
       color-scheme: light;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: #24211e;
       background: #f8f6f2;
-      line-height: 1.65;
+      line-height: 1.7;
     }
-    body { margin: 0; }
-    main { max-width: 760px; margin: 0 auto; padding: 72px 24px 48px; }
-    .eyebrow { color: #805c37; font-size: .85rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
-    h1 { margin: 12px 0; font-size: clamp(2.5rem, 8vw, 4.5rem); line-height: 1.05; }
-    h2 { margin-top: 40px; font-size: 1.35rem; }
-    p { max-width: 66ch; }
-    .intro { font-size: 1.2rem; color: #504940; }
+    body { margin: 0; padding: 0; }
+    main { max-width: 800px; margin: 0 auto; padding: 64px 24px 48px; background: #fff; border-radius: 0 0 16px 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.04); }
+    header { background: #70491f; color: #fff; padding: 48px 24px; text-align: center; }
+    header h1 { margin: 8px 0; font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 800; letter-spacing: -0.02em; }
+    header p { margin: 0 auto; max-width: 600px; font-size: 1.15rem; color: #f3efe6; }
+    .eyebrow { color: #d4a373; font-size: .85rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+    h2 { margin-top: 48px; font-size: 1.5rem; color: #3b2c1a; border-bottom: 2px solid #f0eae1; padding-bottom: 8px; }
+    p, li { color: #4a453f; font-size: 1.05rem; }
     ul { padding-left: 1.25rem; }
-    li { margin: 8px 0; }
-    footer { margin-top: 56px; padding-top: 20px; border-top: 1px solid #ded8cf; color: #625c54; }
-    a { color: #70491f; }
+    li { margin: 10px 0; }
+    .card { background: #faf8f5; border: 1px solid #e8e2d5; border-radius: 12px; padding: 24px; margin: 24px 0; }
+    .card h3 { margin-top: 0; color: #70491f; font-size: 1.2rem; }
+    footer { margin-top: 64px; padding: 32px 24px; text-align: center; background: #f0eae1; color: #625c54; font-size: 0.95rem; }
+    a { color: #70491f; font-weight: 500; text-decoration: underline; }
+    a:hover { color: #4a3014; }
     a:focus-visible { outline: 3px solid #a8753c; outline-offset: 3px; }
   </style>
 </head>
 <body>
-  <main>
-    <p class="eyebrow">The Wealth Reality Church · Warri, Nigeria</p>
+  <header>
+    <div class="eyebrow" style="color: #e5b27e;">The Wealth Reality Church · Warri, Nigeria</div>
     <h1>Gather</h1>
-    <p class="intro">Gather is The Wealth Reality Church's community app, helping members stay connected and take part in church life throughout the week.</p>
+    <p>A faith-based community app connecting believers for Bible study, devotionals, prayer, church groups, events, and fellowship throughout the week.</p>
+  </header>
 
-    <h2>What you can do with Gather</h2>
-    <ul>
-      <li>Read the Bible and daily devotionals, and save verse highlights.</li>
-      <li>Share prayer requests and take part in church groups and conversations.</li>
-      <li>Discover church events, RSVP, and receive optional reminders.</li>
-      <li>Support the church or app through the giving features.</li>
-    </ul>
+  <main>
+    <section>
+      <h2>About Gather & Application Purpose</h2>
+      <p><strong>Gather</strong> is the official community and fellowship mobile application operated by <strong>The Wealth Reality Church</strong>, located in Warri, Delta State, Nigeria. Our core purpose is to foster spiritual growth, community engagement, and seamless connection among church members and leadership.</p>
+      <p>Through Gather, members can:</p>
+      <ul>
+        <li><strong>Read and Study the Bible:</strong> Access scripture readings, daily devotionals, and save personal verse highlights.</li>
+        <li><strong>Engage in Community Prayer:</strong> Submit prayer requests, read and encourage others, and participate in interactive prayer chains.</li>
+        <li><strong>Participate in Church Groups:</strong> Connect with small groups, departments, and fellowship units via group discussions and updates.</li>
+        <li><strong>Discover and RSVP Events:</strong> Stay informed about upcoming church services, youth programs, and special gatherings.</li>
+        <li><strong>Support Ministry & Giving:</strong> Safely contribute tithes, offerings, and project donations via secure payment integrations (Paystack).</li>
+        <li><strong>Receive Notifications:</strong> Get timely devotion reminders and church announcements via push notifications.</li>
+      </ul>
+    </section>
 
-    <h2>About the app</h2>
-    <p>Gather is a faith-based community app provided by The Wealth Reality Church in Warri, Delta State, Nigeria. It helps church members read the Bible and devotionals, share prayer requests, participate in groups, discover and RSVP to events, and support the church. An account is required for community features; this information page and our privacy policy are available without signing in.</p>
+    <section class="card">
+      <h3>Google APIs & Terms of Service Compliance</h3>
+      <p>Gather integrates select Google APIs solely for core app functionality and user convenience, adhering strictly to the <a href="https://developers.google.com/terms" target="_blank" rel="noopener">Google APIs Terms of Service</a> and the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API Services User Data Policy</a>:</p>
+      <ul>
+        <li><strong>Google Sign-In (OAuth 2.0):</strong> Used optionally to authenticate users securely and streamline account creation using basic profile info (name, email, profile picture) provided by Google. Gather does not request or access sensitive scopes such as Gmail, Google Drive, Calendar, or Contacts.</li>
+        <li><strong>YouTube Data API v3:</strong> Used exclusively to retrieve and display public video content from official church YouTube channels within the app interface.</li>
+      </ul>
+      <p><strong>Strict Prohibition of AI-Generated NCII:</strong><br>
+      Gather <strong>does not</strong> use Google APIs, Google user data, or any integrated AI services to create, request, process, or distribute AI-generated non-consensual intimate imagery (AI NCII). Gather features no AI image generation capabilities whatsoever, and strictly prohibits the generation or dissemination of non-consensual intimate imagery.</p>
+    </section>
 
-    <h2>Purpose, Google APIs, and AI-generated NCII</h2>
-    <p>Gather uses Google sign-in to authenticate accounts and display basic profile details; it uses the YouTube Data API only to display public videos from the church's channel. Gather does not use any Google API to create, edit, request, or distribute AI-generated non-consensual intimate imagery (NCII). The app has no AI image-generation feature for creating such imagery.</p>
+    <section>
+      <h2>Data Collection & Privacy Commitment</h2>
+      <p>We respect your privacy and are committed to safeguarding personal information. We collect only data necessary for account authentication, profile management, and community interactions (such as email, name, uploaded profile photos, and prayer/group messages). Payment card details are processed directly by Paystack and are never stored on our servers.</p>
+      <p>Read our full <a href="./privacy.html">Privacy Policy</a> for complete details on data collection, usage, third-party service providers (Supabase, Sentry, Paystack, Google), data retention, and how to request account deletion.</p>
+    </section>
 
-    <footer>
-      <p><a href="./privacy.html">Read the Gather Privacy Policy</a></p>
-      <p>Privacy questions? <a href="mailto:alexallwell.am@gmail.com">Contact us</a>.</p>
-    </footer>
+    <section>
+      <h2>Support & Contact</h2>
+      <p>If you have questions about Gather, need assistance with your account, or wish to request data deletion, please contact us:</p>
+      <ul>
+        <li><strong>Church Organization:</strong> The Wealth Reality Church, Warri, Delta State, Nigeria</li>
+        <li><strong>Support Email:</strong> <a href="mailto:alexallwell.am@gmail.com">alexallwell.am@gmail.com</a></li>
+      </ul>
+    </section>
   </main>
+
+  <footer>
+    <p>&copy; 2026 The Wealth Reality Church. All rights reserved. | <a href="./privacy.html">Privacy Policy</a> | <a href="mailto:alexallwell.am@gmail.com">Contact Support</a></p>
+  </footer>
 </body>
 </html>
